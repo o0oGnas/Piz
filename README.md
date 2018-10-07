@@ -1,4 +1,11 @@
-# Batch-Zip
-Simple UI tool for zipping and encrypting multiple files and folders into multiple zips  
-Written using JavaFX 11  
-Currently uses fast compression, encryption is optional
+# BatchZip
+- Java FX tool to zip multiple files and folders into multiple zips
+- Features:
+	+ Optional encryption
+	+ Optional file name obfuscation + optional reference generation for obfuscated file name
+- Dependencies:
+	+ OpenJFX 11
+	+ ControlsFX 9.0.0
+	+ Zip4j 1.3.2
+	+ commons-io 2.6
+	+ commons-lang3 3.8.1 
