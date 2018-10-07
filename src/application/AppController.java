@@ -32,6 +32,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import net.lingala.zip4j.core.ZipFile;
@@ -521,10 +523,10 @@ public class AppController {
 						Thread.sleep(1000);
 					}
 
-					refreshControls();
+					finish();
 				} catch (Exception e) {
 					Utility.showError(e, "Error when monitoring progress", true);
-					refreshControls();
+					finish();
 				}
 			}
 		});
@@ -532,7 +534,7 @@ public class AppController {
 		thread.start();
 	}
 
-	private void refreshControls() {
+	private void finish() {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -540,6 +542,10 @@ public class AppController {
 					apMain.setMouseTransparent(false);
 					apMain.setFocusTraversable(true);
 					updateFolderAndFileLists();
+					// play notification sound
+					Media media = new Media(Main.class.getResource("notification.wav").toString());
+					MediaPlayer mediaPlayer = new MediaPlayer(media);
+					mediaPlayer.play();
 				} catch (Exception e) {
 					Utility.showError(e, "Error when enabling controls", true);
 				}

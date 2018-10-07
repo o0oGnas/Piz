@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -17,11 +18,12 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			stage = primaryStage;
-			FXMLLoader loader = new FXMLLoader(Main.class.getResource("App.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("App.fxml"));
 			Scene scene = new Scene((Parent) loader.load());
 			scene.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
 			stage.setScene(scene);
 			stage.setTitle("Batch Zip");
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("icon.png")));
 			stage.show();
 		} catch (Exception e) {
 			Utility.showError(e, "Could not start the application", true);

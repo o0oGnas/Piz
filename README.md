@@ -1,4 +1,4 @@
-# BatchZip
+# Batch Zip
 - Java FX tool to zip multiple files and folders into multiple zips
 - Features:
 	+ Optional encryption

@@ -1,2 +1,6 @@
 E:\Pictures\R_outer.zip		Random
 test		E:\Documents\byet_files_outer.zip		byet_files
+test		E:\Pictures\Documents\20170330_122403_outer.zip		20170330_122403.jpg
+test		E:\Pictures\Documents\20170330_122355_outer.zip		20170330_122355.jpg
+test		E:\Pictures\Documents\20170330_122512_outer.zip		20170330_122512.jpg
+test		E:\Pictures\Documents\20170330_122452_outer.zip		20170330_122452.jpg
