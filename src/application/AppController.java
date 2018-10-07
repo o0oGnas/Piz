@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,10 +88,10 @@ public class AppController {
 	@FXML
 	private void initialize() {
 		try {
-			initialiseUserData();
-			initialiseFileFolderCheckComboBox();
 			initialiseEncryptCheckBox();
 			initialiseHideFileNameCheckBox();
+			initialiseUserData();
+			initialiseFileFolderCheckComboBox();
 		} catch (Exception e) {
 			Utility.showError(e, "Could not initialise", true);
 		}
@@ -103,11 +104,15 @@ public class AppController {
 			try (FileInputStream fis = new FileInputStream(file)) {
 				ObjectInputStream ois = new ObjectInputStream(fis);
 				userData = (UserData) ois.readObject();
-				tfPassword.setText(userData.getPassword());
 			}
 		} else {
-			userData = new UserData(null, null);
+			userData = new UserData(null, null, null, true, true, true);
 		}
+
+		tfPassword.setText(userData.getPassword());
+		cbEncrypt.setSelected(userData.isEncrypt());
+		cbHideFileName.setSelected(userData.isHideFileName());
+		cbAddReferences.setSelected(userData.isAddReference());
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
@@ -115,7 +120,13 @@ public class AppController {
 		ccbFileFolder.getItems().add(CommonConstants.FOLDER);
 
 		// check all by default
-		ccbFileFolder.getCheckModel().checkAll();
+		if (userData.getFileFolder() == null || userData.getFileFolder().length == 0) {
+			ccbFileFolder.getCheckModel().checkAll();
+		} else {
+			for (String s : userData.getFileFolder()) {
+				ccbFileFolder.getCheckModel().check(s);
+			}
+		}
 	}
 
 	private void initialiseEncryptCheckBox() {
@@ -153,8 +164,15 @@ public class AppController {
 	}
 
 	private void saveUserData() throws FileNotFoundException, IOException {
+		userData.setFolderPath(folder.getAbsolutePath());
+		userData.setPassword(tfPassword.getText());
+		userData.setFileFolder(Arrays.copyOf(ccbFileFolder.getCheckModel().getCheckedItems().toArray(),
+				ccbFileFolder.getCheckModel().getCheckedItems().size(), String[].class));
+		userData.setEncrypt(cbEncrypt.isSelected());
+		userData.setHideFileName(cbHideFileName.isSelected());
+		userData.setAddReference(cbAddReferences.isSelected());
+
 		try (FileOutputStream fos = new FileOutputStream(DATA)) {
-			userData.setFolderPath(folder.getAbsolutePath());
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(userData);
 		}
@@ -197,7 +215,6 @@ public class AppController {
 	private void start(ActionEvent event) {
 		try {
 			if (checkInput()) {
-				userData.setPassword(tfPassword.getText());
 				saveUserData();
 				apMain.setMouseTransparent(true);
 				apMain.setFocusTraversable(false);
@@ -303,7 +320,9 @@ public class AppController {
 		if (cbHideFileName.isSelected()) {
 			hideFileNameZip(label, map);
 		} else {
-			prepareToZip(label, map, map.get(label), map.get(label), false);
+			prepareToZip(label, map, map.get(label), FilenameUtils.removeExtension(map.get(label)),
+					cbEncrypt.isSelected(), true);
+			increaseFinishCount();
 		}
 	}
 
@@ -320,7 +339,7 @@ public class AppController {
 		String innerZipName = zipName + "_inner";
 		innerZipFinishMap.put(innerZipName, false);
 		runOuterZipThread(label, map, innerZipName, zipName);
-		prepareToZip(label, map, map.get(label), innerZipName, false);
+		prepareToZip(label, map, map.get(label), innerZipName, false, false);
 		updateInnerZipFinishMap(innerZipName);
 	}
 
@@ -335,7 +354,7 @@ public class AppController {
 					}
 
 					String outerZipName = zipName + "_outer";
-					prepareToZip(label, map, innerZipName + ".zip", outerZipName, true);
+					prepareToZip(label, map, innerZipName + ".zip", outerZipName, cbEncrypt.isSelected(), true);
 				} catch (Exception e) {
 					Platform.runLater(new Runnable() {
 						@Override
@@ -357,7 +376,7 @@ public class AppController {
 	}
 
 	private void prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
-			boolean encrypt) throws ZipException, InterruptedException {
+			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		String zipName = destinationPath + ".zip";
 		File fileZip = new File(zipName);
 		int count = 0;
@@ -370,22 +389,25 @@ public class AppController {
 			++count;
 		}
 
-		performZip(label, map, sourcePath, zipName, encrypt);
+		performZip(label, map, sourcePath, zipName, encrypt, isOuter);
 	}
 
 	private void performZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
-			boolean encrypt) throws ZipException, InterruptedException {
+			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		ZipFile zip = getZipFile(sourcePath, destinationPath, encrypt);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
 
 		while (progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
-			showProgress(label, map, progressMonitor);
+			showProgress(label, map, progressMonitor, isOuter);
 
 			// update progress every 0.5 second
 			Thread.sleep(500);
 		}
 
-		removeProgressFromLabel(label, map);
+		// only show that process is done if it's the outer layer
+		if (isOuter) {
+			removeProgressFromLabel(label, map);
+		}
 	}
 
 	private ZipFile getZipFile(String filePath, String zipName, boolean encrypt) throws ZipException {
@@ -414,12 +436,25 @@ public class AppController {
 		return zip;
 	}
 
-	private void showProgress(Label label, Map<Label, String> map, ProgressMonitor progressMonitor) {
+	private void showProgress(Label label, Map<Label, String> map, ProgressMonitor progressMonitor, boolean isOuter) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					label.setText(map.get(label) + " (" + progressMonitor.getPercentDone() + "%)");
+					double percent = progressMonitor.getPercentDone();
+
+					// when hiding file name, each layer of zip takes roughly 50% of the overall
+					// process
+					if (cbHideFileName.isSelected()) {
+						percent /= 2;
+
+						// inner layer is finished
+						if (isOuter) {
+							percent = 50 + percent;
+						}
+					}
+
+					label.setText(map.get(label) + " (" + Math.round(percent) + "%)");
 				} catch (Exception e) {
 					Utility.showError(e, "Error when updating progress", true);
 				}
