@@ -30,7 +30,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -43,9 +42,6 @@ import net.lingala.zip4j.progress.ProgressMonitor;
 import net.lingala.zip4j.util.Zip4jConstants;
 
 public class AppController {
-	@FXML
-	private AnchorPane apMain;
-
 	@FXML
 	private Label lblInputFolder;
 
@@ -69,6 +65,9 @@ public class AppController {
 
 	@FXML
 	private TextField tfReferenceTag;
+
+	@FXML
+	private VBox vbInputFields;
 
 	@FXML
 	private VBox vbList;
@@ -299,8 +298,10 @@ public class AppController {
 		try {
 			if (checkInput()) {
 				saveUserSetting();
-				apMain.setMouseTransparent(true);
-				apMain.setFocusTraversable(false);
+
+				// prevent input while processing
+				vbInputFields.setMouseTransparent(true);
+				vbInputFields.setFocusTraversable(false);
 
 				if (cbObfuscateFileName.isSelected()) {
 					updateAbbreviationList();
@@ -539,7 +540,7 @@ public class AppController {
 						}
 					}
 
-					label.setText(map.get(label) + " (" + Math.round(percent) + "%)");
+					label.setText("(" + Math.round(percent) + "%) " + map.get(label));
 				} catch (Exception e) {
 					Utility.showError(e, "Error when updating progress", true);
 				}
@@ -552,7 +553,7 @@ public class AppController {
 			@Override
 			public void run() {
 				try {
-					label.setText(map.get(label) + " (done)");
+					label.setText("(done) " + map.get(label));
 				} catch (Exception e) {
 					Utility.showError(e, "Error when showing done process", true);
 				}
@@ -592,8 +593,8 @@ public class AppController {
 			@Override
 			public void run() {
 				try {
-					apMain.setMouseTransparent(false);
-					apMain.setFocusTraversable(true);
+					vbInputFields.setMouseTransparent(false);
+					vbInputFields.setFocusTraversable(true);
 					updateFolderAndFileLists();
 
 					// play notification sound
@@ -632,10 +633,11 @@ public class AppController {
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileReference, true))) {
 			File originalFile = new File(map.get(label));
+			File zipFile = new File(outerZipName);
 
 			// reference format: [tag] [tab] [zip name] [tab] [original file/folder name]
-			bw.write(userSetting.getReferenceTag() + REFERENCE_TAB + outerZipName + REFERENCE_TAB
-					+ originalFile.getName());
+			bw.write(userSetting.getReferenceTag() + REFERENCE_TAB + originalFile.getName() + REFERENCE_TAB
+					+ zipFile.getName());
 			bw.newLine();
 		}
 	}

@@ -11,96 +11,101 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<AnchorPane fx:id="apMain" prefHeight="500.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AppController">
-   <children>
-      <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <HBox>
+<AnchorPane prefHeight="500.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.AppController">
+	<children>
+		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<children>
+            <VBox fx:id="vbInputFields">
                <children>
-                  <Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" prefWidth="89.0" text="Input folder" />
-                  <Label fx:id="lblInputFolder" prefHeight="25.0" prefWidth="238.0" HBox.hgrow="ALWAYS">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Label>
+      				<HBox>
+      					<children>
+      						<Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" prefWidth="89.0" text="Input folder" />
+      						<Label fx:id="lblInputFolder" prefHeight="25.0" prefWidth="238.0" HBox.hgrow="ALWAYS">
+      							<HBox.margin>
+      								<Insets left="10.0" />
+      							</HBox.margin>
+      						</Label>
+      					</children>
+      				</HBox>
+      				<HBox>
+      					<children>
+      						<Button mnemonicParsing="false" onAction="#selectOutputFolder" text="Output folder" />
+      						<Label fx:id="lblOutputFolder" prefHeight="25.0" prefWidth="238.0" HBox.hgrow="ALWAYS">
+      							<HBox.margin>
+      								<Insets left="10.0" />
+      							</HBox.margin>
+      						</Label>
+      					</children>
+      					<VBox.margin>
+      						<Insets top="10.0" />
+      					</VBox.margin>
+      				</HBox>
+      				<HBox alignment="CENTER_LEFT">
+      					<VBox.margin>
+      						<Insets top="10.0" />
+      					</VBox.margin>
+      					<children>
+      						<CheckComboBox fx:id="ccbFileFolder" prefHeight="25.0" prefWidth="100.0">
+      							<HBox.margin>
+      								<Insets />
+      							</HBox.margin>
+      						</CheckComboBox>
+      						<CheckBox fx:id="cbEncrypt" mnemonicParsing="false" selected="true" text="Encrypt">
+      							<HBox.margin>
+      								<Insets left="10.0" />
+      							</HBox.margin>
+      						</CheckBox>
+      						<TextField fx:id="tfPassword" prefHeight="25.0" prefWidth="187.0" promptText="Password">
+      							<HBox.margin>
+      								<Insets left="10.0" />
+      							</HBox.margin>
+      						</TextField>
+      					</children>
+      				</HBox>
+      				<HBox alignment="CENTER_LEFT">
+      					<children>
+      						<CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Hide file name">
+      							<HBox.margin>
+      								<Insets />
+      							</HBox.margin>
+      						</CheckBox>
+      						<CheckBox fx:id="cbAddReferences" mnemonicParsing="false" text="Add references">
+      							<HBox.margin>
+      								<Insets left="10.0" />
+      							</HBox.margin>
+      						</CheckBox>
+      						<TextField fx:id="tfReferenceTag" promptText="Reference tag">
+      							<HBox.margin>
+      								<Insets left="10.0" />
+      							</HBox.margin>
+      						</TextField>
+      					</children>
+      					<VBox.margin>
+      						<Insets top="10.0" />
+      					</VBox.margin>
+      				</HBox>
+      				<Button mnemonicParsing="false" onAction="#start" text="Start">
+      					<VBox.margin>
+      						<Insets top="10.0" />
+      					</VBox.margin>
+      				</Button>
                </children>
-            </HBox>
-            <HBox>
-               <children>
-                  <Button mnemonicParsing="false" onAction="#selectOutputFolder" text="Output folder" />
-                  <Label fx:id="lblOutputFolder" prefHeight="25.0" prefWidth="238.0" HBox.hgrow="ALWAYS">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </HBox>
-            <HBox alignment="CENTER_LEFT">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-               <children>
-                  <CheckComboBox fx:id="ccbFileFolder" prefHeight="25.0" prefWidth="100.0">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </CheckComboBox>
-                  <CheckBox fx:id="cbEncrypt" mnemonicParsing="false" selected="true" text="Encrypt">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin></CheckBox>
-                  <TextField fx:id="tfPassword" prefHeight="25.0" prefWidth="187.0" promptText="Password">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </TextField>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_LEFT">
-               <children>
-                  <CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Hide file name">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </CheckBox>
-                  <CheckBox fx:id="cbAddReferences" mnemonicParsing="false" text="Add references">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </CheckBox>
-                  <TextField fx:id="tfReferenceTag" promptText="Reference tag">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </TextField>
-               </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </HBox>
-            <Button mnemonicParsing="false" onAction="#start" text="Start">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </Button>
-            <ScrollPane prefHeight="400.0">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-               <content>
-                  <VBox fx:id="vbList" />
-               </content>
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-            </ScrollPane>
-         </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </VBox>
-   </children>
+            </VBox>
+				<ScrollPane prefHeight="400.0">
+					<VBox.margin>
+						<Insets top="10.0" />
+					</VBox.margin>
+					<content>
+						<VBox fx:id="vbList" />
+					</content>
+					<padding>
+						<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+					</padding>
+				</ScrollPane>
+			</children>
+			<padding>
+				<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+			</padding>
+		</VBox>
+	</children>
 </AnchorPane>
