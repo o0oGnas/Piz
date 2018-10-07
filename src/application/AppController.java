@@ -107,6 +107,7 @@ public class AppController {
 		File file = new File(DATA);
 
 		if (file.exists()) {
+			// load user data from file
 			try (FileInputStream fis = new FileInputStream(file)) {
 				ObjectInputStream ois = new ObjectInputStream(fis);
 				userData = (UserData) ois.readObject();
@@ -115,6 +116,7 @@ public class AppController {
 			userData = new UserData(null, null, null, null, true, true, true);
 		}
 
+		// initialise input fields value from user data
 		tfPassword.setText(userData.getPassword());
 		tfReferenceTag.setText(userData.getReferenceTag());
 		cbEncrypt.setSelected(userData.isEncrypt());
@@ -135,6 +137,7 @@ public class AppController {
 			}
 		}
 
+		// handle event when user changes selection
 		ccbFileFolder.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
 			@Override
 			public void onChanged(Change<? extends String> c) {
@@ -208,6 +211,7 @@ public class AppController {
 		userData.setObfuscateFileName(cbObfuscateFileName.isSelected());
 		userData.setAddReference(cbAddReferences.isSelected());
 
+		// save user data to file
 		try (FileOutputStream fos = new FileOutputStream(DATA)) {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(userData);
@@ -222,7 +226,8 @@ public class AppController {
 		for (final File file : folder.listFiles()) {
 			Label lblFile = new Label(file.getName());
 
-			// folders and files are shown in different colours
+			// filter according to selection, folders and files are shown in different
+			// colours
 			if (file.isDirectory()) {
 				if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
 					lblFile.setTextFill(Color.BLUE);
@@ -279,6 +284,8 @@ public class AppController {
 			return false;
 		}
 
+		// check that reference tag is entered if user chooses to obfuscate name and add
+		// reference
 		if (cbObfuscateFileName.isSelected() && cbAddReferences.isSelected()
 				&& (tfReferenceTag.getText() == null || tfReferenceTag.getText().isEmpty())) {
 			Utility.showAlert("Invalid input", "Please enter a reference tag!");
@@ -294,6 +301,7 @@ public class AppController {
 		updateAbbreviationFromMap(labelFileMap);
 	}
 
+	// wrapper around updating abbreviation list from a map
 	private void updateAbbreviationFromMap(Map<Label, String> map) {
 		for (Label label : map.keySet()) {
 			File file = new File(map.get(label));
@@ -326,6 +334,7 @@ public class AppController {
 		return sb.toString();
 	}
 
+	// wrapper around processing on a file/folder map
 	private void processMap(Map<Label, String> map) {
 		finishCount = 0;
 
@@ -335,7 +344,7 @@ public class AppController {
 				@Override
 				public void run() {
 					try {
-						runZipThread(label, map);
+						executeZipThread(label, map);
 					} catch (Exception e) {
 						Platform.runLater(new Runnable() {
 							@Override
@@ -351,10 +360,10 @@ public class AppController {
 		}
 	}
 
-	private void runZipThread(Label label, Map<Label, String> map)
+	private void executeZipThread(Label label, Map<Label, String> map)
 			throws ZipException, InterruptedException, IOException {
 		if (cbObfuscateFileName.isSelected()) {
-			hideFileNameZip(label, map);
+			obfuscateFileNameAndZip(label, map);
 		} else {
 			prepareToZip(label, map, map.get(label), FilenameUtils.removeExtension(map.get(label)),
 					cbEncrypt.isSelected(), true);
@@ -362,53 +371,29 @@ public class AppController {
 		}
 	}
 
-	private void hideFileNameZip(Label label, Map<Label, String> map)
+	private void obfuscateFileNameAndZip(Label label, Map<Label, String> map)
 			throws ZipException, InterruptedException, IOException {
 		File fileOriginal = new File(map.get(label));
 		String abbreviatedName = getAbbreviatedFileName(fileOriginal.getName());
 		Abbreviation abbreviation = abbreviationList.get(new Abbreviation(abbreviatedName));
+		// zip name is path to parent folder with abbreviated file name
 		String zipName = fileOriginal.getParent() + "\\" + abbreviatedName;
 
+		// append a number to the file name if there are many files with the same
+		// abbreviated name
 		if (abbreviation.fullNameList.size() > 1) {
 			zipName += "-" + (abbreviation.fullNameList.indexOf(fileOriginal.getName()) + 1);
 		}
 
+		// append _inner to inner zip name
 		String innerZipName = zipName + "_inner";
+
+		// create inner zip without encryption
 		innerZipName = prepareToZip(label, map, map.get(label), innerZipName, false, false);
 		processOuterZip(label, map, innerZipName, zipName);
 	}
 
-	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, final String zipName)
-			throws ZipException, InterruptedException, IOException {
-		String outerZipName = zipName + "_outer";
-		outerZipName = prepareToZip(label, map, innerZipName, outerZipName, cbEncrypt.isSelected(), true);
-		File innerZipFile = new File(innerZipName);
-
-		// remove inner zip from disk
-		innerZipFile.delete();
-
-		if (cbAddReferences.isSelected()) {
-			addReference(label, map, outerZipName);
-		}
-
-		increaseFinishCount();
-	}
-
-	private void addReference(Label label, Map<Label, String> map, String outerZipName) throws IOException {
-		File fileReference = new File(REFERENCE);
-
-		if (!fileReference.exists()) {
-			fileReference.createNewFile();
-		}
-
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileReference, true))) {
-			File originalFile = new File(map.get(label));
-			bw.write(
-					userData.getReferenceTag() + REFERENCE_TAB + outerZipName + REFERENCE_TAB + originalFile.getName());
-			bw.newLine();
-		}
-	}
-
+	// prepare then perform zipping and return result zip file name
 	private String prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		String zipName = destinationPath + ".zip";
@@ -432,6 +417,7 @@ public class AppController {
 		ZipFile zip = getZipFile(sourcePath, destinationPath, encrypt);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
 
+		// run while zip is still in progress
 		while (progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
 			showProgress(label, map, progressMonitor, isOuter);
 
@@ -439,16 +425,18 @@ public class AppController {
 			Thread.sleep(500);
 		}
 
-		// only show that process is done if it's the outer layer
+		// only show that the process is done if it's the outer layer
 		if (isOuter) {
-			removeProgressFromLabel(label, map);
+			showDoneProcess(label, map);
 		}
 	}
 
+	// perform zip and return the ZipFile object
 	private ZipFile getZipFile(String filePath, String zipName, boolean encrypt) throws ZipException {
 		ZipFile zip = new ZipFile(zipName);
 		ZipParameters parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+		// maximum compression level
 		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
 
 		// set encryption
@@ -459,6 +447,7 @@ public class AppController {
 			parameters.setPassword(tfPassword.getText());
 		}
 
+		// run in a separate thread so we can monitor progress
 		zip.setRunInThread(true);
 		File file = new File(filePath);
 
@@ -497,19 +486,20 @@ public class AppController {
 		});
 	}
 
-	private void removeProgressFromLabel(Label label, Map<Label, String> map) {
+	private void showDoneProcess(Label label, Map<Label, String> map) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					label.setText(map.get(label) + " (done)");
 				} catch (Exception e) {
-					Utility.showError(e, "Error when removing progress from label", true);
+					Utility.showError(e, "Error when showing done process", true);
 				}
 			}
 		});
 	}
 
+	// thread safe method to update finished processes count
 	synchronized private void increaseFinishCount() {
 		++finishCount;
 	}
@@ -519,6 +509,7 @@ public class AppController {
 			@Override
 			public void run() {
 				try {
+					// wait until all processes are done
 					while (finishCount < labelFolderMap.size() + labelFileMap.size()) {
 						Thread.sleep(1000);
 					}
@@ -534,6 +525,7 @@ public class AppController {
 		thread.start();
 	}
 
+	// re-enable all controls, refresh file/folder list and play notification sound
 	private void finish() {
 		Platform.runLater(new Runnable() {
 			@Override
@@ -542,6 +534,7 @@ public class AppController {
 					apMain.setMouseTransparent(false);
 					apMain.setFocusTraversable(true);
 					updateFolderAndFileLists();
+
 					// play notification sound
 					Media media = new Media(Main.class.getResource("notification.wav").toString());
 					MediaPlayer mediaPlayer = new MediaPlayer(media);
@@ -553,6 +546,41 @@ public class AppController {
 		});
 	}
 
+	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, final String zipName)
+			throws ZipException, InterruptedException, IOException {
+		String outerZipName = zipName + "_outer";
+		outerZipName = prepareToZip(label, map, innerZipName, outerZipName, cbEncrypt.isSelected(), true);
+		File innerZipFile = new File(innerZipName);
+
+		// remove inner zip from disk
+		innerZipFile.delete();
+
+		if (cbAddReferences.isSelected()) {
+			addReference(label, map, outerZipName);
+		}
+
+		increaseFinishCount();
+	}
+
+	private void addReference(Label label, Map<Label, String> map, String outerZipName) throws IOException {
+		File fileReference = new File(REFERENCE);
+
+		if (!fileReference.exists()) {
+			fileReference.createNewFile();
+		}
+
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileReference, true))) {
+			File originalFile = new File(map.get(label));
+
+			// reference format: [tag] [tab] [zip name] [tab] [original file/folder name]
+			bw.write(
+					userData.getReferenceTag() + REFERENCE_TAB + outerZipName + REFERENCE_TAB + originalFile.getName());
+			bw.newLine();
+		}
+	}
+
+	// class to wrap abbreviation and list of original files that have this
+	// abbreviation
 	private class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbreviation> {
 		private String fileName;
 		private ArrayList<String> fullNameList = new ArrayList<String>();
