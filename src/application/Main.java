@@ -22,6 +22,7 @@ public class Main extends Application {
 			Scene scene = new Scene((Parent) loader.load());
 			scene.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
 			stage.setScene(scene);
+			stage.setResizable(false);
 			stage.setTitle("Batch Zip");
 			stage.getIcons().add(new Image(getClass().getResourceAsStream("icon.png")));
 			stage.show();

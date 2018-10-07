@@ -70,13 +70,13 @@ public class AppController {
 	@FXML
 	private VBox vbList;
 
-	private final String DATA = "user_data.bin";
+	private final String DATA = "setting.bin";
 	private final String REFERENCE = "references.txt";
 	private final String REFERENCE_TAB = "\t\t";
 
 	private File folder;
 
-	private UserData userData;
+	private UserSetting userSetting;
 
 	// map a label with a folder name, used for showing progress
 	private Map<Label, String> labelFolderMap = new HashMap<Label, String>();
@@ -96,32 +96,32 @@ public class AppController {
 		try {
 			initialiseEncryptCheckBox();
 			initialiseObfuscateFileNameCheckBox();
-			initialiseUserData();
+			initialiseUserSetting();
 			initialiseFileFolderCheckComboBox();
 		} catch (Exception e) {
 			Utility.showError(e, "Could not initialise", true);
 		}
 	}
 
-	private void initialiseUserData() throws IOException, ClassNotFoundException {
+	private void initialiseUserSetting() throws IOException, ClassNotFoundException {
 		File file = new File(DATA);
 
 		if (file.exists()) {
 			// load user data from file
 			try (FileInputStream fis = new FileInputStream(file)) {
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				userData = (UserData) ois.readObject();
+				userSetting = (UserSetting) ois.readObject();
 			}
 		} else {
-			userData = new UserData(null, null, null, null, true, true, true);
+			userSetting = new UserSetting(null, null, null, null, true, true, true);
 		}
 
 		// initialise input fields value from user data
-		tfPassword.setText(userData.getPassword());
-		tfReferenceTag.setText(userData.getReferenceTag());
-		cbEncrypt.setSelected(userData.isEncrypt());
-		cbObfuscateFileName.setSelected(userData.isObfuscateFileName());
-		cbAddReferences.setSelected(userData.isAddReference());
+		tfPassword.setText(userSetting.getPassword());
+		tfReferenceTag.setText(userSetting.getReferenceTag());
+		cbEncrypt.setSelected(userSetting.isEncrypt());
+		cbObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
+		cbAddReferences.setSelected(userSetting.isAddReference());
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
@@ -129,10 +129,10 @@ public class AppController {
 		ccbFileFolder.getItems().add(CommonConstants.FOLDER);
 
 		// check all by default
-		if (userData.getFileFolder() == null || userData.getFileFolder().length == 0) {
+		if (userSetting.getFileFolder() == null || userSetting.getFileFolder().length == 0) {
 			ccbFileFolder.getCheckModel().checkAll();
 		} else {
-			for (String s : userData.getFileFolder()) {
+			for (String s : userSetting.getFileFolder()) {
 				ccbFileFolder.getCheckModel().check(s);
 			}
 		}
@@ -142,7 +142,7 @@ public class AppController {
 			@Override
 			public void onChanged(Change<? extends String> c) {
 				try {
-					saveUserData();
+					saveUserSetting();
 					updateFolderAndFileLists();
 				} catch (Exception e) {
 					Utility.showError(e, "Error filtering file/folder", false);
@@ -176,8 +176,8 @@ public class AppController {
 			lblFolder.setText("");
 
 			if (folder != null) {
-				saveUserData();
-				lblFolder.setText(userData.getFolderPath());
+				saveUserSetting();
+				lblFolder.setText(userSetting.getFolderPath());
 				updateFolderAndFileLists();
 			}
 		} catch (Exception e) {
@@ -190,8 +190,8 @@ public class AppController {
 		chooser.setTitle("Select folder");
 
 		// set default folder to last folder
-		if (userData.getFolderPath() != null && !userData.getFolderPath().isEmpty()) {
-			File lastFolder = new File(userData.getFolderPath());
+		if (userSetting.getFolderPath() != null && !userSetting.getFolderPath().isEmpty()) {
+			File lastFolder = new File(userSetting.getFolderPath());
 
 			// only set if last folder is still valid
 			if (lastFolder.exists()) {
@@ -202,23 +202,23 @@ public class AppController {
 		folder = chooser.showDialog(Main.getStage());
 	}
 
-	private void saveUserData() throws FileNotFoundException, IOException {
+	private void saveUserSetting() throws FileNotFoundException, IOException {
 		if (folder != null) {
-			userData.setFolderPath(folder.getAbsolutePath());
+			userSetting.setFolderPath(folder.getAbsolutePath());
 		}
 
-		userData.setPassword(tfPassword.getText());
-		userData.setReferenceTag(tfReferenceTag.getText());
-		userData.setFileFolder(Arrays.copyOf(ccbFileFolder.getCheckModel().getCheckedItems().toArray(),
+		userSetting.setPassword(tfPassword.getText());
+		userSetting.setReferenceTag(tfReferenceTag.getText());
+		userSetting.setFileFolder(Arrays.copyOf(ccbFileFolder.getCheckModel().getCheckedItems().toArray(),
 				ccbFileFolder.getCheckModel().getCheckedItems().size(), String[].class));
-		userData.setEncrypt(cbEncrypt.isSelected());
-		userData.setObfuscateFileName(cbObfuscateFileName.isSelected());
-		userData.setAddReference(cbAddReferences.isSelected());
+		userSetting.setEncrypt(cbEncrypt.isSelected());
+		userSetting.setObfuscateFileName(cbObfuscateFileName.isSelected());
+		userSetting.setAddReference(cbAddReferences.isSelected());
 
 		// save user data to file
 		try (FileOutputStream fos = new FileOutputStream(DATA)) {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			oos.writeObject(userData);
+			oos.writeObject(userSetting);
 		}
 	}
 
@@ -251,7 +251,7 @@ public class AppController {
 	private void start(ActionEvent event) {
 		try {
 			if (checkInput()) {
-				saveUserData();
+				saveUserSetting();
 				apMain.setMouseTransparent(true);
 				apMain.setFocusTraversable(false);
 
@@ -579,8 +579,8 @@ public class AppController {
 			File originalFile = new File(map.get(label));
 
 			// reference format: [tag] [tab] [zip name] [tab] [original file/folder name]
-			bw.write(
-					userData.getReferenceTag() + REFERENCE_TAB + outerZipName + REFERENCE_TAB + originalFile.getName());
+			bw.write(userSetting.getReferenceTag() + REFERENCE_TAB + outerZipName + REFERENCE_TAB
+					+ originalFile.getName());
 			bw.newLine();
 		}
 	}
