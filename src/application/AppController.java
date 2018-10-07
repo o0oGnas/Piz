@@ -243,6 +243,8 @@ public class AppController {
 				vbList.getChildren().add(lblFile);
 			}
 		}
+
+		vbList.autosize();
 	}
 
 	@FXML
