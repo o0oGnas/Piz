@@ -105,9 +105,28 @@ public class AppController {
 			initialiseObfuscateFileNameCheckBox();
 			initialiseUserSetting();
 			initialiseFileFolderCheckComboBox();
+			initialiseInputOutputFolders();
 		} catch (Exception e) {
 			Utility.showError(e, "Could not initialise", true);
 		}
+	}
+
+	private void initialiseEncryptCheckBox() {
+		cbEncrypt.selectedProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				tfPassword.setDisable(!newValue);
+			}
+		});
+	}
+
+	private void initialiseObfuscateFileNameCheckBox() {
+		cbObfuscateFileName.selectedProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				cbAddReferences.setDisable(!newValue);
+			}
+		});
 	}
 
 	private void initialiseUserSetting() throws IOException, ClassNotFoundException {
@@ -129,10 +148,6 @@ public class AppController {
 		cbEncrypt.setSelected(userSetting.isEncrypt());
 		cbObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
 		cbAddReferences.setSelected(userSetting.isAddReference());
-
-		// initialise input and output folders
-		inputFolder = initialiseFolder(userSetting.getInputFolder(), lblInputFolder);
-		inputFolder = initialiseFolder(userSetting.getOutputFolder(), lblOutputFolder);
 	}
 
 	// wrapper around initialing input and output folder
@@ -169,7 +184,6 @@ public class AppController {
 			@Override
 			public void onChanged(Change<? extends String> c) {
 				try {
-					saveUserSetting();
 					updateFolderAndFileLists();
 				} catch (Exception e) {
 					Utility.showError(e, "Error filtering file/folder", false);
@@ -178,34 +192,20 @@ public class AppController {
 		});
 	}
 
-	private void initialiseEncryptCheckBox() {
-		cbEncrypt.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				tfPassword.setDisable(!newValue);
-			}
-		});
-	}
-
-	private void initialiseObfuscateFileNameCheckBox() {
-		cbObfuscateFileName.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				cbAddReferences.setDisable(!newValue);
-			}
-		});
+	private void initialiseInputOutputFolders() {
+		// initialise input and output folders
+		inputFolder = initialiseFolder(userSetting.getInputFolder(), lblInputFolder);
+		outputFolder = initialiseFolder(userSetting.getOutputFolder(), lblOutputFolder);
+		updateFolderAndFileLists();
 	}
 
 	@FXML
 	private void selectInputFolder(ActionEvent event) {
 		try {
 			inputFolder = showFolderChooser(userSetting.getInputFolder(), lblInputFolder);
-
-			if (inputFolder != null) {
-				saveUserSetting();
-				lblInputFolder.setText(userSetting.getInputFolder());
-				updateFolderAndFileLists();
-			}
+			saveUserSetting();
+			lblInputFolder.setText(userSetting.getInputFolder());
+			updateFolderAndFileLists();
 		} catch (Exception e) {
 			Utility.showError(e, "Could not select input folder", false);
 		}
@@ -258,20 +258,22 @@ public class AppController {
 		labelFolderMap.clear();
 		labelFileMap.clear();
 
-		for (final File file : inputFolder.listFiles()) {
-			Label lblFile = new Label(file.getName());
+		if (inputFolder != null) {
+			for (final File file : inputFolder.listFiles()) {
+				Label lblFile = new Label(file.getName());
 
-			// filter according to selection, folders and files are shown in different
-			// colours
-			if (file.isDirectory()) {
-				if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
-					lblFile.setTextFill(Color.BLUE);
-					labelFolderMap.put(lblFile, file.getAbsolutePath());
+				// filter according to selection, folders and files are shown in different
+				// colours
+				if (file.isDirectory()) {
+					if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
+						lblFile.setTextFill(Color.BLUE);
+						labelFolderMap.put(lblFile, file.getAbsolutePath());
+						vbList.getChildren().add(lblFile);
+					}
+				} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
+					labelFileMap.put(lblFile, file.getAbsolutePath());
 					vbList.getChildren().add(lblFile);
 				}
-			} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
-				labelFileMap.put(lblFile, file.getAbsolutePath());
-				vbList.getChildren().add(lblFile);
 			}
 		}
 
