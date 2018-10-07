@@ -192,7 +192,11 @@ public class AppController {
 		// set default folder to last folder
 		if (userData.getFolderPath() != null && !userData.getFolderPath().isEmpty()) {
 			File lastFolder = new File(userData.getFolderPath());
-			chooser.setInitialDirectory(lastFolder);
+
+			// only set if last folder is still valid
+			if (lastFolder.exists()) {
+				chooser.setInitialDirectory(lastFolder);
+			}
 		}
 
 		folder = chooser.showDialog(Main.getStage());
