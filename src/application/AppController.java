@@ -18,6 +18,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 
 import javafx.application.Platform;
@@ -88,7 +89,7 @@ public class AppController {
 	private void initialize() {
 		try {
 			initialiseEncryptCheckBox();
-			initialiseHideFileNameCheckBox();
+			initialiseObfuscateFileNameCheckBox();
 			initialiseUserData();
 			initialiseFileFolderCheckComboBox();
 		} catch (Exception e) {
@@ -149,7 +150,7 @@ public class AppController {
 		});
 	}
 
-	private void initialiseHideFileNameCheckBox() {
+	private void initialiseObfuscateFileNameCheckBox() {
 		cbObfuscateFileName.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -300,7 +301,12 @@ public class AppController {
 
 		// get the first character of each word in upper case and append to result
 		for (String s : split) {
-			sb.append(s.substring(0, 1).toUpperCase());
+			// only abbreviate if the word contains only letters
+			if (StringUtils.isAlpha(s)) {
+				sb.append(s.substring(0, 1).toUpperCase());
+			} else {
+				sb.append(s);
+			}
 		}
 
 		return sb.toString();
@@ -392,7 +398,7 @@ public class AppController {
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		String zipName = destinationPath + ".zip";
 		File fileZip = new File(zipName);
-		int count = 0;
+		int count = 1;
 
 		// if zip file with this name already exists, append a number until we get a
 		// unique file name
