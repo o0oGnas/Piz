@@ -3,7 +3,10 @@ package application;
 import java.io.Serializable;
 
 public class UserSetting implements Serializable {
-	private String folderPath;
+	private static final long serialVersionUID = 1L;
+	private String inputFolder;
+	private String outputFolder;
+
 	private String password;
 	private String referenceTag;
 
@@ -13,12 +16,20 @@ public class UserSetting implements Serializable {
 	private boolean obfuscateFileName;
 	private boolean addReference;
 
-	public String getFolderPath() {
-		return folderPath;
+	public String getInputFolder() {
+		return inputFolder;
 	}
 
-	public void setFolderPath(String folderPath) {
-		this.folderPath = folderPath;
+	public void setInputFolder(String folderPath) {
+		this.inputFolder = folderPath;
+	}
+
+	public String getOutputFolder() {
+		return outputFolder;
+	}
+
+	public void setOutputFolder(String outputFolder) {
+		this.outputFolder = outputFolder;
 	}
 
 	public String[] getFileFolder() {
@@ -63,7 +74,7 @@ public class UserSetting implements Serializable {
 
 	public UserSetting(String folderPath, String password, String referenceTag, String[] fileFolder, boolean encrypt,
 			boolean obfuscateFileName, boolean addReference) {
-		this.folderPath = folderPath;
+		this.inputFolder = folderPath;
 		this.password = password;
 		this.referenceTag = referenceTag;
 		this.fileFolder = fileFolder;
@@ -81,7 +92,7 @@ public class UserSetting implements Serializable {
 	}
 
 	public UserSetting(String folderPath, String password) {
-		this.folderPath = folderPath;
+		this.inputFolder = folderPath;
 		this.password = password;
 	}
 }

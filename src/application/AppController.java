@@ -47,7 +47,10 @@ public class AppController {
 	private AnchorPane apMain;
 
 	@FXML
-	private Label lblFolder;
+	private Label lblInputFolder;
+
+	@FXML
+	private Label lblOutputFolder;
 
 	@FXML
 	private CheckComboBox<String> ccbFileFolder;
@@ -74,7 +77,11 @@ public class AppController {
 	private final String REFERENCE = "references.txt";
 	private final String REFERENCE_TAB = "\t\t";
 
-	private File folder;
+	// source folder containing original files and folders
+	private File inputFolder;
+
+	// destination folder that will contain zip files
+	private File outputFolder;
 
 	private UserSetting userSetting;
 
@@ -122,6 +129,26 @@ public class AppController {
 		cbEncrypt.setSelected(userSetting.isEncrypt());
 		cbObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
 		cbAddReferences.setSelected(userSetting.isAddReference());
+
+		// initialise input and output folders
+		inputFolder = initialiseFolder(userSetting.getInputFolder(), lblInputFolder);
+		inputFolder = initialiseFolder(userSetting.getOutputFolder(), lblOutputFolder);
+	}
+
+	// wrapper around initialing input and output folder
+	private File initialiseFolder(String path, Label label) {
+		if (path != null && !path.isEmpty()) {
+			File folder = new File(path);
+
+			if (folder.exists()) {
+				label.setText(path);
+				return folder;
+			} else {
+				return null;
+			}
+		}
+
+		return null;
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
@@ -170,41 +197,45 @@ public class AppController {
 	}
 
 	@FXML
-	private void selectFolder(ActionEvent event) {
+	private void selectInputFolder(ActionEvent event) {
 		try {
-			showFolderChooser();
-			lblFolder.setText("");
+			inputFolder = showFolderChooser(userSetting.getInputFolder(), lblInputFolder);
 
-			if (folder != null) {
+			if (inputFolder != null) {
 				saveUserSetting();
-				lblFolder.setText(userSetting.getFolderPath());
+				lblInputFolder.setText(userSetting.getInputFolder());
 				updateFolderAndFileLists();
 			}
 		} catch (Exception e) {
-			Utility.showError(e, "Could not select folder", false);
+			Utility.showError(e, "Could not select input folder", false);
 		}
 	}
 
-	private void showFolderChooser() {
+	private File showFolderChooser(String defaultFolder, Label label) {
+		label.setText("");
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Select folder");
 
 		// set default folder to last folder
-		if (userSetting.getFolderPath() != null && !userSetting.getFolderPath().isEmpty()) {
-			File lastFolder = new File(userSetting.getFolderPath());
+		if (defaultFolder != null && !defaultFolder.isEmpty()) {
+			File folder = new File(defaultFolder);
 
-			// only set if last folder is still valid
-			if (lastFolder.exists()) {
-				chooser.setInitialDirectory(lastFolder);
+			// only set if default folder is valid
+			if (folder.exists()) {
+				chooser.setInitialDirectory(folder);
 			}
 		}
 
-		folder = chooser.showDialog(Main.getStage());
+		return chooser.showDialog(Main.getStage());
 	}
 
 	private void saveUserSetting() throws FileNotFoundException, IOException {
-		if (folder != null) {
-			userSetting.setFolderPath(folder.getAbsolutePath());
+		if (inputFolder != null) {
+			userSetting.setInputFolder(inputFolder.getAbsolutePath());
+		}
+
+		if (outputFolder != null) {
+			userSetting.setOutputFolder(outputFolder.getAbsolutePath());
 		}
 
 		userSetting.setPassword(tfPassword.getText());
@@ -227,7 +258,7 @@ public class AppController {
 		labelFolderMap.clear();
 		labelFileMap.clear();
 
-		for (final File file : folder.listFiles()) {
+		for (final File file : inputFolder.listFiles()) {
 			Label lblFile = new Label(file.getName());
 
 			// filter according to selection, folders and files are shown in different
@@ -245,6 +276,20 @@ public class AppController {
 		}
 
 		vbList.autosize();
+	}
+
+	@FXML
+	private void selectOutputFolder(ActionEvent event) {
+		try {
+			outputFolder = showFolderChooser(userSetting.getOutputFolder(), lblOutputFolder);
+
+			if (outputFolder != null) {
+				saveUserSetting();
+				lblOutputFolder.setText(userSetting.getOutputFolder());
+			}
+		} catch (Exception e) {
+			Utility.showError(e, "Could not select output folder", false);
+		}
 	}
 
 	@FXML
@@ -275,7 +320,7 @@ public class AppController {
 	}
 
 	private boolean checkInput() {
-		if (folder == null) {
+		if (inputFolder == null) {
 			Utility.showAlert("Invalid input", "Please choose a folder!");
 			return false;
 		}
@@ -383,7 +428,7 @@ public class AppController {
 		String abbreviatedName = getAbbreviatedFileName(fileOriginal.getName());
 		Abbreviation abbreviation = abbreviationList.get(new Abbreviation(abbreviatedName));
 		// zip name is path to parent folder with abbreviated file name
-		String zipName = fileOriginal.getParent() + "\\" + abbreviatedName;
+		String zipName = getZipParentFolderPath(fileOriginal) + "\\" + abbreviatedName;
 
 		// append a number to the file name if there are many files with the same
 		// abbreviated name
@@ -397,6 +442,14 @@ public class AppController {
 		// create inner zip without encryption
 		innerZipName = prepareToZip(label, map, map.get(label), innerZipName, false, false);
 		processOuterZip(label, map, innerZipName, zipName);
+	}
+
+	private String getZipParentFolderPath(File fileOriginal) {
+		if (outputFolder == null) {
+			return fileOriginal.getParent();
+		} else {
+			return outputFolder.getAbsolutePath();
+		}
 	}
 
 	// prepare then perform zipping and return result zip file name

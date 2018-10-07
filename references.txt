@@ -1,0 +1,9 @@
+tét		E:\Documents\byet_files\C_outer.zip		checkout.css
+tét		E:\Documents\byet_files\G_outer.zip		global.css
+tét		E:\Documents\byet_files\B_outer.zip		bhlogonew.png
+tét		E:\GSuite upload\B_outer.zip		bhlogonew.png
+tét		E:\GSuite upload\G_outer.zip		global.css
+tét		E:\GSuite upload\C_outer.zip		checkout.css
+tét		E:\GSuite upload\C_outer_outer.zip		C_outer.zip
+tét		E:\GSuite upload\B_outer_outer.zip		B_outer.zip
+tét		E:\GSuite upload\G_outer_outer.zip		G_outer.zip

@@ -17,13 +17,26 @@
          <children>
             <HBox>
                <children>
-                  <Button mnemonicParsing="false" onAction="#selectFolder" text="Choose folder" />
-                  <Label fx:id="lblFolder" prefHeight="25.0" prefWidth="238.0" HBox.hgrow="ALWAYS">
+                  <Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" prefWidth="89.0" text="Input folder" />
+                  <Label fx:id="lblInputFolder" prefHeight="25.0" prefWidth="238.0" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
                   </Label>
                </children>
+            </HBox>
+            <HBox>
+               <children>
+                  <Button mnemonicParsing="false" onAction="#selectOutputFolder" text="Output folder" />
+                  <Label fx:id="lblOutputFolder" prefHeight="25.0" prefWidth="238.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
             </HBox>
             <HBox alignment="CENTER_LEFT">
                <VBox.margin>
