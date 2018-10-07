@@ -52,13 +52,13 @@ public class UserData implements Serializable {
 		this.addReference = addReference;
 	}
 
-	public UserData(String folderPath, String password, String[] fileFolder, boolean encrypt, boolean hideFileName,
+	public UserData(String folderPath, String password, String[] fileFolder, boolean encrypt, boolean obfuscateFileName,
 			boolean addReference) {
 		this.folderPath = folderPath;
 		this.password = password;
 		this.fileFolder = fileFolder;
 		this.encrypt = encrypt;
-		this.obfuscateFileName = hideFileName;
+		this.obfuscateFileName = obfuscateFileName;
 		this.addReference = addReference;
 	}
 

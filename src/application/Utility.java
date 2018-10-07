@@ -38,7 +38,6 @@ public final class Utility {
 		alert.setHeaderText(headerText);
 		alert.setContentText(message);
 		alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
-		alert.showAndWait();
 	}
 
 	private static GridPane getExpandableContent(String sStackTrace) {

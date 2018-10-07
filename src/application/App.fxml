@@ -18,7 +18,7 @@
             <HBox>
                <children>
                   <Button mnemonicParsing="false" onAction="#selectFolder" text="Choose folder" />
-                  <Label fx:id="lblFolder" prefHeight="25.0" prefWidth="300.0" HBox.hgrow="ALWAYS">
+                  <Label fx:id="lblFolder" prefHeight="25.0" prefWidth="227.0" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -26,7 +26,8 @@
                   <CheckComboBox fx:id="ccbFileFolder" prefHeight="25.0" prefWidth="100.0">
                      <HBox.margin>
                         <Insets left="10.0" />
-                     </HBox.margin></CheckComboBox>
+                     </HBox.margin>
+                  </CheckComboBox>
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT">
@@ -43,12 +44,12 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </TextField>
-                  <CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name">
+                  <CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Hide file name">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
                   </CheckBox>
-                  <CheckBox fx:id="cbAddReferences" mnemonicParsing="false" selected="true" text="Add references">
+                  <CheckBox fx:id="cbAddReferences" mnemonicParsing="false" text="Add references">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -60,12 +61,12 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Button>
-            <ScrollPane prefHeight="400.0" prefWidth="200.0">
+            <ScrollPane prefHeight="400.0">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
                <content>
-                  <VBox fx:id="vbList" prefWidth="500.0" />
+                  <VBox fx:id="vbList" />
                </content>
                <padding>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
