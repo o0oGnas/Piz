@@ -84,13 +84,18 @@
       						<Insets top="10.0" />
       					</VBox.margin>
       				</HBox>
-      				<Button mnemonicParsing="false" onAction="#start" text="Start">
-      					<VBox.margin>
-      						<Insets top="10.0" />
-      					</VBox.margin>
-      				</Button>
                </children>
             </VBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+      				<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" text="Start" />
+                  <Button fx:id="btnStop" mnemonicParsing="false" onAction="#stop" text="Stop">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
 				<ScrollPane prefHeight="400.0">
 					<VBox.margin>
 						<Insets top="10.0" />

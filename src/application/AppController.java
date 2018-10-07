@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -26,7 +28,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -35,6 +39,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.WindowEvent;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -72,6 +77,9 @@ public class AppController {
 	@FXML
 	private VBox vbList;
 
+	@FXML
+	private Button btnStart;
+
 	private final String DATA = "setting.bin";
 	private final String REFERENCE = "references.txt";
 	private final String REFERENCE_TAB = "\t\t";
@@ -94,8 +102,15 @@ public class AppController {
 	// to them, so output zip files have unique names
 	private SortedMap<Abbreviation, Abbreviation> abbreviationList = new TreeMap<Abbreviation, Abbreviation>();
 
+	// keep track of all progresses to stop them all if user chooses to or the
+	// program exits
+	private Set<ProgressMonitor> progressList = new HashSet<ProgressMonitor>();
+
 	// keep track of how many processes are finished
 	private int finishCount = 0;
+
+	// flag to tell if processes are cancelled
+	private boolean stop = false;
 
 	@FXML
 	private void initialize() {
@@ -105,6 +120,13 @@ public class AppController {
 			initialiseUserSetting();
 			initialiseFileFolderCheckComboBox();
 			initialiseInputOutputFolders();
+
+			Main.getStage().setOnCloseRequest(new EventHandler<WindowEvent>() {
+				@Override
+				public void handle(WindowEvent event) {
+					stopAllProcesses();
+				}
+			});
 		} catch (Exception e) {
 			Utility.showError(e, "Could not initialise", true);
 		}
@@ -198,6 +220,65 @@ public class AppController {
 		updateFolderAndFileLists();
 	}
 
+	private void stopAllProcesses() {
+		stop = true;
+
+		for (ProgressMonitor progress : progressList) {
+			progress.cancelAllTasks();
+		}
+	}
+
+	// re-enable all controls, refresh file/folder list and play notification sound
+	private void finish() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					vbInputFields.setMouseTransparent(false);
+					vbInputFields.setFocusTraversable(true);
+					btnStart.setDisable(false);
+					updateFolderAndFileLists();
+
+					// play notification sound if process is not canceled prematurely
+					if (!stop) {
+						Media media = new Media(Main.class.getResource("notification.wav").toString());
+						MediaPlayer mediaPlayer = new MediaPlayer(media);
+						mediaPlayer.play();
+					}
+				} catch (Exception e) {
+					Utility.showError(e, "Error when finishing process", true);
+				}
+			}
+		});
+	}
+
+	private void updateFolderAndFileLists() {
+		vbList.getChildren().clear();
+		labelFolderMap.clear();
+		labelFileMap.clear();
+
+		if (inputFolder != null) {
+			for (final File file : inputFolder.listFiles()) {
+				Label lblFile = new Label(file.getName());
+
+				// filter according to selection, folders and files are shown in different
+				// colours
+				if (file.isDirectory()) {
+					if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
+						lblFile.setTextFill(Color.BLUE);
+						labelFolderMap.put(lblFile, file.getAbsolutePath());
+						vbList.getChildren().add(lblFile);
+					}
+				} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
+					labelFileMap.put(lblFile, file.getAbsolutePath());
+					vbList.getChildren().add(lblFile);
+				}
+			}
+		}
+
+		vbList.autosize();
+	}
+
 	@FXML
 	private void selectInputFolder(ActionEvent event) {
 		try {
@@ -252,33 +333,6 @@ public class AppController {
 		}
 	}
 
-	private void updateFolderAndFileLists() {
-		vbList.getChildren().clear();
-		labelFolderMap.clear();
-		labelFileMap.clear();
-
-		if (inputFolder != null) {
-			for (final File file : inputFolder.listFiles()) {
-				Label lblFile = new Label(file.getName());
-
-				// filter according to selection, folders and files are shown in different
-				// colours
-				if (file.isDirectory()) {
-					if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
-						lblFile.setTextFill(Color.BLUE);
-						labelFolderMap.put(lblFile, file.getAbsolutePath());
-						vbList.getChildren().add(lblFile);
-					}
-				} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
-					labelFileMap.put(lblFile, file.getAbsolutePath());
-					vbList.getChildren().add(lblFile);
-				}
-			}
-		}
-
-		vbList.autosize();
-	}
-
 	@FXML
 	private void selectOutputFolder(ActionEvent event) {
 		try {
@@ -297,11 +351,14 @@ public class AppController {
 	private void start(ActionEvent event) {
 		try {
 			if (checkInput()) {
+				stop = false;
 				saveUserSetting();
+				progressList.clear();
 
 				// prevent input while processing
 				vbInputFields.setMouseTransparent(true);
 				vbInputFields.setFocusTraversable(false);
+				btnStart.setDisable(true);
 
 				if (cbObfuscateFileName.isSelected()) {
 					updateAbbreviationList();
@@ -444,7 +501,13 @@ public class AppController {
 
 		// create inner zip without encryption
 		innerZipName = prepareToZip(label, map, map.get(label), innerZipName, false, false);
-		processOuterZip(label, map, innerZipName, zipName);
+
+		// only create outer zip if it's not cancelled
+		if (innerZipName != null) {
+			processOuterZip(label, map, innerZipName, zipName);
+		}
+
+		increaseFinishCount();
 	}
 
 	private String getZipParentFolderPath(File fileOriginal) {
@@ -455,7 +518,8 @@ public class AppController {
 		}
 	}
 
-	// prepare then perform zipping and return result zip file name
+	// prepare then perform zipping and return result zip file name, return null if
+	// process is cancelled
 	private String prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		String zipName = destinationPath + ".zip";
@@ -470,14 +534,19 @@ public class AppController {
 			++count;
 		}
 
-		performZip(label, map, sourcePath, zipName, encrypt, isOuter);
-		return zipName;
+		if (performZip(label, map, sourcePath, zipName, encrypt, isOuter)) {
+			return zipName;
+		} else {
+			return null;
+		}
 	}
 
-	private void performZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
+	// return false if process is cancelled, true otherwise
+	private boolean performZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		ZipFile zip = getZipFile(sourcePath, destinationPath, encrypt);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
+		addProgress(progressMonitor);
 
 		// run while zip is still in progress
 		while (progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
@@ -487,9 +556,15 @@ public class AppController {
 			Thread.sleep(500);
 		}
 
-		// only show that the process is done if it's the outer layer
-		if (isOuter) {
-			showDoneProcess(label, map);
+		if (progressMonitor.isCancelAllTasks()) {
+			return false;
+		} else {
+			// only show that the process is done if it's the outer layer
+			if (isOuter) {
+				showDoneProcess(label, map);
+			}
+
+			return true;
 		}
 	}
 
@@ -520,6 +595,10 @@ public class AppController {
 		}
 
 		return zip;
+	}
+
+	synchronized private void addProgress(ProgressMonitor progress) {
+		progressList.add(progress);
 	}
 
 	private void showProgress(Label label, Map<Label, String> map, ProgressMonitor progressMonitor, boolean isOuter) {
@@ -587,27 +666,6 @@ public class AppController {
 		thread.start();
 	}
 
-	// re-enable all controls, refresh file/folder list and play notification sound
-	private void finish() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					vbInputFields.setMouseTransparent(false);
-					vbInputFields.setFocusTraversable(true);
-					updateFolderAndFileLists();
-
-					// play notification sound
-					Media media = new Media(Main.class.getResource("notification.wav").toString());
-					MediaPlayer mediaPlayer = new MediaPlayer(media);
-					mediaPlayer.play();
-				} catch (Exception e) {
-					Utility.showError(e, "Error when enabling controls", true);
-				}
-			}
-		});
-	}
-
 	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, final String zipName)
 			throws ZipException, InterruptedException, IOException {
 		String outerZipName = zipName + "_outer";
@@ -617,11 +675,10 @@ public class AppController {
 		// remove inner zip from disk
 		innerZipFile.delete();
 
-		if (cbAddReferences.isSelected()) {
+		// only add reference if user chooses to and process is not cancelled
+		if (cbAddReferences.isSelected() && outerZipName != null) {
 			addReference(label, map, outerZipName);
 		}
-
-		increaseFinishCount();
 	}
 
 	private void addReference(Label label, Map<Label, String> map, String outerZipName) throws IOException {
@@ -640,6 +697,11 @@ public class AppController {
 					+ zipFile.getName());
 			bw.newLine();
 		}
+	}
+
+	@FXML
+	private void stop(ActionEvent event) {
+		stopAllProcesses();
 	}
 
 	// class to wrap abbreviation and list of original files that have this
