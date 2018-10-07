@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class UserData implements Serializable {
 	private String folderPath;
 	private String password;
+	private String referenceTag;
 
 	private String[] fileFolder;
 
@@ -26,6 +27,14 @@ public class UserData implements Serializable {
 
 	public void setFileFolder(String[] fileFolder) {
 		this.fileFolder = fileFolder;
+	}
+
+	public String getReferenceTag() {
+		return referenceTag;
+	}
+
+	public void setReferenceTag(String referenceTag) {
+		this.referenceTag = referenceTag;
 	}
 
 	public boolean isEncrypt() {
@@ -52,10 +61,11 @@ public class UserData implements Serializable {
 		this.addReference = addReference;
 	}
 
-	public UserData(String folderPath, String password, String[] fileFolder, boolean encrypt, boolean obfuscateFileName,
-			boolean addReference) {
+	public UserData(String folderPath, String password, String referenceTag, String[] fileFolder, boolean encrypt,
+			boolean obfuscateFileName, boolean addReference) {
 		this.folderPath = folderPath;
 		this.password = password;
+		this.referenceTag = referenceTag;
 		this.fileFolder = fileFolder;
 		this.encrypt = encrypt;
 		this.obfuscateFileName = obfuscateFileName;

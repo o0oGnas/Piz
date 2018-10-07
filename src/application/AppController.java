@@ -54,19 +54,23 @@ public class AppController {
 	private CheckBox cbEncrypt;
 
 	@FXML
-	private TextField tfPassword;
-
-	@FXML
 	private CheckBox cbObfuscateFileName;
 
 	@FXML
 	private CheckBox cbAddReferences;
 
 	@FXML
+	private TextField tfPassword;
+
+	@FXML
+	private TextField tfReferenceTag;
+
+	@FXML
 	private VBox vbList;
 
 	private final String DATA = "user_data.bin";
 	private final String REFERENCE = "references.txt";
+	private final String REFERENCE_TAB = "\t\t";
 
 	private File folder;
 
@@ -106,10 +110,11 @@ public class AppController {
 				userData = (UserData) ois.readObject();
 			}
 		} else {
-			userData = new UserData(null, null, null, true, true, true);
+			userData = new UserData(null, null, null, null, true, true, true);
 		}
 
 		tfPassword.setText(userData.getPassword());
+		tfReferenceTag.setText(userData.getReferenceTag());
 		cbEncrypt.setSelected(userData.isEncrypt());
 		cbObfuscateFileName.setSelected(userData.isObfuscateFileName());
 		cbAddReferences.setSelected(userData.isAddReference());
@@ -194,6 +199,7 @@ public class AppController {
 		}
 
 		userData.setPassword(tfPassword.getText());
+		userData.setReferenceTag(tfReferenceTag.getText());
 		userData.setFileFolder(Arrays.copyOf(ccbFileFolder.getCheckModel().getCheckedItems().toArray(),
 				ccbFileFolder.getCheckModel().getCheckedItems().size(), String[].class));
 		userData.setEncrypt(cbEncrypt.isSelected());
@@ -268,6 +274,12 @@ public class AppController {
 
 		if (cbEncrypt.isSelected() && (tfPassword.getText() == null || tfPassword.getText().isEmpty())) {
 			Utility.showAlert("Invalid input", "Please enter a password!");
+			return false;
+		}
+
+		if (cbObfuscateFileName.isSelected() && cbAddReferences.isSelected()
+				&& (tfReferenceTag.getText() == null || tfReferenceTag.getText().isEmpty())) {
+			Utility.showAlert("Invalid input", "Please enter a reference tag!");
 			return false;
 		}
 
@@ -389,7 +401,8 @@ public class AppController {
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileReference, true))) {
 			File originalFile = new File(map.get(label));
-			bw.write(outerZipName + "\t\t" + originalFile.getName());
+			bw.write(
+					userData.getReferenceTag() + REFERENCE_TAB + outerZipName + REFERENCE_TAB + originalFile.getName());
 			bw.newLine();
 		}
 	}
