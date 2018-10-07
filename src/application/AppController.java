@@ -1,9 +1,11 @@
 package application;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -66,6 +68,7 @@ public class AppController {
 	private VBox vbList;
 
 	private final String DATA = "user_data.bin";
+	private final String REFERENCE = "references.txt";
 
 	private File folder;
 
@@ -77,9 +80,8 @@ public class AppController {
 	// map a label with a file name, used for showing progress
 	private Map<Label, String> labelFileMap = new HashMap<Label, String>();
 
-	// map a zip name with progress, used for hiding zip file process
-	private Map<String, Boolean> innerZipFinishMap = new HashMap<String, Boolean>();
-
+	// keep track of the different abbreviations and files that will be abbreviated
+	// to them, so output zip files have unique names
 	private SortedMap<Abbreviation, Abbreviation> abbreviationList = new TreeMap<Abbreviation, Abbreviation>();
 
 	// keep track of how many processes are finished
@@ -221,7 +223,6 @@ public class AppController {
 
 				if (cbHideFileName.isSelected()) {
 					updateAbbreviationList();
-					innerZipFinishMap.clear();
 				}
 
 				if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
@@ -316,7 +317,8 @@ public class AppController {
 		}
 	}
 
-	private void runZipThread(Label label, Map<Label, String> map) throws ZipException, InterruptedException {
+	private void runZipThread(Label label, Map<Label, String> map)
+			throws ZipException, InterruptedException, IOException {
 		if (cbHideFileName.isSelected()) {
 			hideFileNameZip(label, map);
 		} else {
@@ -326,7 +328,8 @@ public class AppController {
 		}
 	}
 
-	private void hideFileNameZip(Label label, Map<Label, String> map) throws ZipException, InterruptedException {
+	private void hideFileNameZip(Label label, Map<Label, String> map)
+			throws ZipException, InterruptedException, IOException {
 		File fileOriginal = new File(map.get(label));
 		String abbreviatedName = getAbbreviatedFileName(fileOriginal.getName());
 		Abbreviation abbreviation = abbreviationList.get(new Abbreviation(abbreviatedName));
@@ -337,45 +340,41 @@ public class AppController {
 		}
 
 		String innerZipName = zipName + "_inner";
-		innerZipFinishMap.put(innerZipName, false);
-		runOuterZipThread(label, map, innerZipName, zipName);
-		prepareToZip(label, map, map.get(label), innerZipName, false, false);
-		updateInnerZipFinishMap(innerZipName);
+		innerZipName = prepareToZip(label, map, map.get(label), innerZipName, false, false);
+		processOuterZip(label, map, innerZipName, zipName);
 	}
 
-	private void runOuterZipThread(Label label, Map<Label, String> map, String innerZipName, final String zipName) {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// wait until inner zip is finished
-					while (!innerZipFinishMap.get(innerZipName)) {
-						Thread.sleep(1000);
-					}
+	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, final String zipName)
+			throws ZipException, InterruptedException, IOException {
+		String outerZipName = zipName + "_outer";
+		outerZipName = prepareToZip(label, map, innerZipName, outerZipName, cbEncrypt.isSelected(), true);
+		File innerZipFile = new File(innerZipName);
 
-					String outerZipName = zipName + "_outer";
-					prepareToZip(label, map, innerZipName + ".zip", outerZipName, cbEncrypt.isSelected(), true);
-				} catch (Exception e) {
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							Utility.showError(e, "Error when executing a thread", true);
-						}
-					});
-				} finally {
-					increaseFinishCount();
-				}
-			}
-		});
+		// remove inner zip from disk
+		innerZipFile.delete();
 
-		thread.start();
+		if (cbAddReferences.isSelected()) {
+			addReference(label, map, outerZipName);
+		}
+
+		increaseFinishCount();
 	}
 
-	synchronized private void updateInnerZipFinishMap(String zipName) {
-		innerZipFinishMap.put(zipName, true);
+	private void addReference(Label label, Map<Label, String> map, String outerZipName) throws IOException {
+		File fileReference = new File(REFERENCE);
+
+		if (!fileReference.exists()) {
+			fileReference.createNewFile();
+		}
+
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileReference, true))) {
+			File originalFile = new File(map.get(label));
+			bw.write(outerZipName + "\t\t" + originalFile.getName());
+			bw.newLine();
+		}
 	}
 
-	private void prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
+	private String prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		String zipName = destinationPath + ".zip";
 		File fileZip = new File(zipName);
@@ -390,6 +389,7 @@ public class AppController {
 		}
 
 		performZip(label, map, sourcePath, zipName, encrypt, isOuter);
+		return zipName;
 	}
 
 	private void performZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
