@@ -7,8 +7,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FilenameUtils;
 import org.controlsfx.control.CheckComboBox;
@@ -55,6 +59,9 @@ public class AppController {
 	private CheckBox cbHideFileName;
 
 	@FXML
+	private CheckBox cbAddReferences;
+
+	@FXML
 	private VBox vbList;
 
 	private final String DATA = "user_data.bin";
@@ -69,6 +76,11 @@ public class AppController {
 	// map a label with a file name, used for showing progress
 	private Map<Label, String> labelFileMap = new HashMap<Label, String>();
 
+	// map a zip name with progress, used for hiding zip file process
+	private Map<String, Boolean> innerZipFinishMap = new HashMap<String, Boolean>();
+
+	private SortedMap<Abbreviation, Abbreviation> abbreviationList = new TreeMap<Abbreviation, Abbreviation>();
+
 	// keep track of how many processes are finished
 	private int finishCount = 0;
 
@@ -78,6 +90,7 @@ public class AppController {
 			initialiseUserData();
 			initialiseFileFolderCheckComboBox();
 			initialiseEncryptCheckBox();
+			initialiseHideFileNameCheckBox();
 		} catch (Exception e) {
 			Utility.showError(e, "Could not initialise", true);
 		}
@@ -110,6 +123,15 @@ public class AppController {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 				tfPassword.setDisable(!newValue);
+			}
+		});
+	}
+
+	private void initialiseHideFileNameCheckBox() {
+		cbHideFileName.selectedProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				cbAddReferences.setDisable(!newValue);
 			}
 		});
 	}
@@ -180,6 +202,11 @@ public class AppController {
 				apMain.setMouseTransparent(true);
 				apMain.setFocusTraversable(false);
 
+				if (cbHideFileName.isSelected()) {
+					updateAbbreviationList();
+					innerZipFinishMap.clear();
+				}
+
 				if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
 					processMap(labelFolderMap);
 				}
@@ -214,6 +241,39 @@ public class AppController {
 		return true;
 	}
 
+	private void updateAbbreviationList() {
+		abbreviationList.clear();
+		updateAbbreviationFromMap(labelFolderMap);
+		updateAbbreviationFromMap(labelFileMap);
+	}
+
+	private void updateAbbreviationFromMap(Map<Label, String> map) {
+		for (Label label : map.keySet()) {
+			File file = new File(map.get(label));
+			String fileName = getAbbreviatedFileName(file.getName());
+			Abbreviation a = new Abbreviation(fileName);
+
+			if (abbreviationList.containsKey(a)) {
+				a = abbreviationList.get(a);
+			}
+
+			a.fullNameList.add(file.getName());
+			abbreviationList.put(a, a);
+		}
+	}
+
+	private String getAbbreviatedFileName(String fileName) {
+		String[] split = FilenameUtils.removeExtension(fileName).split(" ");
+		StringBuilder sb = new StringBuilder();
+
+		// get the first character of each word in upper case and append to result
+		for (String s : split) {
+			sb.append(s.substring(0, 1).toUpperCase());
+		}
+
+		return sb.toString();
+	}
+
 	private void processMap(Map<Label, String> map) {
 		finishCount = 0;
 
@@ -240,25 +300,82 @@ public class AppController {
 	}
 
 	private void runZipThread(Label label, Map<Label, String> map) throws ZipException, InterruptedException {
-		String zipName = FilenameUtils.removeExtension(map.get(label)) + ".zip";
-		File file = new File(zipName);
+		if (cbHideFileName.isSelected()) {
+			hideFileNameZip(label, map);
+		} else {
+			prepareToZip(label, map, map.get(label), map.get(label), false);
+		}
+	}
+
+	private void hideFileNameZip(Label label, Map<Label, String> map) throws ZipException, InterruptedException {
+		File fileOriginal = new File(map.get(label));
+		String abbreviatedName = getAbbreviatedFileName(fileOriginal.getName());
+		Abbreviation abbreviation = abbreviationList.get(new Abbreviation(abbreviatedName));
+		String zipName = fileOriginal.getParent() + "\\" + abbreviatedName;
+
+		if (abbreviation.fullNameList.size() > 1) {
+			zipName += "-" + (abbreviation.fullNameList.indexOf(fileOriginal.getName()) + 1);
+		}
+
+		String innerZipName = zipName + "_inner";
+		innerZipFinishMap.put(innerZipName, false);
+		runOuterZipThread(label, map, innerZipName, zipName);
+		prepareToZip(label, map, map.get(label), innerZipName, false);
+		updateInnerZipFinishMap(innerZipName);
+	}
+
+	private void runOuterZipThread(Label label, Map<Label, String> map, String innerZipName, final String zipName) {
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					// wait until inner zip is finished
+					while (!innerZipFinishMap.get(innerZipName)) {
+						Thread.sleep(1000);
+					}
+
+					String outerZipName = zipName + "_outer";
+					prepareToZip(label, map, innerZipName + ".zip", outerZipName, true);
+				} catch (Exception e) {
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							Utility.showError(e, "Error when executing a thread", true);
+						}
+					});
+				} finally {
+					increaseFinishCount();
+				}
+			}
+		});
+
+		thread.start();
+	}
+
+	synchronized private void updateInnerZipFinishMap(String zipName) {
+		innerZipFinishMap.put(zipName, true);
+	}
+
+	private void prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
+			boolean encrypt) throws ZipException, InterruptedException {
+		String zipName = destinationPath + ".zip";
+		File fileZip = new File(zipName);
 		int count = 0;
 
 		// if zip file with this name already exists, append a number until we get a
 		// unique file name
-		while (file.exists()) {
-			zipName = FilenameUtils.removeExtension(map.get(label)) + "_" + count + ".zip";
-			file = new File(zipName);
+		while (fileZip.exists()) {
+			zipName = destinationPath + "_" + count + ".zip";
+			fileZip = new File(destinationPath);
 			++count;
 		}
 
-		performZip(label, map, zipName);
-		increaseFinishCount();
+		performZip(label, map, sourcePath, zipName, encrypt);
 	}
 
-	private void performZip(Label label, Map<Label, String> map, String zipName)
-			throws ZipException, InterruptedException {
-		ZipFile zip = getZipFile(label, map, zipName);
+	private void performZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
+			boolean encrypt) throws ZipException, InterruptedException {
+		ZipFile zip = getZipFile(sourcePath, destinationPath, encrypt);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
 
 		while (progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
@@ -271,14 +388,14 @@ public class AppController {
 		removeProgressFromLabel(label, map);
 	}
 
-	private ZipFile getZipFile(Label label, Map<Label, String> map, String zipName) throws ZipException {
+	private ZipFile getZipFile(String filePath, String zipName, boolean encrypt) throws ZipException {
 		ZipFile zip = new ZipFile(zipName);
 		ZipParameters parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
 		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
 
 		// set encryption
-		if (cbEncrypt.isSelected()) {
+		if (encrypt) {
 			parameters.setEncryptFiles(true);
 			parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
 			parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
@@ -286,7 +403,7 @@ public class AppController {
 		}
 
 		zip.setRunInThread(true);
-		File file = new File(map.get(label));
+		File file = new File(filePath);
 
 		if (file.isDirectory()) {
 			zip.addFolder(file, parameters);
@@ -360,5 +477,24 @@ public class AppController {
 				}
 			}
 		});
+	}
+
+	private class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbreviation> {
+		private String fileName;
+		private ArrayList<String> fullNameList = new ArrayList<String>();
+
+		public Abbreviation(String fileName) {
+			this.fileName = fileName;
+		}
+
+		@Override
+		public int compare(Abbreviation o1, Abbreviation o2) {
+			return o1.fileName.compareTo(o2.fileName);
+		}
+
+		@Override
+		public int compareTo(Abbreviation o) {
+			return fileName.compareTo(o.fileName);
+		}
 	}
 }

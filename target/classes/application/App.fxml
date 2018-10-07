@@ -40,7 +40,19 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </TextField>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <children>
                   <CheckBox fx:id="cbHideFileName" mnemonicParsing="false" selected="true" text="Hide file name">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="cbAddReferences" mnemonicParsing="false" selected="true" text="Add references">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
