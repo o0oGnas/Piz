@@ -3,10 +3,8 @@ package application.controllers;
 import java.io.File;
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -14,6 +12,7 @@ import application.CommonConstants;
 import application.Main;
 import application.Utility;
 import application.controllers.models.ZipReference;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -46,6 +45,25 @@ public class AppController {
 
 	public void setReferenceList(ObservableList<ZipReference> referenceList) {
 		this.referenceList = referenceList;
+
+		// save to file whenever there's a change
+		referenceList.addListener(new ListChangeListener<ZipReference>() {
+			@Override
+			public void onChanged(Change<? extends ZipReference> c) {
+				try {
+					File fileReference = new File(CommonConstants.REFERENCE_FILE);
+					ObjectMapper mapper = new ObjectMapper();
+					mapper.enable(SerializationFeature.INDENT_OUTPUT);
+					DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+					prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+
+					// Object to JSON in file
+					mapper.writeValue(fileReference, referenceList.toArray());
+				} catch (Exception e) {
+					Utility.showError(e, "Error when saving references to file", true);
+				}
+			}
+		});
 	}
 
 	@FXML
@@ -67,23 +85,5 @@ public class AppController {
 		FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + path + ".fxml"));
 		tab.setContent((Parent) loader.load());
 		return loader.getController();
-	}
-
-	/**
-	 * @Description Save references to file
-	 * @Date Oct 9, 2018
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
-	public void saveReferences() throws JsonGenerationException, JsonMappingException, IOException {
-		File fileReference = new File(CommonConstants.REFERENCE_FILE);
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.INDENT_OUTPUT);
-		DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-		prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-
-		// Object to JSON in file
-		mapper.writeValue(fileReference, referenceList.toArray());
 	}
 }

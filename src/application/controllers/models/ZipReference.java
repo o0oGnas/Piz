@@ -7,6 +7,16 @@ import java.util.Calendar;
  * @Description Model of the references
  * @Date Oct 9, 2018
  */
+/**
+ * @author Gnas
+ * @Description
+ * @Date Oct 9, 2018
+ */
+/**
+ * @author Gnas
+ * @Description
+ * @Date Oct 9, 2018
+ */
 public class ZipReference {
 	private Calendar date;
 	private String tag;
@@ -48,8 +58,30 @@ public class ZipReference {
 	public ZipReference() {
 	}
 
+	/**
+	 * @Description
+	 * @Date Oct 9, 2018
+	 * @param date     date when the reference is created
+	 * @param tag      reference tag
+	 * @param original name of the original file/folder
+	 * @param zip      name of the zip file
+	 */
 	public ZipReference(Calendar date, String tag, String original, String zip) {
 		this.date = date;
+		this.tag = tag;
+		this.original = original;
+		this.zip = zip;
+	}
+
+	/**
+	 * @Description this constructor uses current date for the date property
+	 * @Date Oct 9, 2018
+	 * @param tag
+	 * @param original
+	 * @param zip
+	 */
+	public ZipReference(String tag, String original, String zip) {
+		this.date = Calendar.getInstance();
 		this.tag = tag;
 		this.original = original;
 		this.zip = zip;

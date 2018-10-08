@@ -9,7 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -769,19 +768,8 @@ public class ZipController {
 			throws IOException {
 		File originalFile = new File(map.get(label));
 		File zipFile = new File(outerZipPath);
-		appController.getReferenceList().add(new ZipReference(Calendar.getInstance(), userSetting.getReferenceTag(),
-				originalFile.getName(), zipFile.getName()));
-
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					appController.saveReferences();
-				} catch (Exception e) {
-					Utility.showError(e, "Error when saving reference", true);
-				}
-			}
-		});
+		appController.getReferenceList()
+				.add(new ZipReference(userSetting.getReferenceTag(), originalFile.getName(), zipFile.getName()));
 	}
 
 	@FXML

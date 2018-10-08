@@ -22,17 +22,12 @@
 				</TableView>
 				<HBox fx:id="hbActions" VBox.vgrow="NEVER">
 					<children>
-						<Button mnemonicParsing="false" prefWidth="100.0" text="Save" />
-                  <Button mnemonicParsing="false" prefWidth="100.0" text="Add reference">
+						<Button mnemonicParsing="false" onAction="#add" prefWidth="150.0" text="Add reference" />
+                  <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#delete" prefWidth="150.0" text="Delete reference">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
                   </Button>
-						<Button mnemonicParsing="false" prefWidth="100.0" text="Reload">
-							<HBox.margin>
-								<Insets left="10.0" />
-							</HBox.margin>
-						</Button>
 					</children>
 					<VBox.margin>
 						<Insets top="10.0" />
