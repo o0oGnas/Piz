@@ -18,13 +18,13 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			stage = primaryStage;
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("App.fxml"));
+			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/App.fxml"));
 			Scene scene = new Scene((Parent) loader.load());
-			scene.getStylesheets().addAll(getClass().getResource("application.css").toExternalForm());
 			stage.setScene(scene);
 			stage.setResizable(false);
 			stage.setTitle("Batch Zip");
-			stage.getIcons().add(new Image(getClass().getResourceAsStream("icon.png")));
+			stage.getIcons()
+					.add(new Image(getClass().getResourceAsStream(CommonConstants.RESOURCE_FOLDER + "/icon.png")));
 			stage.show();
 		} catch (Exception e) {
 			Utility.showError(e, "Could not start the application", true);
