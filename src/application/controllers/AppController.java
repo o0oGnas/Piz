@@ -2,7 +2,6 @@ package application.controllers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
@@ -15,6 +14,7 @@ import application.CommonConstants;
 import application.Main;
 import application.Utility;
 import application.controllers.models.ZipReference;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,14 +35,16 @@ public class AppController {
 
 	private ReferenceController referenceController;
 
-	// list of references, shared between tabs
-	private List<ZipReference> referenceList;
+	/**
+	 * List of references, shared between tabs
+	 */
+	private ObservableList<ZipReference> referenceList;
 
-	public List<ZipReference> getReferenceList() {
+	public ObservableList<ZipReference> getReferenceList() {
 		return referenceList;
 	}
 
-	public void setReferenceList(List<ZipReference> referenceList) {
+	public void setReferenceList(ObservableList<ZipReference> referenceList) {
 		this.referenceList = referenceList;
 	}
 
@@ -57,7 +59,7 @@ public class AppController {
 			referenceController = (ReferenceController) initialiseTab(tabReference, "Reference");
 			referenceController.setAppController(this);
 		} catch (Exception e) {
-			Utility.showError(e, "Could not initialise charts", true);
+			Utility.showError(e, "Could not initialise app", true);
 		}
 	}
 
@@ -67,6 +69,13 @@ public class AppController {
 		return loader.getController();
 	}
 
+	/**
+	 * @Description Save references to file
+	 * @Date Oct 9, 2018
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	public void saveReferences() throws JsonGenerationException, JsonMappingException, IOException {
 		File fileReference = new File(CommonConstants.REFERENCE_FILE);
 		ObjectMapper mapper = new ObjectMapper();
@@ -75,6 +84,6 @@ public class AppController {
 		prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
 
 		// Object to JSON in file
-		mapper.writeValue(fileReference, referenceList);
+		mapper.writeValue(fileReference, referenceList.toArray());
 	}
 }

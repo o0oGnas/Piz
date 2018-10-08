@@ -88,32 +88,48 @@ public class ZipController {
 
 	private AppController appController;
 
-	// source folder containing original files and folders
+	/**
+	 * Source folder containing original files and folders
+	 */
 	private File inputFolder;
 
-	// destination folder that will contain zip files
+	/**
+	 * Destination folder that will contain zip files
+	 */
 	private File outputFolder;
 
 	private UserSetting userSetting;
 
-	// map a label with a folder name, used for showing progress
+	/**
+	 * Map a label with a folder name, used for showing progress
+	 */
 	private Map<Label, String> labelFolderMap = new HashMap<Label, String>();
 
-	// map a label with a file name, used for showing progress
+	/**
+	 * Map a label with a file name, used for showing progress
+	 */
 	private Map<Label, String> labelFileMap = new HashMap<Label, String>();
 
-	// keep track of the different abbreviations and files that will be abbreviated
-	// to them, so output zip files have unique names
+	/**
+	 * Keep track of the different abbreviations and files that will be abbreviated
+	 * to them, so output zip files have unique names
+	 */
 	private SortedMap<Abbreviation, Abbreviation> abbreviationList = new TreeMap<Abbreviation, Abbreviation>();
 
-	// keep track of all progresses to stop them all if user chooses to or the
-	// program exits
+	/**
+	 * keep track of all progresses to stop them all if user chooses to stop or
+	 * exits the application
+	 */
 	private Set<ProgressMonitor> progressList = new HashSet<ProgressMonitor>();
 
-	// keep track of how many processes are finished
+	/**
+	 * Keep track of how many processes are finished
+	 */
 	private int finishCount = 0;
 
-	// flag to tell if processes are cancelled
+	/**
+	 * Flag to tell if processes are cancelled
+	 */
 	private boolean stop = false;
 
 	public void setAppController(AppController appController) {
@@ -179,7 +195,13 @@ public class ZipController {
 		cbAddReferences.setSelected(userSetting.isAddReference());
 	}
 
-	// wrapper around initialing input and output folder
+	/**
+	 * @Description Wrapper around initialing input and output folder
+	 * @Date Oct 9, 2018
+	 * @param path
+	 * @param label
+	 * @return
+	 */
 	private File initialiseFolder(String path, Label label) {
 		if (path != null && !path.isEmpty()) {
 			File folder = new File(path);
@@ -236,7 +258,11 @@ public class ZipController {
 		}
 	}
 
-	// re-enable all controls, refresh file/folder list and play notification sound
+	/**
+	 * @Description Re-enable all controls, refresh file/folder list and play
+	 *              notification sound
+	 * @Date Oct 9, 2018
+	 */
 	private void finish() {
 		Platform.runLater(new Runnable() {
 			@Override
@@ -421,7 +447,11 @@ public class ZipController {
 		updateAbbreviationFromMap(labelFileMap);
 	}
 
-	// wrapper around updating abbreviation list from a map
+	/**
+	 * @Description Wrapper around updating abbreviation list from a map
+	 * @Date Oct 9, 2018
+	 * @param map
+	 */
 	private void updateAbbreviationFromMap(Map<Label, String> map) {
 		for (Label label : map.keySet()) {
 			File file = new File(map.get(label));
@@ -454,7 +484,11 @@ public class ZipController {
 		return sb.toString();
 	}
 
-	// wrapper around processing on a file/folder map
+	/**
+	 * @Description Wrapper around processing on a file/folder map
+	 * @Date Oct 9, 2018
+	 * @param map
+	 */
 	private void processMap(Map<Label, String> map) {
 		finishCount = 0;
 
@@ -506,14 +540,14 @@ public class ZipController {
 		}
 
 		// append _inner to inner zip name
-		String innerZipName = zipName + "_inner";
+		String innerZipPath = zipName + "_inner";
 
 		// create inner zip without encryption
-		innerZipName = prepareToZip(label, map, map.get(label), innerZipName, false, false);
+		innerZipPath = prepareToZip(label, map, map.get(label), innerZipPath, false, false);
 
 		// only create outer zip if it's not cancelled
-		if (innerZipName != null) {
-			processOuterZip(label, map, innerZipName, zipName);
+		if (innerZipPath != null) {
+			processOuterZip(label, map, innerZipPath, zipName);
 		}
 
 		increaseFinishCount();
@@ -527,30 +561,53 @@ public class ZipController {
 		}
 	}
 
-	// prepare then perform zipping and return result zip file name, return null if
-	// process is cancelled
+	/**
+	 * @Description Prepare then perform zipping and return result zip file name
+	 * @Date Oct 9, 2018
+	 * @param label           label control
+	 * @param map             the file/folder map
+	 * @param sourcePath      path of the source file
+	 * @param destinationPath path of the zip file
+	 * @param encrypt         flag for encryption
+	 * @param isOuter         flag for whether this zip is the outer or inner layer
+	 * @return null if process is cancelled, the full path of the zip file otherwise
+	 * @throws ZipException
+	 * @throws InterruptedException
+	 */
 	private String prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
-		String zipName = destinationPath + ".zip";
-		File fileZip = new File(zipName);
+		String zipPath = destinationPath + ".zip";
+		File fileZip = new File(zipPath);
 		int count = 1;
 
 		// if zip file with this name already exists, append a number until we get a
 		// unique file name
 		while (fileZip.exists()) {
-			zipName = destinationPath + "_" + count + ".zip";
+			zipPath = destinationPath + "_" + count + ".zip";
 			fileZip = new File(destinationPath);
 			++count;
 		}
 
-		if (performZip(label, map, sourcePath, zipName, encrypt, isOuter)) {
-			return zipName;
+		if (performZip(label, map, sourcePath, zipPath, encrypt, isOuter)) {
+			return zipPath;
 		} else {
 			return null;
 		}
 	}
 
-	// return false if process is cancelled, true otherwise
+	/**
+	 * @Description
+	 * @Date Oct 9, 2018
+	 * @param label           label control
+	 * @param map             the file/folder map
+	 * @param sourcePath      path of the source file
+	 * @param destinationPath path of the zip file
+	 * @param encrypt         flag for encryption
+	 * @param isOuter         flag for whether this zip is the outer or inner layer
+	 * @return false if process is cancelled, true otherwise
+	 * @throws ZipException
+	 * @throws InterruptedException
+	 */
 	private boolean performZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
 		ZipFile zip = getZipFile(sourcePath, destinationPath, encrypt);
@@ -577,9 +634,17 @@ public class ZipController {
 		}
 	}
 
-	// perform zip and return the ZipFile object
-	private ZipFile getZipFile(String filePath, String zipName, boolean encrypt) throws ZipException {
-		ZipFile zip = new ZipFile(zipName);
+	/**
+	 * @Description Perform zip
+	 * @Date Oct 9, 2018
+	 * @param filePath
+	 * @param zipPath
+	 * @param encrypt
+	 * @return the ZipFile object
+	 * @throws ZipException
+	 */
+	private ZipFile getZipFile(String filePath, String zipPath, boolean encrypt) throws ZipException {
+		ZipFile zip = new ZipFile(zipPath);
 		ZipParameters parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
 		// maximum compression level
@@ -649,7 +714,10 @@ public class ZipController {
 		});
 	}
 
-	// thread safe method to update finished processes count
+	/**
+	 * @Description Thread safe method to update finished processes count
+	 * @Date Oct 9, 2018
+	 */
 	synchronized private void increaseFinishCount() {
 		++finishCount;
 	}
@@ -675,26 +743,45 @@ public class ZipController {
 		thread.start();
 	}
 
-	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, String zipName)
+	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, String zipPath)
 			throws ZipException, InterruptedException, IOException {
-		zipName = prepareToZip(label, map, innerZipName, zipName, cbEncrypt.isSelected(), true);
+		zipPath = prepareToZip(label, map, innerZipName, zipPath, cbEncrypt.isSelected(), true);
 		File innerZipFile = new File(innerZipName);
 
 		// remove inner zip from disk
 		innerZipFile.delete();
 
 		// only add reference if user chooses to and process is not cancelled
-		if (cbAddReferences.isSelected() && zipName != null) {
-			addReference(label, map, zipName);
+		if (cbAddReferences.isSelected() && zipPath != null) {
+			addReference(label, map, zipPath);
 		}
 	}
 
-	private void addReference(Label label, Map<Label, String> map, String outerZipName) throws IOException {
+	/**
+	 * @Description Synchronized to prevent concurrent modification
+	 * @Date Oct 9, 2018
+	 * @param label        the label object
+	 * @param map          the file/folder map
+	 * @param outerZipPath path of the outer zip file
+	 * @throws IOException
+	 */
+	synchronized private void addReference(Label label, Map<Label, String> map, String outerZipPath)
+			throws IOException {
 		File originalFile = new File(map.get(label));
-		File zipFile = new File(outerZipName);
+		File zipFile = new File(outerZipPath);
 		appController.getReferenceList().add(new ZipReference(Calendar.getInstance(), userSetting.getReferenceTag(),
 				originalFile.getName(), zipFile.getName()));
-		appController.saveReferences();
+
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					appController.saveReferences();
+				} catch (Exception e) {
+					Utility.showError(e, "Error when saving reference", true);
+				}
+			}
+		});
 	}
 
 	@FXML
@@ -702,8 +789,12 @@ public class ZipController {
 		stopAllProcesses();
 	}
 
-	// class to wrap abbreviation and list of original files that have this
-	// abbreviation
+	/**
+	 * @author Gnas
+	 * @Description Class to wrap abbreviation and list of original files that have
+	 *              this // abbreviation
+	 * @Date Oct 9, 2018
+	 */
 	private class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbreviation> {
 		private String fileName;
 		private ArrayList<String> fullNameList = new ArrayList<String>();

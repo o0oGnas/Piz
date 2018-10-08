@@ -2,6 +2,11 @@ package application.controllers.models;
 
 import java.io.Serializable;
 
+/**
+ * @author Gnas
+ * @Description Model of the settings, serializable to save in binary file
+ * @Date Oct 9, 2018
+ */
 public class UserSetting implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String inputFolder;

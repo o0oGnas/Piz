@@ -2,7 +2,11 @@ package application.controllers.models;
 
 import java.util.Calendar;
 
-// Model of the references
+/**
+ * @author Gnas
+ * @Description Model of the references
+ * @Date Oct 9, 2018
+ */
 public class ZipReference {
 	private Calendar date;
 	private String tag;
@@ -39,6 +43,9 @@ public class ZipReference {
 
 	public void setZip(String zip) {
 		this.zip = zip;
+	}
+
+	public ZipReference() {
 	}
 
 	public ZipReference(Calendar date, String tag, String original, String zip) {

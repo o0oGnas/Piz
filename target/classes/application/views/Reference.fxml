@@ -23,6 +23,11 @@
 				<HBox fx:id="hbActions" VBox.vgrow="NEVER">
 					<children>
 						<Button mnemonicParsing="false" prefWidth="100.0" text="Save" />
+                  <Button mnemonicParsing="false" prefWidth="100.0" text="Add reference">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
 						<Button mnemonicParsing="false" prefWidth="100.0" text="Reload">
 							<HBox.margin>
 								<Insets left="10.0" />

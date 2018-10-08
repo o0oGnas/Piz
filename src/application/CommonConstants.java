@@ -1,5 +1,10 @@
 package application;
 
+/**
+ * @author Gnas
+ * @Description Contains commonly used constants in the application
+ * @Date Oct 9, 2018
+ */
 public class CommonConstants {
 	public static final String FILE = "File";
 	public static final String FOLDER = "Folder";
