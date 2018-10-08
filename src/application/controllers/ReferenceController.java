@@ -17,6 +17,7 @@ import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
@@ -38,6 +39,9 @@ import javafx.util.Callback;
  * @Date Oct 9, 2018
  */
 public class ReferenceController {
+	@FXML
+	private Label lblReferenceCount;
+
 	@FXML
 	private TableView<ZipReference> tvTable;
 
@@ -83,6 +87,24 @@ public class ReferenceController {
 		} else {
 			appController.setReferenceList(FXCollections.observableArrayList());
 		}
+
+		setReferenceCount();
+
+		// update reference count whenever reference list changes
+		appController.getReferenceList().addListener(new ListChangeListener<ZipReference>() {
+			@Override
+			public void onChanged(Change<? extends ZipReference> c) {
+				try {
+					setReferenceCount();
+				} catch (Exception e) {
+					Utility.showError(e, "Error when updating reference count", false);
+				}
+			}
+		});
+	}
+
+	private void setReferenceCount() {
+		lblReferenceCount.setText(appController.getReferenceList().size() + " references");
 	}
 
 	private void initialiseTable() {
