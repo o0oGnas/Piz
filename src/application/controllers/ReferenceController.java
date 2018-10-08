@@ -193,7 +193,7 @@ public class ReferenceController {
 
 			// focus on the new row
 			tvTable.requestFocus();
-			tvTable.getSelectionModel().select(appController.getReferenceList().size() - 1);
+			tvTable.getSelectionModel().clearAndSelect(appController.getReferenceList().size() - 1);
 			tvTable.getFocusModel().focus(appController.getReferenceList().size() - 1);
 
 			// scroll to bottom
