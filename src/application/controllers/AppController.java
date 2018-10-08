@@ -3,8 +3,10 @@ package application.controllers;
 import java.io.File;
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -51,14 +53,7 @@ public class AppController {
 			@Override
 			public void onChanged(Change<? extends ZipReference> c) {
 				try {
-					File fileReference = new File(CommonConstants.REFERENCE_FILE);
-					ObjectMapper mapper = new ObjectMapper();
-					mapper.enable(SerializationFeature.INDENT_OUTPUT);
-					DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-					prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-
-					// Object to JSON in file
-					mapper.writeValue(fileReference, referenceList.toArray());
+					saveReferences();
 				} catch (Exception e) {
 					Utility.showError(e, "Error when saving references to file", true);
 				}
@@ -85,5 +80,23 @@ public class AppController {
 		FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + path + ".fxml"));
 		tab.setContent((Parent) loader.load());
 		return loader.getController();
+	}
+
+	/**
+	 * @Description save references to file
+	 * @Date Oct 9, 2018
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
+	public void saveReferences() throws JsonGenerationException, JsonMappingException, IOException {
+		File fileReference = new File(CommonConstants.REFERENCE_FILE);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+		prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+
+		// Object to JSON in file
+		mapper.writeValue(fileReference, referenceList.toArray());
 	}
 }

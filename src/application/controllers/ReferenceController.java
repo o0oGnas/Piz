@@ -134,6 +134,7 @@ public class ReferenceController {
 			public void handle(CellEditEvent<ZipReference, String> event) {
 				try {
 					appController.getReferenceList().get(event.getTablePosition().getRow()).setTag(event.getNewValue());
+					appController.saveReferences();
 				} catch (Exception e) {
 					Utility.showError(e, "Error when editing tag", false);
 				}
@@ -161,6 +162,7 @@ public class ReferenceController {
 				try {
 					appController.getReferenceList().get(event.getTablePosition().getRow())
 							.setOriginal(event.getNewValue());
+					appController.saveReferences();
 				} catch (Exception e) {
 					Utility.showError(e, "Error when editing original", false);
 				}
@@ -176,6 +178,7 @@ public class ReferenceController {
 			public void handle(CellEditEvent<ZipReference, String> event) {
 				try {
 					appController.getReferenceList().get(event.getTablePosition().getRow()).setZip(event.getNewValue());
+					appController.saveReferences();
 				} catch (Exception e) {
 					Utility.showError(e, "Error when editing zip", false);
 				}
