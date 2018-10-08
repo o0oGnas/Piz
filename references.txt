@@ -25,3 +25,7 @@ tét		Gigantic		G_outer.zip
 tét		Documents		D_outer.zip
 tét		Random		R_outer.zip
 tét		Gigantic		G_outer.zip
+tét		20170330_122403.jpg		20170330_122403.zip
+tét		20170330_122355.jpg		20170330_122355.zip
+tét		20170330_122512.jpg		20170330_122512.zip
+tét		20170330_122452.jpg		20170330_122452.zip

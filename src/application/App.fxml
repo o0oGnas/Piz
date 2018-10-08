@@ -64,7 +64,7 @@
       				</HBox>
       				<HBox alignment="CENTER_LEFT">
       					<children>
-      						<CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Hide file name">
+      						<CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name">
       							<HBox.margin>
       								<Insets />
       							</HBox.margin>

@@ -666,18 +666,17 @@ public class AppController {
 		thread.start();
 	}
 
-	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, final String zipName)
+	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, String zipName)
 			throws ZipException, InterruptedException, IOException {
-		String outerZipName = zipName + "_outer";
-		outerZipName = prepareToZip(label, map, innerZipName, outerZipName, cbEncrypt.isSelected(), true);
+		zipName = prepareToZip(label, map, innerZipName, zipName, cbEncrypt.isSelected(), true);
 		File innerZipFile = new File(innerZipName);
 
 		// remove inner zip from disk
 		innerZipFile.delete();
 
 		// only add reference if user chooses to and process is not cancelled
-		if (cbAddReferences.isSelected() && outerZipName != null) {
-			addReference(label, map, outerZipName);
+		if (cbAddReferences.isSelected() && zipName != null) {
+			addReference(label, map, zipName);
 		}
 	}
 
