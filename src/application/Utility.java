@@ -2,6 +2,7 @@ package application;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -74,5 +75,19 @@ public final class Utility {
 		alert.setContentText(message);
 		alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
 		alert.showAndWait();
+	}
+
+	/**
+	 * @Description show confirmation dialog
+	 * @Date Oct 9, 2018
+	 * @param message the displayed message
+	 * @return confirmation result
+	 */
+	public static Optional<ButtonType> showConfirmation(String message) {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Confirmation");
+		alert.setHeaderText("Please confirm this action");
+		alert.setContentText(message);
+		return alert.showAndWait();
 	}
 }
