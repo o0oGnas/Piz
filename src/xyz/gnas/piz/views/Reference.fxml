@@ -33,6 +33,11 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </Button>
+                  <Button mnemonicParsing="false" onAction="#save" prefWidth="150.0" text="Save references">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
 					</children>
 					<VBox.margin>
 						<Insets top="10.0" />

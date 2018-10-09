@@ -241,4 +241,13 @@ public class ReferenceController {
 			CommonUtility.showError(e, "Could not delete reference", false);
 		}
 	}
+
+	@FXML
+	private void save() {
+		try {
+			appController.saveReferences();
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not save references", false);
+		}
+	}
 }
