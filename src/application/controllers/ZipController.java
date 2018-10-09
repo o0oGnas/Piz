@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -21,9 +22,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 
-import application.CommonConstants;
 import application.Main;
-import application.Utility;
+import application.common.CommonConstants;
+import application.common.CommonUtility;
 import application.controllers.models.UserSetting;
 import application.controllers.models.ZipReference;
 import javafx.application.Platform;
@@ -34,6 +35,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -147,11 +149,21 @@ public class ZipController {
 			Main.getStage().setOnCloseRequest(new EventHandler<WindowEvent>() {
 				@Override
 				public void handle(WindowEvent event) {
-					stopAllProcesses();
+					// show confirmation is there are running processes
+					if (progressList.size() > 0) {
+						Optional<ButtonType> result = CommonUtility.showConfirmation(
+								"There are running processes, are you sure you want to exit (This will stop them)?");
+
+						if (result.isPresent() && result.get() == ButtonType.OK) {
+							stopAllProcesses();
+						} else {
+							event.consume();
+						}
+					}
 				}
 			});
 		} catch (Exception e) {
-			Utility.showError(e, "Could not initialise zip", true);
+			CommonUtility.showError(e, "Could not initialise zip", true);
 		}
 	}
 
@@ -236,7 +248,7 @@ public class ZipController {
 				try {
 					updateFolderAndFileLists();
 				} catch (Exception e) {
-					Utility.showError(e, "Error filtering file/folder", false);
+					CommonUtility.showError(e, "Error filtering file/folder", false);
 				}
 			}
 		});
@@ -280,7 +292,7 @@ public class ZipController {
 						mediaPlayer.play();
 					}
 				} catch (Exception e) {
-					Utility.showError(e, "Error when finishing process", true);
+					CommonUtility.showError(e, "Error when finishing process", true);
 				}
 			}
 		});
@@ -321,7 +333,7 @@ public class ZipController {
 			lblInputFolder.setText(userSetting.getInputFolder());
 			updateFolderAndFileLists();
 		} catch (Exception e) {
-			Utility.showError(e, "Could not select input folder", false);
+			CommonUtility.showError(e, "Could not select input folder", false);
 		}
 	}
 
@@ -377,7 +389,7 @@ public class ZipController {
 				lblOutputFolder.setText(userSetting.getOutputFolder());
 			}
 		} catch (Exception e) {
-			Utility.showError(e, "Could not select output folder", false);
+			CommonUtility.showError(e, "Could not select output folder", false);
 		}
 	}
 
@@ -409,23 +421,23 @@ public class ZipController {
 				monitorAndUpdateProgress();
 			}
 		} catch (Exception e) {
-			Utility.showError(e, "Could not start", false);
+			CommonUtility.showError(e, "Could not start", false);
 		}
 	}
 
 	private boolean checkInput() {
 		if (inputFolder == null) {
-			Utility.showAlert("Invalid input", "Please choose a folder!");
+			CommonUtility.showAlert("Invalid input", "Please choose a folder!");
 			return false;
 		}
 
 		if (ccbFileFolder.getCheckModel().getCheckedItems().isEmpty()) {
-			Utility.showAlert("Invalid input", "Please choose to perform zipping on files or folders or both!");
+			CommonUtility.showAlert("Invalid input", "Please choose to perform zipping on files or folders or both!");
 			return false;
 		}
 
 		if (cbEncrypt.isSelected() && (tfPassword.getText() == null || tfPassword.getText().isEmpty())) {
-			Utility.showAlert("Invalid input", "Please enter a password!");
+			CommonUtility.showAlert("Invalid input", "Please enter a password!");
 			return false;
 		}
 
@@ -433,7 +445,7 @@ public class ZipController {
 		// reference
 		if (cbObfuscateFileName.isSelected() && cbAddReferences.isSelected()
 				&& (tfReferenceTag.getText() == null || tfReferenceTag.getText().isEmpty())) {
-			Utility.showAlert("Invalid input", "Please enter a reference tag!");
+			CommonUtility.showAlert("Invalid input", "Please enter a reference tag!");
 			return false;
 		}
 
@@ -502,7 +514,7 @@ public class ZipController {
 						Platform.runLater(new Runnable() {
 							@Override
 							public void run() {
-								Utility.showError(e, "Error when executing a thread", true);
+								CommonUtility.showError(e, "Error when executing a thread", true);
 							}
 						});
 					}
@@ -694,7 +706,7 @@ public class ZipController {
 
 					label.setText("(" + Math.round(percent) + "%) " + map.get(label));
 				} catch (Exception e) {
-					Utility.showError(e, "Error when updating progress", true);
+					CommonUtility.showError(e, "Error when updating progress", true);
 				}
 			}
 		});
@@ -707,7 +719,7 @@ public class ZipController {
 				try {
 					label.setText("(done) " + map.get(label));
 				} catch (Exception e) {
-					Utility.showError(e, "Error when showing done process", true);
+					CommonUtility.showError(e, "Error when showing done process", true);
 				}
 			}
 		});
@@ -733,7 +745,7 @@ public class ZipController {
 
 					finish();
 				} catch (Exception e) {
-					Utility.showError(e, "Error when monitoring progress", true);
+					CommonUtility.showError(e, "Error when monitoring progress", true);
 					finish();
 				}
 			}
@@ -776,7 +788,7 @@ public class ZipController {
 					appController.getReferenceList().add(
 							new ZipReference(userSetting.getReferenceTag(), originalFile.getName(), zipFile.getName()));
 				} catch (Exception e) {
-					Utility.showError(e, "Error when adding reference", true);
+					CommonUtility.showError(e, "Error when adding reference", true);
 				}
 			}
 		});

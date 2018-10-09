@@ -1,5 +1,7 @@
 package application;
 
+import application.common.CommonConstants;
+import application.common.CommonUtility;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -27,7 +29,7 @@ public class Main extends Application {
 					.add(new Image(getClass().getResourceAsStream(CommonConstants.RESOURCE_FOLDER + "/icon.png")));
 			stage.show();
 		} catch (Exception e) {
-			Utility.showError(e, "Could not start the application", true);
+			CommonUtility.showError(e, "Could not start the application", true);
 		}
 	}
 

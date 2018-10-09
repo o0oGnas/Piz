@@ -1,4 +1,4 @@
-package application;
+package application.common;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -16,7 +16,7 @@ import javafx.scene.layout.Priority;
  * @Description Contains common methods used in the application
  * @Date Oct 9, 2018
  */
-public final class Utility {
+public final class CommonUtility {
 	/**
 	 * @Description Show error dialog with exception stack trace in expandable
 	 *              dialog

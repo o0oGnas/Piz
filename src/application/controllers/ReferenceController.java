@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import application.CommonConstants;
-import application.Utility;
+import application.common.CommonConstants;
+import application.common.CommonUtility;
 import application.controllers.models.ZipReference;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -75,7 +75,7 @@ public class ReferenceController {
 	private void initialize() {
 		try {
 		} catch (Exception e) {
-			Utility.showError(e, "Could not initialise reference", true);
+			CommonUtility.showError(e, "Could not initialise reference", true);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class ReferenceController {
 				try {
 					setReferenceCount();
 				} catch (Exception e) {
-					Utility.showError(e, "Error when updating reference count", false);
+					CommonUtility.showError(e, "Error when updating reference count", false);
 				}
 			}
 		});
@@ -160,7 +160,7 @@ public class ReferenceController {
 					appController.getReferenceList().get(event.getTablePosition().getRow()).setTag(event.getNewValue());
 					appController.saveReferences();
 				} catch (Exception e) {
-					Utility.showError(e, "Error when editing tag", false);
+					CommonUtility.showError(e, "Error when editing tag", false);
 				}
 			}
 		});
@@ -188,7 +188,7 @@ public class ReferenceController {
 							.setOriginal(event.getNewValue());
 					appController.saveReferences();
 				} catch (Exception e) {
-					Utility.showError(e, "Error when editing original", false);
+					CommonUtility.showError(e, "Error when editing original", false);
 				}
 			}
 		});
@@ -204,7 +204,7 @@ public class ReferenceController {
 					appController.getReferenceList().get(event.getTablePosition().getRow()).setZip(event.getNewValue());
 					appController.saveReferences();
 				} catch (Exception e) {
-					Utility.showError(e, "Error when editing zip", false);
+					CommonUtility.showError(e, "Error when editing zip", false);
 				}
 			}
 		});
@@ -224,21 +224,21 @@ public class ReferenceController {
 			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
 			verticalBar.setValue(verticalBar.getMax());
 		} catch (Exception e) {
-			Utility.showError(e, "Could not add reference", false);
+			CommonUtility.showError(e, "Could not add reference", false);
 		}
 	}
 
 	@FXML
 	private void delete() {
 		try {
-			Optional<ButtonType> result = Utility
+			Optional<ButtonType> result = CommonUtility
 					.showConfirmation("Are you sure you want to delete selected reference(s)?");
 
 			if (result.isPresent() && result.get() == ButtonType.OK) {
 				appController.getReferenceList().removeAll(tvTable.getSelectionModel().getSelectedItems());
 			}
 		} catch (Exception e) {
-			Utility.showError(e, "Could not delete reference", false);
+			CommonUtility.showError(e, "Could not delete reference", false);
 		}
 	}
 }

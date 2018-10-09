@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import application.CommonConstants;
 import application.Main;
-import application.Utility;
+import application.common.CommonConstants;
+import application.common.CommonUtility;
 import application.controllers.models.ZipReference;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -55,7 +55,7 @@ public class AppController {
 				try {
 					saveReferences();
 				} catch (Exception e) {
-					Utility.showError(e, "Error when saving references to file", true);
+					CommonUtility.showError(e, "Error when saving references to file", true);
 				}
 			}
 		});
@@ -72,7 +72,7 @@ public class AppController {
 			referenceController = (ReferenceController) initialiseTab(tabReference, "Reference");
 			referenceController.setAppController(this);
 		} catch (Exception e) {
-			Utility.showError(e, "Could not initialise app", true);
+			CommonUtility.showError(e, "Could not initialise app", true);
 		}
 	}
 
