@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1" fx:controller="xyz.gnas.piz.controllers.ZipController">
+<AnchorPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xyz.gnas.piz.controllers.ZipController">
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
@@ -81,10 +81,15 @@
 						</HBox>
 					</children>
 				</VBox>
-				<HBox>
+				<HBox fx:id="hbActions">
 					<children>
 						<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" prefWidth="100.0" text="Start" />
-						<Button mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
+                  <Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+						<Button fx:id="btnStop" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
 							<HBox.margin>
 								<Insets left="10.0" />
 							</HBox.margin>

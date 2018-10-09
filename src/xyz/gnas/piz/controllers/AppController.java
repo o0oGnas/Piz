@@ -55,7 +55,7 @@ public class AppController {
 				try {
 					saveReferences();
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when saving references to file", true);
+					CommonUtility.showError(e, "Error when saving references to file", false);
 				}
 			}
 		});

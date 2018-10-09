@@ -34,6 +34,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -83,7 +84,16 @@ public class ZipController {
 	private VBox vbList;
 
 	@FXML
+	private HBox hbActions;
+
+	@FXML
 	private Button btnStart;
+
+	@FXML
+	private Button btnPauseResume;
+
+	@FXML
+	private Button btnStop;
 
 	private final String DATA = "setting.bin";
 
@@ -129,9 +139,14 @@ public class ZipController {
 	private int finishCount = 0;
 
 	/**
+	 * Flag to tell if processes are paused
+	 */
+	private boolean pause;
+
+	/**
 	 * Flag to tell if processes are cancelled
 	 */
-	private boolean stop = false;
+	private boolean stop;
 
 	public void setAppController(AppController appController) {
 		this.appController = appController;
@@ -271,40 +286,9 @@ public class ZipController {
 	}
 
 	private void stopAllProcesses() {
+		// disable all actions until all processes are stopped properly
+		hbActions.setDisable(true);
 		stop = true;
-
-		for (ProgressMonitor progress : progressList) {
-			progress.cancelAllTasks();
-		}
-	}
-
-	/**
-	 * @Description Re-enable all controls, refresh file/folder list and play
-	 *              notification sound
-	 * @Date Oct 9, 2018
-	 */
-	private void finish() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					vbInputFields.setMouseTransparent(false);
-					vbInputFields.setFocusTraversable(true);
-					btnStart.setDisable(false);
-					updateFolderAndFileLists();
-
-					// play notification sound if process is not canceled prematurely
-					if (!stop) {
-						Media media = new Media(Main.class
-								.getResource(CommonConstants.RESOURCE_FOLDER + "/notification.wav").toString());
-						MediaPlayer mediaPlayer = new MediaPlayer(media);
-						mediaPlayer.play();
-					}
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when finishing process", true);
-				}
-			}
-		});
 	}
 
 	private void updateFolderAndFileLists() {
@@ -408,12 +392,14 @@ public class ZipController {
 			if (checkInput()) {
 				stop = false;
 				saveUserSetting();
-				progressList.clear();
 
 				// prevent input while processing
 				vbInputFields.setMouseTransparent(true);
 				vbInputFields.setFocusTraversable(false);
 				btnStart.setDisable(true);
+
+				// enable pause and stop buttons
+				disablePauseStop(false);
 
 				if (cbObfuscateFileName.isSelected()) {
 					updateAbbreviationList();
@@ -432,6 +418,11 @@ public class ZipController {
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not start", false);
 		}
+	}
+
+	private void disablePauseStop(boolean disable) {
+		btnPauseResume.setDisable(disable);
+		btnStop.setDisable(disable);
 	}
 
 	private boolean checkInput() {
@@ -523,7 +514,7 @@ public class ZipController {
 						Platform.runLater(new Runnable() {
 							@Override
 							public void run() {
-								CommonUtility.showError(e, "Error when executing a thread", true);
+								CommonUtility.showError(e, "Error when executing a thread", false);
 							}
 						});
 					}
@@ -635,15 +626,20 @@ public class ZipController {
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
 		addProgress(progressMonitor);
 
-		// run while zip is still in progress
-		while (progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
+		// run while zip is not cancelled and is still in progress (paused is considered
+		// in progress)
+		while (!stop && (progressMonitor.getState() == ProgressMonitor.STATE_BUSY)) {
 			showProgress(label, map, progressMonitor, isOuter);
 
 			// update progress every 0.5 second
 			Thread.sleep(500);
 		}
 
-		if (progressMonitor.isCancelAllTasks()) {
+		if (stop) {
+			// canceling tasks while paused doesn't release processing thread
+			// (possibly a bug of zip4j)
+			progressMonitor.setPause(false);
+			progressMonitor.cancelAllTasks();
 			return false;
 		} else {
 			// only show that the process is done if it's the outer layer
@@ -716,7 +712,7 @@ public class ZipController {
 
 					label.setText("(" + Math.round(percent) + "%) " + map.get(label));
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when updating progress", true);
+					CommonUtility.showError(e, "Error when updating progress", false);
 				}
 			}
 		});
@@ -729,7 +725,7 @@ public class ZipController {
 				try {
 					label.setText("(done) " + map.get(label));
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when showing done process", true);
+					CommonUtility.showError(e, "Error when showing done process", false);
 				}
 			}
 		});
@@ -755,13 +751,45 @@ public class ZipController {
 
 					finish();
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when monitoring progress", true);
+					CommonUtility.showError(e, "Error when monitoring progress", false);
 					finish();
 				}
 			}
 		});
 
 		thread.start();
+	}
+
+	/**
+	 * @Description Refresh all controls, refresh file/folder list, clear progress
+	 *              list and play notification sound
+	 * @Date Oct 9, 2018
+	 */
+	private void finish() {
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					vbInputFields.setMouseTransparent(false);
+					vbInputFields.setFocusTraversable(true);
+					btnStart.setDisable(false);
+					disablePauseStop(true);
+					hbActions.setDisable(false);
+					updateFolderAndFileLists();
+					progressList.clear();
+
+					// play notification sound if process is not canceled prematurely
+					if (!stop) {
+						Media media = new Media(Main.class
+								.getResource(CommonConstants.RESOURCE_FOLDER + "/notification.wav").toString());
+						MediaPlayer mediaPlayer = new MediaPlayer(media);
+						mediaPlayer.play();
+					}
+				} catch (Exception e) {
+					CommonUtility.showError(e, "Error when finishing process", false);
+				}
+			}
+		});
 	}
 
 	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, String zipPath)
@@ -798,15 +826,32 @@ public class ZipController {
 					appController.getReferenceList().add(
 							new ZipReference(userSetting.getReferenceTag(), originalFile.getName(), zipFile.getName()));
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when adding reference", true);
+					CommonUtility.showError(e, "Error when adding reference", false);
 				}
 			}
 		});
 	}
 
 	@FXML
+	private void pauseOrResume(ActionEvent event) {
+		pause = !pause;
+
+		for (ProgressMonitor progress : progressList) {
+			progress.setPause(pause);
+		}
+
+		updatePauseResumeButton();
+	}
+
+	private void updatePauseResumeButton() {
+		btnPauseResume.setText(pause ? "Resume" : "Pause");
+	}
+
+	@FXML
 	private void stop(ActionEvent event) {
 		stopAllProcesses();
+		pause = false;
+		updatePauseResumeButton();
 	}
 
 	/**
