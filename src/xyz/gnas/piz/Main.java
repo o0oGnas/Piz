@@ -24,7 +24,7 @@ public class Main extends Application {
 			Scene scene = new Scene((Parent) loader.load());
 			stage.setScene(scene);
 			stage.setResizable(false);
-			stage.setTitle("Batch Zip");
+			stage.setTitle("Piz");
 			stage.getIcons()
 					.add(new Image(getClass().getResourceAsStream(CommonConstants.RESOURCE_FOLDER + "/icon.png")));
 			stage.show();
