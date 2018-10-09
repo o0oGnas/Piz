@@ -768,8 +768,18 @@ public class ZipController {
 			throws IOException {
 		File originalFile = new File(map.get(label));
 		File zipFile = new File(outerZipPath);
-		appController.getReferenceList()
-				.add(new ZipReference(userSetting.getReferenceTag(), originalFile.getName(), zipFile.getName()));
+
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					appController.getReferenceList().add(
+							new ZipReference(userSetting.getReferenceTag(), originalFile.getName(), zipFile.getName()));
+				} catch (Exception e) {
+					Utility.showError(e, "Error when adding reference", true);
+				}
+			}
+		});
 	}
 
 	@FXML
