@@ -1,2 +1,8 @@
 setting.bin
 user_data.bin
+.classpath
+.project
+references.txt
+.settings
+bin
+target
