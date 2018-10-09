@@ -1,4 +1,4 @@
-package application.controllers;
+package xyz.gnas.piz.controllers;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +10,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import application.common.CommonConstants;
-import application.common.CommonUtility;
-import application.controllers.models.ZipReference;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
@@ -29,6 +26,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
+import xyz.gnas.piz.common.CommonConstants;
+import xyz.gnas.piz.common.CommonUtility;
+import xyz.gnas.piz.models.ZipReference;
 
 /**
  * @author Gnas
@@ -75,7 +75,7 @@ public class ReferenceController {
 	private void initialize() {
 		try {
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise reference", true);
+			CommonUtility.showError(e, "Could not initialise reference tab", true);
 		}
 	}
 

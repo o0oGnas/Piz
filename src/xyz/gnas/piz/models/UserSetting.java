@@ -1,4 +1,4 @@
-package application.controllers.models;
+package xyz.gnas.piz.models;
 
 import java.io.Serializable;
 

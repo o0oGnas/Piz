@@ -1,4 +1,4 @@
-package application.common;
+package xyz.gnas.piz.common;
 
 /**
  * @author Gnas

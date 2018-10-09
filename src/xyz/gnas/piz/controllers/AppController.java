@@ -1,4 +1,4 @@
-package application.controllers;
+package xyz.gnas.piz.controllers;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,10 +10,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import application.Main;
-import application.common.CommonConstants;
-import application.common.CommonUtility;
-import application.controllers.models.ZipReference;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,6 +17,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import xyz.gnas.piz.Main;
+import xyz.gnas.piz.common.CommonConstants;
+import xyz.gnas.piz.common.CommonUtility;
+import xyz.gnas.piz.models.ZipReference;
 
 public class AppController {
 	@FXML

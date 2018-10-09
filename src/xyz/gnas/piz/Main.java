@@ -1,13 +1,13 @@
-package application;
+package xyz.gnas.piz;
 
-import application.common.CommonConstants;
-import application.common.CommonUtility;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import xyz.gnas.piz.common.CommonConstants;
+import xyz.gnas.piz.common.CommonUtility;
 
 public class Main extends Application {
 	private static Stage stage;

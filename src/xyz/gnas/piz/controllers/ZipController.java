@@ -1,4 +1,4 @@
-package application.controllers;
+package xyz.gnas.piz.controllers;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,11 +22,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 
-import application.Main;
-import application.common.CommonConstants;
-import application.common.CommonUtility;
-import application.controllers.models.UserSetting;
-import application.controllers.models.ZipReference;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -50,6 +45,11 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import net.lingala.zip4j.util.Zip4jConstants;
+import xyz.gnas.piz.Main;
+import xyz.gnas.piz.common.CommonConstants;
+import xyz.gnas.piz.common.CommonUtility;
+import xyz.gnas.piz.models.UserSetting;
+import xyz.gnas.piz.models.ZipReference;
 
 public class ZipController {
 	@FXML
@@ -145,25 +145,9 @@ public class ZipController {
 			initialiseUserSetting();
 			initialiseFileFolderCheckComboBox();
 			initialiseInputOutputFolders();
-
-			Main.getStage().setOnCloseRequest(new EventHandler<WindowEvent>() {
-				@Override
-				public void handle(WindowEvent event) {
-					// show confirmation is there are running processes
-					if (progressList.size() > 0) {
-						Optional<ButtonType> result = CommonUtility.showConfirmation(
-								"There are running processes, are you sure you want to exit (This will stop them)?");
-
-						if (result.isPresent() && result.get() == ButtonType.OK) {
-							stopAllProcesses();
-						} else {
-							event.consume();
-						}
-					}
-				}
-			});
+			handleClosingApplication();
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise zip", true);
+			CommonUtility.showError(e, "Could not initialise zip tab", true);
 		}
 	}
 
@@ -198,7 +182,10 @@ public class ZipController {
 			userSetting = new UserSetting(null, null, null, null, true, true, true);
 		}
 
-		// initialise input fields value from user data
+		initialiseInputFields();
+	}
+
+	private void initialiseInputFields() {
 		tfPassword.setText(userSetting.getPassword());
 		tfReferenceTag.setText(userSetting.getReferenceTag());
 		cbEncrypt.setSelected(userSetting.isEncrypt());
@@ -255,10 +242,32 @@ public class ZipController {
 	}
 
 	private void initialiseInputOutputFolders() {
-		// initialise input and output folders
 		inputFolder = initialiseFolder(userSetting.getInputFolder(), lblInputFolder);
 		outputFolder = initialiseFolder(userSetting.getOutputFolder(), lblOutputFolder);
 		updateFolderAndFileLists();
+	}
+
+	private void handleClosingApplication() {
+		Main.getStage().setOnCloseRequest(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent event) {
+				try {
+					// show confirmation is there are running processes
+					if (progressList.size() > 0) {
+						Optional<ButtonType> result = CommonUtility.showConfirmation(
+								"There are running processes, are you sure you want to exit (This will stop them)?");
+
+						if (result.isPresent() && result.get() == ButtonType.OK) {
+							stopAllProcesses();
+						} else {
+							event.consume();
+						}
+					}
+				} catch (Exception e) {
+					CommonUtility.showError(e, "Error when closing the application", true);
+				}
+			}
+		});
 	}
 
 	private void stopAllProcesses() {
@@ -541,24 +550,25 @@ public class ZipController {
 		File fileOriginal = new File(map.get(label));
 		String abbreviatedName = getAbbreviatedFileName(fileOriginal.getName());
 		Abbreviation abbreviation = abbreviationList.get(new Abbreviation(abbreviatedName));
-		// zip name is path to parent folder with abbreviated file name
-		String zipName = getZipParentFolderPath(fileOriginal) + "\\" + abbreviatedName;
+
+		// zip name is path to parent folder and abbreviated file name
+		String zipPath = getZipParentFolderPath(fileOriginal) + "\\" + abbreviatedName;
 
 		// append a number to the file name if there are many files with the same
 		// abbreviated name
 		if (abbreviation.fullNameList.size() > 1) {
-			zipName += "-" + (abbreviation.fullNameList.indexOf(fileOriginal.getName()) + 1);
+			zipPath += "-" + (abbreviation.fullNameList.indexOf(fileOriginal.getName()) + 1);
 		}
 
 		// append _inner to inner zip name
-		String innerZipPath = zipName + "_inner";
+		String innerZipPath = zipPath + "_inner";
 
 		// create inner zip without encryption
 		innerZipPath = prepareToZip(label, map, map.get(label), innerZipPath, false, false);
 
 		// only create outer zip if it's not cancelled
 		if (innerZipPath != null) {
-			processOuterZip(label, map, innerZipPath, zipName);
+			processOuterZip(label, map, innerZipPath, zipPath);
 		}
 
 		increaseFinishCount();
