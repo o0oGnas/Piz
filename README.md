@@ -10,3 +10,4 @@
 	+ commons-io 2.6
 	+ commons-lang 3 3.8.1 
 	+ jackson-databind 2.9.7
+- Requires OpenJDK 10 or later to run (download from https://github.com/ojdkbuild/ojdkbuild)
