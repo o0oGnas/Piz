@@ -8,5 +8,5 @@
 	+ ControlsFX 9.0.0
 	+ Zip4j 1.3.2
 	+ commons-io 2.6
-	+ commons-lang3 3.8.1 
+	+ commons-lang 3 3.8.1 
 	+ jackson-databind 2.9.7
