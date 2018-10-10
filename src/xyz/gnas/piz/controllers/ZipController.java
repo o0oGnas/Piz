@@ -23,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -33,7 +35,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
@@ -49,6 +54,7 @@ import net.lingala.zip4j.util.Zip4jConstants;
 import xyz.gnas.piz.Main;
 import xyz.gnas.piz.common.CommonConstants;
 import xyz.gnas.piz.common.CommonUtility;
+import xyz.gnas.piz.common.ResourceManager;
 import xyz.gnas.piz.models.UserSetting;
 import xyz.gnas.piz.models.ZipReference;
 
@@ -78,10 +84,16 @@ public class ZipController {
 	private TextField tfReferenceTag;
 
 	@FXML
+	private PasswordField pfPassword;
+
+	@FXML
 	private VBox vbInputFields;
 
 	@FXML
 	private VBox vbList;
+
+	@FXML
+	private HBox hbPassword;
 
 	@FXML
 	private HBox hbActions;
@@ -94,6 +106,12 @@ public class ZipController {
 
 	@FXML
 	private Button btnStop;
+
+	@FXML
+	private ImageView ivPauseResume;
+
+	@FXML
+	private ImageView ivMaskUnmask;
 
 	private final String DATA = "setting.bin";
 
@@ -138,10 +156,12 @@ public class ZipController {
 	 */
 	private int finishCount = 0;
 
+	private BooleanProperty mask = new SimpleBooleanProperty(true);
+
 	/**
 	 * Flag to tell if processes are paused
 	 */
-	private boolean pause;
+	private BooleanProperty pause = new SimpleBooleanProperty();
 
 	/**
 	 * Flag to tell if processes are cancelled
@@ -160,6 +180,8 @@ public class ZipController {
 			initialiseUserSetting();
 			initialiseFileFolderCheckComboBox();
 			initialiseInputOutputFolders();
+			initialisePasswordField();
+			initialisePauseListener();
 			handleClosingApplication();
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise zip tab", true);
@@ -170,7 +192,7 @@ public class ZipController {
 		cbEncrypt.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				tfPassword.setDisable(!newValue);
+				hbPassword.setDisable(!newValue);
 			}
 		});
 	}
@@ -260,6 +282,34 @@ public class ZipController {
 		inputFolder = initialiseFolder(userSetting.getInputFolder(), lblInputFolder);
 		outputFolder = initialiseFolder(userSetting.getOutputFolder(), lblOutputFolder);
 		updateFolderAndFileLists();
+	}
+
+	private void initialisePasswordField() {
+		tfPassword.setManaged(false);
+		tfPassword.managedProperty().bind(mask.not());
+		tfPassword.visibleProperty().bind(mask.not());
+
+		pfPassword.managedProperty().bind(mask);
+		pfPassword.visibleProperty().bind(mask);
+
+		pfPassword.textProperty().bindBidirectional(tfPassword.textProperty());
+
+		mask.addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				ivMaskUnmask.setImage(mask.get() ? ResourceManager.getUnmaskIcon() : ResourceManager.getMaskIcon());
+			}
+		});
+	}
+
+	private void initialisePauseListener() {
+		pause.addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				btnPauseResume.setText(pause.get() ? "Resume" : "Pause");
+				ivPauseResume.setImage(pause.get() ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+			}
+		});
 	}
 
 	private void handleClosingApplication() {
@@ -383,6 +433,15 @@ public class ZipController {
 			}
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not select output folder", false);
+		}
+	}
+
+	@FXML
+	private void maskUnmask(MouseEvent event) {
+		try {
+			mask.set(!mask.get());
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not mask/unmask password", false);
 		}
 	}
 
@@ -944,8 +1003,7 @@ public class ZipController {
 
 					// play notification sound if process is not canceled prematurely
 					if (!stop) {
-						Media media = new Media(Main.class
-								.getResource(CommonConstants.RESOURCE_FOLDER + "/notification.wav").toString());
+						Media media = xyz.gnas.piz.common.ResourceManager.getNotificationSound();
 						MediaPlayer mediaPlayer = new MediaPlayer(media);
 						mediaPlayer.play();
 					}
@@ -987,7 +1045,8 @@ public class ZipController {
 			@Override
 			public void run() {
 				try {
-					appController.getReferenceList().add(
+					// add reference to the top
+					appController.getReferenceList().add(0,
 							new ZipReference(userSetting.getReferenceTag(), originalFile.getName(), zipFile.getName()));
 				} catch (Exception e) {
 					CommonUtility.showError(e, "Error when adding reference", false);
@@ -998,24 +1057,18 @@ public class ZipController {
 
 	@FXML
 	private void pauseOrResume(ActionEvent event) {
-		pause = !pause;
+		pause.set(!pause.get());
 
 		for (ProgressMonitor progress : progressList) {
-			progress.setPause(pause);
+			progress.setPause(pause.get());
 		}
-
-		updatePauseResumeButton();
-	}
-
-	private void updatePauseResumeButton() {
-		btnPauseResume.setText(pause ? "Resume" : "Pause");
 	}
 
 	@FXML
 	private void stop(ActionEvent event) {
 		stopAllProcesses();
-		pause = false;
-		updatePauseResumeButton();
+		pause.set(false);
+		;
 	}
 
 	/**

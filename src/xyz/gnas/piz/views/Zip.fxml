@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -22,13 +23,14 @@
 						<HBox VBox.vgrow="NEVER">
 							<children>
 								<Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" text="Input folder" HBox.hgrow="NEVER">
-                           <graphic>
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../resources/icons/input_folder.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic></Button>
+									<graphic>
+										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+											<image>
+												<Image url="@../resources/icons/input_folder.png" />
+											</image>
+										</ImageView>
+									</graphic>
+								</Button>
 								<Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
 									<HBox.margin>
 										<Insets left="10.0" />
@@ -38,13 +40,13 @@
 									<HBox.margin>
 										<Insets left="10.0" />
 									</HBox.margin>
-                           <graphic>
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../resources/icons/output_folder.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
+									<graphic>
+										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+											<image>
+												<Image url="@../resources/icons/output_folder.png" />
+											</image>
+										</ImageView>
+									</graphic>
 								</Button>
 								<Label fx:id="lblOutputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
 									<HBox.margin>
@@ -68,11 +70,31 @@
 										<Insets left="10.0" />
 									</HBox.margin>
 								</CheckBox>
-								<TextField fx:id="tfPassword" prefHeight="25.0" prefWidth="187.0" promptText="Password" HBox.hgrow="ALWAYS">
-									<HBox.margin>
-										<Insets left="10.0" />
-									</HBox.margin>
-								</TextField>
+                        <HBox fx:id="hbPassword" alignment="CENTER" HBox.hgrow="ALWAYS">
+                           <children>
+      								<TextField fx:id="tfPassword" promptText="Password" visible="false" HBox.hgrow="ALWAYS">
+      									<HBox.margin>
+      										<Insets />
+      									</HBox.margin>
+      								</TextField>
+      								<PasswordField fx:id="pfPassword" promptText="Password" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </PasswordField>
+      								<ImageView fx:id="ivMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
+      									<image>
+      										<Image url="@../resources/icons/unmask.png" />
+      									</image>
+      									<HBox.margin>
+      										<Insets left="2.0" />
+      									</HBox.margin>
+      								</ImageView>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </HBox>
 								<CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name" HBox.hgrow="NEVER">
 									<HBox.margin>
 										<Insets left="10.0" />
@@ -100,40 +122,41 @@
 				<HBox fx:id="hbActions">
 					<children>
 						<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" prefWidth="100.0" text="Start">
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../resources/icons/start.png" />
-                           </image>
-                        </ImageView>
-                     </graphic></Button>
-                  <Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../resources/icons/pause.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
+							<graphic>
+								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../resources/icons/start.png" />
+									</image>
+								</ImageView>
+							</graphic>
+						</Button>
+						<Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
+							<HBox.margin>
+								<Insets left="10.0" />
+							</HBox.margin>
+							<graphic>
+								<ImageView fx:id="ivPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../resources/icons/pause.png" />
+									</image>
+								</ImageView>
+							</graphic>
+						</Button>
 						<Button fx:id="btnStop" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
 							<HBox.margin>
 								<Insets left="10.0" />
 							</HBox.margin>
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../resources/icons/stop.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
+							<graphic>
+								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../resources/icons/stop.png" />
+									</image>
+								</ImageView>
+							</graphic>
 						</Button>
 					</children>
 				</HBox>
-				<ScrollPane VBox.vgrow="ALWAYS">
+				<ScrollPane style="-fx-background: white;" VBox.vgrow="ALWAYS">
 					<VBox.margin>
 						<Insets top="10.0" />
 					</VBox.margin>
