@@ -470,7 +470,7 @@ public class ZipController {
 	private void updateAbbreviationFromMap(Map<Label, String> map) {
 		for (Label label : map.keySet()) {
 			File file = new File(map.get(label));
-			String fileName = getAbbreviatedFileName(file.getName());
+			String fileName = getAbbreviatedFileName(file.getName(), file.isDirectory());
 			AbbreviationWrapper abbreviation = new AbbreviationWrapper(fileName);
 
 			if (abbreviationList.containsKey(abbreviation)) {
@@ -520,7 +520,7 @@ public class ZipController {
 		Map<String, String> mapWithExtension = new HashMap<String, String>();
 
 		for (String file : abbreviation.fileAbbreviationMap.keySet()) {
-			mapWithExtension.put(file, getAbbreviatedFileName(file) + "-" + FilenameUtils.getExtension(file));
+			mapWithExtension.put(file, getAbbreviatedFileName(file, true));
 		}
 
 		return mapWithExtension;
@@ -540,7 +540,8 @@ public class ZipController {
 				// get abbreviation of each file in abbreviation with duplicates using their
 				// rebuilt name
 				if (abbreviation.fileAbbreviationMap.size() > 1) {
-					newAbbreviatedName = getAbbreviatedFileName(fileRebuiltNameMap.get(file));
+					File fileOnDisk = new File(file);
+					newAbbreviatedName = getAbbreviatedFileName(fileRebuiltNameMap.get(file), fileOnDisk.isDirectory());
 				}
 
 				result.put(file, newAbbreviatedName);
@@ -638,8 +639,10 @@ public class ZipController {
 	 * @param fileName name of the orinal file
 	 * @return
 	 */
-	private String getAbbreviatedFileName(String fileName) {
-		String[] split = FilenameUtils.removeExtension(fileName).split(" ");
+	private String getAbbreviatedFileName(String fileName, boolean isFolder) {
+		String delimiter = " ";
+		String[] split = isFolder ? fileName.split(delimiter)
+				: FilenameUtils.removeExtension(fileName).split(delimiter);
 		StringBuilder sb = new StringBuilder();
 
 		// get the first character of each word in upper case and append to result

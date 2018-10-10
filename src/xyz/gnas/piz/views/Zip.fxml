@@ -6,6 +6,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -19,7 +21,14 @@
 					<children>
 						<HBox VBox.vgrow="NEVER">
 							<children>
-								<Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" text="Input folder" HBox.hgrow="NEVER" />
+								<Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" text="Input folder" HBox.hgrow="NEVER">
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../resources/icons/input_folder.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic></Button>
 								<Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
 									<HBox.margin>
 										<Insets left="10.0" />

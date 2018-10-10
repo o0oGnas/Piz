@@ -25,8 +25,9 @@ public class Main extends Application {
 			stage.setScene(scene);
 			stage.setResizable(false);
 			stage.setTitle("Piz");
-			stage.getIcons()
-					.add(new Image(getClass().getResourceAsStream(CommonConstants.RESOURCE_FOLDER + "/icon.png")));
+			stage.getIcons().add(new Image(getClass().getResourceAsStream(CommonConstants.ICON_FOLDER + "/app.png")));
+			scene.getStylesheets()
+					.addAll(getClass().getResource(CommonConstants.RESOURCE_FOLDER + "/app.css").toExternalForm());
 			stage.show();
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not start the application", true);
