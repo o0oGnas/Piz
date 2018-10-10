@@ -5,6 +5,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -27,16 +29,37 @@
 				</TableView>
 				<HBox fx:id="hbActions" VBox.vgrow="NEVER">
 					<children>
-						<Button mnemonicParsing="false" onAction="#add" prefWidth="150.0" text="Add reference" />
+						<Button mnemonicParsing="false" onAction="#add" prefWidth="150.0" text="Add reference">
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/icons/add.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
                   <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#delete" prefWidth="150.0" text="Delete reference">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/icons/delete.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
                   </Button>
                   <Button mnemonicParsing="false" onAction="#save" prefWidth="150.0" text="Save references">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/icons/save.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
                   </Button>
 					</children>
 					<VBox.margin>
