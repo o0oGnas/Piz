@@ -167,7 +167,7 @@ public class ReferenceController {
 	}
 
 	/**
-	 * @Description Wrapper to reduce copy pasta
+	 * @Description Wrapper to reduce copy paste
 	 * @Date Oct 9, 2018
 	 * @param column       TableColumn object
 	 * @param propertyName name of the property to bind to column
@@ -211,18 +211,37 @@ public class ReferenceController {
 	}
 
 	@FXML
+	private void scrollToTop() {
+		try {
+			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
+			verticalBar.setValue(verticalBar.getMin());
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not scroll to top", false);
+		}
+	}
+
+	@FXML
+	private void scrollToBottom() {
+		try {
+			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
+			verticalBar.setValue(verticalBar.getMax());
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not scroll to bottom", false);
+		}
+	}
+
+	@FXML
 	private void add() {
 		try {
-			appController.getReferenceList().add(new ZipReference(null, null, null));
+			appController.getReferenceList().add(0, new ZipReference(null, null, null));
+
+			// scroll to top
+			scrollToTop();
 
 			// focus on the new row
 			tvTable.requestFocus();
 			tvTable.getSelectionModel().clearAndSelect(appController.getReferenceList().size() - 1);
 			tvTable.getFocusModel().focus(appController.getReferenceList().size() - 1);
-
-			// scroll to bottom
-			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
-			verticalBar.setValue(verticalBar.getMax());
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not add reference", false);
 		}

@@ -15,7 +15,39 @@
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-            <Label fx:id="lblReferenceCount" text="Label" />
+            <HBox alignment="BOTTOM_LEFT">
+               <children>
+                  <Label fx:id="lblReferenceCount" text="reference count" />
+                  <HBox alignment="BOTTOM_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#scrollToTop" prefWidth="150.0" text="Scroll to top">
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../resources/icons/top.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Button mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="150.0" text="Scroll to bottom">
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../resources/icons/bottom.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
 				<TableView fx:id="tvTable" editable="true" VBox.vgrow="ALWAYS">
 					<columns>
 						<TableColumn fx:id="tcDate" prefWidth="132.0" text="Date" />
