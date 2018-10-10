@@ -113,7 +113,7 @@ public class ZipController {
 	@FXML
 	private ImageView ivMaskUnmask;
 
-	private final String DATA = "setting.bin";
+	private final String SETTING = "setting.bin";
 
 	private AppController appController;
 
@@ -156,12 +156,20 @@ public class ZipController {
 	 */
 	private int finishCount = 0;
 
+	/**
+	 * Flag for masking/unmasking password
+	 */
 	private BooleanProperty mask = new SimpleBooleanProperty(true);
+
+	/**
+	 * Flag to tell if there are running processes
+	 */
+	private BooleanProperty running = new SimpleBooleanProperty();
 
 	/**
 	 * Flag to tell if processes are paused
 	 */
-	private BooleanProperty pause = new SimpleBooleanProperty();
+	private BooleanProperty paused = new SimpleBooleanProperty();
 
 	/**
 	 * Flag to tell if processes are cancelled
@@ -181,7 +189,8 @@ public class ZipController {
 			initialiseFileFolderCheckComboBox();
 			initialiseInputOutputFolders();
 			initialisePasswordField();
-			initialisePauseListener();
+			initialiseRunningListener();
+			initialisePausedListener();
 			handleClosingApplication();
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise zip tab", true);
@@ -207,7 +216,7 @@ public class ZipController {
 	}
 
 	private void initialiseUserSetting() throws IOException, ClassNotFoundException {
-		File file = new File(DATA);
+		File file = new File(SETTING);
 
 		if (file.exists()) {
 			// load user data from file
@@ -228,28 +237,6 @@ public class ZipController {
 		cbEncrypt.setSelected(userSetting.isEncrypt());
 		cbObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
 		cbAddReferences.setSelected(userSetting.isAddReference());
-	}
-
-	/**
-	 * @Description Wrapper around initialing input and output folder
-	 * @Date Oct 9, 2018
-	 * @param path
-	 * @param label
-	 * @return
-	 */
-	private File initialiseFolder(String path, Label label) {
-		if (path != null && !path.isEmpty()) {
-			File folder = new File(path);
-
-			if (folder.exists()) {
-				label.setText(path);
-				return folder;
-			} else {
-				return null;
-			}
-		}
-
-		return null;
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
@@ -284,14 +271,40 @@ public class ZipController {
 		updateFolderAndFileLists();
 	}
 
+	/**
+	 * @Description Wrapper around initialing input and output folder
+	 * @Date Oct 9, 2018
+	 * @param path
+	 * @param label
+	 * @return
+	 */
+	private File initialiseFolder(String path, Label label) {
+		if (path != null && !path.isEmpty()) {
+			File folder = new File(path);
+
+			if (folder.exists()) {
+				label.setText(path);
+				return folder;
+			} else {
+				return null;
+			}
+		}
+
+		return null;
+	}
+
 	private void initialisePasswordField() {
 		tfPassword.setManaged(false);
+
+		// bind text field to mask
 		tfPassword.managedProperty().bind(mask.not());
 		tfPassword.visibleProperty().bind(mask.not());
 
+		// bind password field to mask
 		pfPassword.managedProperty().bind(mask);
 		pfPassword.visibleProperty().bind(mask);
 
+		// bind value of text field and password field
 		pfPassword.textProperty().bindBidirectional(tfPassword.textProperty());
 
 		mask.addListener(new ChangeListener<Boolean>() {
@@ -302,12 +315,18 @@ public class ZipController {
 		});
 	}
 
-	private void initialisePauseListener() {
-		pause.addListener(new ChangeListener<Boolean>() {
+	private void initialiseRunningListener() {
+		// disable all inputs if processes are running
+		vbInputFields.mouseTransparentProperty().bind(running);
+		vbInputFields.focusTraversableProperty().bind(running.not());
+	}
+
+	private void initialisePausedListener() {
+		paused.addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				btnPauseResume.setText(pause.get() ? "Resume" : "Pause");
-				ivPauseResume.setImage(pause.get() ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+				btnPauseResume.setText(paused.get() ? "Resume" : "Pause");
+				ivPauseResume.setImage(paused.get() ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
 			}
 		});
 	}
@@ -318,7 +337,7 @@ public class ZipController {
 			public void handle(WindowEvent event) {
 				try {
 					// show confirmation is there are running processes
-					if (progressList.size() > 0) {
+					if (running.get()) {
 						Optional<ButtonType> result = CommonUtility.showConfirmation(
 								"There are running processes, are you sure you want to exit (This will stop them)?");
 
@@ -371,17 +390,21 @@ public class ZipController {
 	@FXML
 	private void selectInputFolder(ActionEvent event) {
 		try {
-			inputFolder = showFolderChooser(userSetting.getInputFolder(), lblInputFolder);
-			saveUserSetting();
-			lblInputFolder.setText(userSetting.getInputFolder());
-			updateFolderAndFileLists();
+			File folder = showFolderChooser(userSetting.getInputFolder());
+
+			// keep old folder if use cancels folder selection
+			if (folder != null) {
+				inputFolder = folder;
+				saveUserSetting();
+				lblInputFolder.setText(userSetting.getInputFolder());
+				updateFolderAndFileLists();
+			}
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not select input folder", false);
 		}
 	}
 
-	private File showFolderChooser(String defaultFolder, Label label) {
-		label.setText("");
+	private File showFolderChooser(String defaultFolder) {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Select folder");
 
@@ -416,7 +439,7 @@ public class ZipController {
 		userSetting.setAddReference(cbAddReferences.isSelected());
 
 		// save user data to file
-		try (FileOutputStream fos = new FileOutputStream(DATA)) {
+		try (FileOutputStream fos = new FileOutputStream(SETTING)) {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(userSetting);
 		}
@@ -425,9 +448,10 @@ public class ZipController {
 	@FXML
 	private void selectOutputFolder(ActionEvent event) {
 		try {
-			outputFolder = showFolderChooser(userSetting.getOutputFolder(), lblOutputFolder);
+			File folder = showFolderChooser(userSetting.getOutputFolder());
 
-			if (outputFolder != null) {
+			if (folder != null) {
+				outputFolder = folder;
 				saveUserSetting();
 				lblOutputFolder.setText(userSetting.getOutputFolder());
 			}
@@ -451,14 +475,8 @@ public class ZipController {
 			if (checkInput()) {
 				stop = false;
 				saveUserSetting();
-
-				// prevent input while processing
-				vbInputFields.setMouseTransparent(true);
-				vbInputFields.setFocusTraversable(false);
 				btnStart.setDisable(true);
-
-				// enable pause and stop buttons
-				disablePauseStop(false);
+				enableDisablePauseStop(false);
 
 				if (cbObfuscateFileName.isSelected()) {
 					updateAbbreviationList();
@@ -477,11 +495,6 @@ public class ZipController {
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not start", false);
 		}
-	}
-
-	private void disablePauseStop(boolean disable) {
-		btnPauseResume.setDisable(disable);
-		btnStop.setDisable(disable);
 	}
 
 	private boolean checkInput() {
@@ -715,6 +728,11 @@ public class ZipController {
 		}
 
 		return sb.toString().toUpperCase();
+	}
+
+	private void enableDisablePauseStop(boolean disable) {
+		btnPauseResume.setDisable(disable);
+		btnStop.setDisable(disable);
 	}
 
 	/**
@@ -993,13 +1011,12 @@ public class ZipController {
 			@Override
 			public void run() {
 				try {
-					vbInputFields.setMouseTransparent(false);
-					vbInputFields.setFocusTraversable(true);
-					btnStart.setDisable(false);
-					disablePauseStop(true);
-					hbActions.setDisable(false);
-					updateFolderAndFileLists();
+					running.set(false);
 					progressList.clear();
+					hbActions.setDisable(false);
+					btnStart.setDisable(false);
+					enableDisablePauseStop(true);
+					updateFolderAndFileLists();
 
 					// play notification sound if process is not canceled prematurely
 					if (!stop) {
@@ -1057,17 +1074,17 @@ public class ZipController {
 
 	@FXML
 	private void pauseOrResume(ActionEvent event) {
-		pause.set(!pause.get());
+		paused.set(!paused.get());
 
 		for (ProgressMonitor progress : progressList) {
-			progress.setPause(pause.get());
+			progress.setPause(paused.get());
 		}
 	}
 
 	@FXML
 	private void stop(ActionEvent event) {
 		stopAllProcesses();
-		pause.set(false);
+		paused.set(false);
 		;
 	}
 
