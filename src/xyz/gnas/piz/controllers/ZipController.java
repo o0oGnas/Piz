@@ -584,8 +584,8 @@ public class ZipController {
 			if (file.isDirectory()) {
 				mapWithExtension.put(file, fileName);
 			} else {
-				// add extension to file name by pretending that it's a folder
-				mapWithExtension.put(file, getAbbreviatedFileName(fileName, true));
+				mapWithExtension.put(file, getAbbreviatedFileName(file.getName(), false) + "_"
+						+ FilenameUtils.getExtension(file.getName()));
 			}
 		}
 
