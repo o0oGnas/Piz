@@ -1,4 +1,4 @@
-package xyz.gnas.piz.controllers;
+package xyz.gnas.piz.controllers.zip;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,6 +53,7 @@ import xyz.gnas.piz.Main;
 import xyz.gnas.piz.common.CommonConstants;
 import xyz.gnas.piz.common.CommonUtility;
 import xyz.gnas.piz.common.ResourceManager;
+import xyz.gnas.piz.controllers.AppController;
 import xyz.gnas.piz.models.UserSetting;
 import xyz.gnas.piz.models.ZipReference;
 
@@ -246,8 +247,8 @@ public class ZipController {
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
-		ccbFileFolder.getItems().add(CommonConstants.FILE);
-		ccbFileFolder.getItems().add(CommonConstants.FOLDER);
+		ccbFileFolder.getItems().add(CommonConstants.FILES);
+		ccbFileFolder.getItems().add(CommonConstants.FOLDERS);
 
 		// check all by default
 		if (userSetting.getFileFolder() == null || userSetting.getFileFolder().length == 0) {
@@ -330,25 +331,29 @@ public class ZipController {
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 				// when user removes focus from process count text field
 				if (!newValue) {
-					// if text is empty, set it to MIN_PROCESSES
-					if (tfProcessCount.getText() == null || tfProcessCount.getText().isEmpty()) {
-						tfProcessCount.setText(MIN_PROCESSES + "");
-					}
-
-					// keep the number of processes within range limit
-					int intProcessCount = Integer.parseInt(tfProcessCount.getText());
-
-					if (intProcessCount < MIN_PROCESSES) {
-						intProcessCount = MIN_PROCESSES;
-					} else if (intProcessCount > MAX_PROCESSES) {
-						intProcessCount = MAX_PROCESSES;
-					}
-
-					// this also helps removing leading zeroes
-					tfProcessCount.setText(intProcessCount + "");
+					correctProcessCount();
 				}
 			}
 		});
+	}
+
+	private void correctProcessCount() {
+		// if text is empty, set it to MIN_PROCESSES
+		if (tfProcessCount.getText() == null || tfProcessCount.getText().isEmpty()) {
+			tfProcessCount.setText(MIN_PROCESSES + "");
+		}
+
+		// keep the number of processes within range limit
+		int intProcessCount = Integer.parseInt(tfProcessCount.getText());
+
+		if (intProcessCount < MIN_PROCESSES) {
+			intProcessCount = MIN_PROCESSES;
+		} else if (intProcessCount > MAX_PROCESSES) {
+			intProcessCount = MAX_PROCESSES;
+		}
+
+		// this also helps removing leading zeroes
+		tfProcessCount.setText(intProcessCount + "");
 	}
 
 	private void initialiseRunningListener() {
@@ -371,7 +376,8 @@ public class ZipController {
 				try {
 					// show confirmation is there are running processes
 					if (isRunning.get()) {
-						if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
+						if (CommonUtility
+								.showConfirmation("There are running processes, are you sure you want to exit?")) {
 							stopAllProcesses();
 						} else {
 							event.consume();
@@ -402,12 +408,12 @@ public class ZipController {
 				// filter according to selection, folders and files are shown in different
 				// colours
 				if (file.isDirectory()) {
-					if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
+					if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDERS)) {
 						lblFile.setTextFill(Color.BLUE);
 						fileLableMap.put(file, lblFile);
 						vbList.getChildren().add(lblFile);
 					}
-				} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
+				} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILES)) {
 					fileLableMap.put(file, lblFile);
 					vbList.getChildren().add(lblFile);
 				}

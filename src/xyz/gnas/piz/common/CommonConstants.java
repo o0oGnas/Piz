@@ -6,7 +6,7 @@ package xyz.gnas.piz.common;
  * @Date Oct 9, 2018
  */
 public class CommonConstants {
-	public static final String FILE = "File";
-	public static final String FOLDER = "Folder";
+	public static final String FILES = "Files";
+	public static final String FOLDERS = "Folders";
 	public static final String REFERENCE_FILE = "references.txt";
 }

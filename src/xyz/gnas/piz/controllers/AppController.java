@@ -20,6 +20,8 @@ import javafx.scene.control.TabPane;
 import xyz.gnas.piz.Main;
 import xyz.gnas.piz.common.CommonConstants;
 import xyz.gnas.piz.common.CommonUtility;
+import xyz.gnas.piz.controllers.reference.ReferenceController;
+import xyz.gnas.piz.controllers.zip.ZipController;
 import xyz.gnas.piz.models.ZipReference;
 
 public class AppController {
@@ -62,11 +64,11 @@ public class AppController {
 	private void initialize() {
 		try {
 			// zip tab
-			zipController = (ZipController) initialiseTab(tabZip, "Zip");
+			zipController = (ZipController) initialiseTab(tabZip, "zip/Zip");
 			zipController.setAppController(this);
 
 			// reference tab
-			referenceController = (ReferenceController) initialiseTab(tabReference, "Reference");
+			referenceController = (ReferenceController) initialiseTab(tabReference, "reference/Reference");
 			referenceController.setAppController(this);
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise app", true);

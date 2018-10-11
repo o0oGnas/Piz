@@ -1,4 +1,4 @@
-package xyz.gnas.piz.controllers;
+package xyz.gnas.piz.controllers.reference;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import xyz.gnas.piz.common.CommonConstants;
 import xyz.gnas.piz.common.CommonUtility;
+import xyz.gnas.piz.controllers.AppController;
 import xyz.gnas.piz.models.ZipReference;
 
 /**

@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xyz.gnas.piz.controllers.ReferenceController">
+<AnchorPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xyz.gnas.piz.controllers.reference.ReferenceController">
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
@@ -27,7 +27,7 @@
                            <graphic>
                               <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@../resources/icons/top.png" />
+                                    <Image url="@../../resources/icons/top.png" />
                                  </image>
                               </ImageView>
                            </graphic>
@@ -36,7 +36,7 @@
                            <graphic>
                               <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@../resources/icons/bottom.png" />
+                                    <Image url="@../../resources/icons/bottom.png" />
                                  </image>
                               </ImageView>
                            </graphic>
@@ -65,7 +65,7 @@
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../resources/icons/add.png" />
+                              <Image url="@../../resources/icons/add.png" />
                            </image>
                         </ImageView>
                      </graphic></Button>
@@ -76,7 +76,7 @@
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../resources/icons/delete.png" />
+                              <Image url="@../../resources/icons/delete.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -88,7 +88,7 @@
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../resources/icons/save.png" />
+                              <Image url="@../../resources/icons/save.png" />
                            </image>
                         </ImageView>
                      </graphic>
