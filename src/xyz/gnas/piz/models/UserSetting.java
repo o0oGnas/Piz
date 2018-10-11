@@ -21,6 +21,8 @@ public class UserSetting implements Serializable {
 	private boolean obfuscateFileName;
 	private boolean addReference;
 
+	private int processCount;
+
 	public String getInputFolder() {
 		return inputFolder;
 	}
@@ -77,8 +79,16 @@ public class UserSetting implements Serializable {
 		this.addReference = addReference;
 	}
 
+	public int getProcessCount() {
+		return processCount;
+	}
+
+	public void setProcessCount(int processCount) {
+		this.processCount = processCount;
+	}
+
 	public UserSetting(String folderPath, String password, String referenceTag, String[] fileFolder, boolean encrypt,
-			boolean obfuscateFileName, boolean addReference) {
+			boolean obfuscateFileName, boolean addReference, int processCount) {
 		this.inputFolder = folderPath;
 		this.password = password;
 		this.referenceTag = referenceTag;
@@ -86,6 +96,7 @@ public class UserSetting implements Serializable {
 		this.encrypt = encrypt;
 		this.obfuscateFileName = obfuscateFileName;
 		this.addReference = addReference;
+		this.processCount = processCount;
 	}
 
 	public String getPassword() {

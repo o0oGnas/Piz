@@ -13,7 +13,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -32,7 +31,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -84,6 +82,9 @@ public class ZipController {
 	private TextField tfReferenceTag;
 
 	@FXML
+	private TextField tfProcessCount;
+
+	@FXML
 	private PasswordField pfPassword;
 
 	@FXML
@@ -115,6 +116,9 @@ public class ZipController {
 
 	private final String SETTING = "setting.bin";
 
+	private final int MIN_PROCESSES = 1;
+	private final int MAX_PROCESSES = 10;
+
 	private AppController appController;
 
 	/**
@@ -130,9 +134,9 @@ public class ZipController {
 	private UserSetting userSetting;
 
 	/**
-	 * Map a label with a file or folder, used for showing progress
+	 * Map a file with its label on the GUI
 	 */
-	private Map<Label, File> labelFileMap = new HashMap<Label, File>();
+	private Map<File, Label> fileLableMap = new HashMap<File, Label>();
 
 	/**
 	 * Keep track of the different abbreviations and files that will be abbreviated
@@ -147,6 +151,11 @@ public class ZipController {
 	private Set<ProgressMonitor> progressList = new HashSet<ProgressMonitor>();
 
 	/**
+	 * Keep track of how many processes are running
+	 */
+	private int runningCount = 0;
+
+	/**
 	 * Keep track of how many processes are finished
 	 */
 	private int finishCount = 0;
@@ -154,22 +163,22 @@ public class ZipController {
 	/**
 	 * Flag for masking/unmasking password
 	 */
-	private BooleanProperty mask = new SimpleBooleanProperty(true);
+	private BooleanProperty isMasked = new SimpleBooleanProperty(true);
 
 	/**
 	 * Flag to tell if there are running processes
 	 */
-	private BooleanProperty running = new SimpleBooleanProperty();
+	private BooleanProperty isRunning = new SimpleBooleanProperty();
 
 	/**
 	 * Flag to tell if processes are paused
 	 */
-	private BooleanProperty paused = new SimpleBooleanProperty();
+	private BooleanProperty isPaused = new SimpleBooleanProperty();
 
 	/**
 	 * Flag to tell if processes are cancelled
 	 */
-	private boolean stop;
+	private boolean isStopped;
 
 	public void setAppController(AppController appController) {
 		this.appController = appController;
@@ -184,6 +193,7 @@ public class ZipController {
 			initialiseFileFolderCheckComboBox();
 			initialiseInputOutputFolders();
 			initialisePasswordField();
+			initialiseProcessCountTextField();
 			initialiseRunningListener();
 			initialisePausedListener();
 			handleClosingApplication();
@@ -220,7 +230,8 @@ public class ZipController {
 				userSetting = (UserSetting) ois.readObject();
 			}
 		} else {
-			userSetting = new UserSetting(null, null, null, null, true, true, true);
+			userSetting = new UserSetting(null, null, null, null, true, true, true,
+					Integer.parseInt(tfProcessCount.getText()));
 		}
 
 		initialiseInputFields();
@@ -248,14 +259,11 @@ public class ZipController {
 		}
 
 		// handle event when user changes selection
-		ccbFileFolder.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
-			@Override
-			public void onChanged(Change<? extends String> c) {
-				try {
-					updateFolderAndFileLists();
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error filtering file/folder", false);
-				}
+		ccbFileFolder.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) listener -> {
+			try {
+				updateFolderAndFileLists();
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error filtering file/folder", false);
 			}
 		});
 	}
@@ -292,37 +300,67 @@ public class ZipController {
 		tfPassword.setManaged(false);
 
 		// bind text field to mask
-		tfPassword.managedProperty().bind(mask.not());
-		tfPassword.visibleProperty().bind(mask.not());
+		tfPassword.managedProperty().bind(isMasked.not());
+		tfPassword.visibleProperty().bind(isMasked.not());
 
 		// bind password field to mask
-		pfPassword.managedProperty().bind(mask);
-		pfPassword.visibleProperty().bind(mask);
+		pfPassword.managedProperty().bind(isMasked);
+		pfPassword.visibleProperty().bind(isMasked);
 
 		// bind value of text field and password field
 		pfPassword.textProperty().bindBidirectional(tfPassword.textProperty());
 
-		mask.addListener(new ChangeListener<Boolean>() {
+		isMasked.addListener(listener -> {
+			ivMaskUnmask.setImage(isMasked.get() ? ResourceManager.getMaskedIcon() : ResourceManager.getUnmaskedIcon());
+		});
+	}
+
+	private void initialiseProcessCountTextField() {
+		tfProcessCount.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (!newValue.matches("\\d+")) {
+					tfProcessCount.setText(newValue.replaceAll("[^\\d]", ""));
+				}
+			}
+		});
+
+		tfProcessCount.focusedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				ivMaskUnmask.setImage(mask.get() ? ResourceManager.getUnmaskIcon() : ResourceManager.getMaskIcon());
+				// when user removes focus from process count text field
+				if (!newValue) {
+					// if text is empty, set it to MIN_PROCESSES
+					if (tfProcessCount.getText() == null || tfProcessCount.getText().isEmpty()) {
+						tfProcessCount.setText(MIN_PROCESSES + "");
+					}
+
+					// keep the number of processes within range limit
+					int intProcessCount = Integer.parseInt(tfProcessCount.getText());
+
+					if (intProcessCount < MIN_PROCESSES) {
+						intProcessCount = MIN_PROCESSES;
+					} else if (intProcessCount > MAX_PROCESSES) {
+						intProcessCount = MAX_PROCESSES;
+					}
+
+					// this also helps removing leading zeroes
+					tfProcessCount.setText(intProcessCount + "");
+				}
 			}
 		});
 	}
 
 	private void initialiseRunningListener() {
 		// disable all inputs if processes are running
-		vbInputFields.mouseTransparentProperty().bind(running);
-		vbInputFields.focusTraversableProperty().bind(running.not());
+		vbInputFields.mouseTransparentProperty().bind(isRunning);
+		vbInputFields.focusTraversableProperty().bind(isRunning.not());
 	}
 
 	private void initialisePausedListener() {
-		paused.addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				btnPauseResume.setText(paused.get() ? "Resume" : "Pause");
-				ivPauseResume.setImage(paused.get() ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-			}
+		isPaused.addListener(listener -> {
+			btnPauseResume.setText(isPaused.get() ? "Resume" : "Pause");
+			ivPauseResume.setImage(isPaused.get() ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
 		});
 	}
 
@@ -332,11 +370,8 @@ public class ZipController {
 			public void handle(WindowEvent event) {
 				try {
 					// show confirmation is there are running processes
-					if (running.get()) {
-						Optional<ButtonType> result = CommonUtility.showConfirmation(
-								"There are running processes, are you sure you want to exit (This will stop them)?");
-
-						if (result.isPresent() && result.get() == ButtonType.OK) {
+					if (isRunning.get()) {
+						if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
 							stopAllProcesses();
 						} else {
 							event.consume();
@@ -352,12 +387,12 @@ public class ZipController {
 	private void stopAllProcesses() {
 		// disable all actions until all processes are stopped properly
 		hbActions.setDisable(true);
-		stop = true;
+		isStopped = true;
 	}
 
 	private void updateFolderAndFileLists() {
 		vbList.getChildren().clear();
-		labelFileMap.clear();
+		fileLableMap.clear();
 
 		if (inputFolder != null) {
 			for (final File file : inputFolder.listFiles()) {
@@ -369,11 +404,11 @@ public class ZipController {
 				if (file.isDirectory()) {
 					if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
 						lblFile.setTextFill(Color.BLUE);
-						labelFileMap.put(lblFile, file);
+						fileLableMap.put(file, lblFile);
 						vbList.getChildren().add(lblFile);
 					}
 				} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
-					labelFileMap.put(lblFile, file);
+					fileLableMap.put(file, lblFile);
 					vbList.getChildren().add(lblFile);
 				}
 			}
@@ -432,6 +467,7 @@ public class ZipController {
 		userSetting.setEncrypt(cbEncrypt.isSelected());
 		userSetting.setObfuscateFileName(cbObfuscateFileName.isSelected());
 		userSetting.setAddReference(cbAddReferences.isSelected());
+		userSetting.setProcessCount(Integer.parseInt(tfProcessCount.getText()));
 
 		// save user data to file
 		try (FileOutputStream fos = new FileOutputStream(SETTING)) {
@@ -458,7 +494,7 @@ public class ZipController {
 	@FXML
 	private void maskUnmask(MouseEvent event) {
 		try {
-			mask.set(!mask.get());
+			isMasked.set(!isMasked.get());
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not mask/unmask password", false);
 		}
@@ -468,16 +504,19 @@ public class ZipController {
 	private void start(ActionEvent event) {
 		try {
 			if (checkInput()) {
-				stop = false;
+				isStopped = false;
 				saveUserSetting();
 				btnStart.setDisable(true);
 				enableDisablePauseStop(false);
+				isRunning.set(true);
+				runningCount = 0;
+				finishCount = 0;
 
 				if (cbObfuscateFileName.isSelected()) {
 					updateAbbreviationList();
 				}
 
-				process();
+				runProcessMasterThread();
 				monitorAndUpdateProgress();
 			}
 		} catch (Exception e) {
@@ -513,22 +552,17 @@ public class ZipController {
 	}
 
 	private void updateAbbreviationList() {
-		abbreviationList.clear();
-		updateAbbreviation();
+		initialiseAbbreviationList();
 		uniquifyAbbreviationList();
 
 		// It's not possible to guarantee unique names even after trying to uniquify
 		mergeDuplicateAbbreviations();
 	}
 
-	/**
-	 * @Description Wrapper around updating abbreviation list from a map
-	 * @Date Oct 9, 2018
-	 * @param map
-	 */
-	private void updateAbbreviation() {
-		for (Label label : labelFileMap.keySet()) {
-			File file = labelFileMap.get(label);
+	private void initialiseAbbreviationList() {
+		abbreviationList.clear();
+
+		for (File file : fileLableMap.keySet()) {
 			String fileName = getAbbreviatedFileName(file.getName(), file.isDirectory());
 			AbbreviationWrapper abbreviation = new AbbreviationWrapper(fileName);
 
@@ -729,76 +763,70 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Wrapper around processing on a file/folder map
-	 * @Date Oct 9, 2018
-	 * @param map
+	 * @Description Manage processes, ensure that the number of concurrent processes
+	 *              are within the limit
+	 * @Date Oct 11, 2018
 	 */
-	private void process() {
-		finishCount = 0;
-
-		for (Label label : labelFileMap.keySet()) {
-			// run in threads to increase speed
-			Thread thread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						executeZipThread(label);
-					} catch (Exception e) {
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								CommonUtility.showError(e, "Error when executing a thread", false);
-							}
-						});
+	private void runProcessMasterThread() {
+		Thread masterThread = new Thread(() -> {
+			try {
+				for (File file : fileLableMap.keySet()) {
+					// wait until the number of concurrent processes are below the limit
+					while (runningCount == userSetting.getProcessCount()) {
+						Thread.sleep(1000);
 					}
-				}
-			});
 
-			thread.start();
-		}
+					// create a thread for each file
+					Thread processThread = new Thread(() -> {
+						try {
+							runZipProcess(file);
+						} catch (Exception e) {
+							Platform.runLater(() -> {
+								CommonUtility.showError(e, "Error when executing a thread", true);
+							});
+						}
+					});
+
+					updateRunningCount(1);
+					processThread.start();
+				}
+			} catch (Exception e) {
+				Platform.runLater(() -> {
+					CommonUtility.showError(e, "Error when running master thread", true);
+				});
+			}
+		});
+
+		masterThread.start();
 	}
 
-	private void executeZipThread(Label label) throws ZipException, InterruptedException, IOException {
+	synchronized private void updateRunningCount(int change) {
+		runningCount += change;
+	}
+
+	private void runZipProcess(File file) throws ZipException, InterruptedException, IOException {
 		if (cbObfuscateFileName.isSelected()) {
-			obfuscateFileNameAndZip(label);
+			obfuscateFileNameAndZip(file);
 		} else {
-			prepareToZip(label, labelFileMap.get(label).getAbsolutePath(),
-					FilenameUtils.removeExtension(labelFileMap.get(label).getAbsolutePath()), cbEncrypt.isSelected(),
+			prepareToZip(file, file, FilenameUtils.removeExtension(file.getAbsolutePath()), cbEncrypt.isSelected(),
 					true);
 			increaseFinishCount();
 		}
 	}
 
-	private void obfuscateFileNameAndZip(Label label) throws ZipException, InterruptedException, IOException {
-		File originalFile = labelFileMap.get(label);
-
-		AbbreviationWrapper abbreviation = null;
-
+	private void obfuscateFileNameAndZip(File file) throws ZipException, InterruptedException, IOException {
 		// find the abbreviation object whose file map contains this file
-		for (AbbreviationWrapper current : abbreviationList.keySet()) {
-			boolean found = false;
-
-			for (File file : current.fileAbbreviationMap.keySet()) {
-				if (file.getName().equalsIgnoreCase(originalFile.getName())) {
-					found = true;
-					abbreviation = current;
-					break;
-				}
-			}
-
-			if (found) {
-				break;
-			}
-		}
+		AbbreviationWrapper abbreviation = abbreviationList.keySet().stream()
+				.filter(a -> a.fileAbbreviationMap.keySet().contains(file)).findFirst().orElse(null);
 
 		// zip name is path to parent folder and abbreviated file name
-		String zipPath = getZipParentFolderPath(originalFile) + "\\" + abbreviation.abbreviation;
+		String zipPath = getZipParentFolderPath(file) + "\\" + abbreviation.abbreviation;
 
 		if (abbreviation.fileAbbreviationMap.size() > 1) {
 			ArrayList<File> temp = new ArrayList<File>(abbreviation.fileAbbreviationMap.keySet());
 
 			for (int i = 0; i < temp.size(); ++i) {
-				if (originalFile.getName().equalsIgnoreCase(temp.get(i).getName())) {
+				if (file.getName().equalsIgnoreCase(temp.get(i).getName())) {
 					zipPath += "_" + (i + 1);
 				}
 			}
@@ -808,11 +836,11 @@ public class ZipController {
 		String innerZipPath = zipPath + "_inner";
 
 		// create inner zip without encryption
-		innerZipPath = prepareToZip(label, labelFileMap.get(label).getAbsolutePath(), innerZipPath, false, false);
+		File innerZipFile = prepareToZip(file, file, innerZipPath, false, false);
 
 		// only create outer zip if it's not cancelled
 		if (innerZipPath != null) {
-			processOuterZip(label, innerZipPath, zipPath);
+			processOuterZip(file, innerZipFile, zipPath);
 		}
 
 		increaseFinishCount();
@@ -827,19 +855,19 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Prepare then perform zipping and return result zip file name
-	 * @Date Oct 9, 2018
-	 * @param label           label control
-	 * @param map             the file/folder map
-	 * @param sourcePath      path of the source file
+	 * @Description do preparations and performing zipping
+	 * @Date Oct 11, 2018
+	 * @param originalFile    the original file
+	 * @param fileToZip       the file to perform zip on (same as original file if
+	 *                        encryption is not selected)
 	 * @param destinationPath path of the zip file
-	 * @param encrypt         flag for encryption
-	 * @param isOuter         flag for whether this zip is the outer or inner layer
-	 * @return null if process is cancelled, the full path of the zip file otherwise
+	 * @param encrypt         encryption
+	 * @param isOuter         flag to tell if the file is outer layer
+	 * @return the zip file, null if process is cancelled
 	 * @throws ZipException
 	 * @throws InterruptedException
 	 */
-	private String prepareToZip(Label label, String sourcePath, String destinationPath, boolean encrypt,
+	private File prepareToZip(File originalFile, File fileToZip, String destinationPath, boolean encrypt,
 			boolean isOuter) throws ZipException, InterruptedException {
 		String zipPath = destinationPath + ".zip";
 		File fileZip = new File(zipPath);
@@ -853,8 +881,8 @@ public class ZipController {
 			++count;
 		}
 
-		if (performZip(label, sourcePath, zipPath, encrypt, isOuter)) {
-			return zipPath;
+		if (performZip(originalFile, fileToZip, zipPath, encrypt, isOuter)) {
+			return fileZip;
 		} else {
 			return null;
 		}
@@ -862,33 +890,32 @@ public class ZipController {
 
 	/**
 	 * @Description
-	 * @Date Oct 9, 2018
-	 * @param label           label control
-	 * @param map             the file/folder map
-	 * @param sourcePath      path of the source file
-	 * @param destinationPath path of the zip file
-	 * @param encrypt         flag for encryption
-	 * @param isOuter         flag for whether this zip is the outer or inner layer
+	 * @Date Oct 11, 2018
+	 * @param originalFile
+	 * @param fileToZip
+	 * @param destinationPath
+	 * @param encrypt
+	 * @param isOuter
 	 * @return false if process is cancelled, true otherwise
 	 * @throws ZipException
 	 * @throws InterruptedException
 	 */
-	private boolean performZip(Label label, String sourcePath, String destinationPath, boolean encrypt, boolean isOuter)
-			throws ZipException, InterruptedException {
-		ZipFile zip = getZipFile(sourcePath, destinationPath, encrypt);
+	private boolean performZip(File originalFile, File fileToZip, String destinationPath, boolean encrypt,
+			boolean isOuter) throws ZipException, InterruptedException {
+		ZipFile zip = getZipFile(fileToZip.getAbsolutePath(), destinationPath, encrypt);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
 		addProgress(progressMonitor);
 
 		// run while zip is not cancelled and is still in progress (paused is considered
 		// in progress)
-		while (!stop && (progressMonitor.getState() == ProgressMonitor.STATE_BUSY)) {
-			showProgress(label, progressMonitor, isOuter);
+		while (!isStopped && (progressMonitor.getState() == ProgressMonitor.STATE_BUSY)) {
+			showProgress(originalFile, progressMonitor, isOuter);
 
 			// update progress every 0.5 second
 			Thread.sleep(500);
 		}
 
-		if (stop) {
+		if (isStopped) {
 			// canceling tasks while paused doesn't release processing thread
 			// (possibly a bug of zip4j)
 			progressMonitor.setPause(false);
@@ -897,22 +924,13 @@ public class ZipController {
 		} else {
 			// only show that the process is done if it's the outer layer
 			if (isOuter) {
-				showDoneProcess(label);
+				showDoneProcess(originalFile);
 			}
 
 			return true;
 		}
 	}
 
-	/**
-	 * @Description Perform zip
-	 * @Date Oct 9, 2018
-	 * @param filePath
-	 * @param zipPath
-	 * @param encrypt
-	 * @return the ZipFile object
-	 * @throws ZipException
-	 */
 	private ZipFile getZipFile(String filePath, String zipPath, boolean encrypt) throws ZipException {
 		ZipFile zip = new ZipFile(zipPath);
 		ZipParameters parameters = new ZipParameters();
@@ -945,68 +963,56 @@ public class ZipController {
 		progressList.add(progress);
 	}
 
-	private void showProgress(Label label, ProgressMonitor progressMonitor, boolean isOuter) {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					double percent = progressMonitor.getPercentDone();
+	private void showProgress(File file, ProgressMonitor progressMonitor, boolean isOuter) {
+		Platform.runLater(() -> {
+			try {
+				double percent = progressMonitor.getPercentDone();
 
-					// when hiding file name, each layer of zip takes roughly 50% of the overall
-					// process
-					if (cbObfuscateFileName.isSelected()) {
-						percent /= 2;
+				// each layer of zip takes roughly 50% of the overall process
+				if (cbObfuscateFileName.isSelected()) {
+					percent /= 2;
 
-						// inner layer is finished
-						if (isOuter) {
-							percent = 50 + percent;
-						}
+					// inner layer is finished
+					if (isOuter) {
+						percent = 50 + percent;
 					}
-
-					label.setText("(" + Math.round(percent) + "%) " + labelFileMap.get(label).getName());
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when updating progress", false);
 				}
+
+				fileLableMap.get(file).setText("(" + Math.round(percent) + "%) " + file.getName());
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when updating progress", false);
 			}
 		});
 	}
 
-	private void showDoneProcess(Label label) {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					label.setText("(done) " + labelFileMap.get(label));
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when showing done process", false);
-				}
+	private void showDoneProcess(File file) {
+		Platform.runLater(() -> {
+			try {
+				Label label = fileLableMap.get(file);
+				label.setText("(done) " + file.getName());
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when showing done process", false);
 			}
 		});
 	}
 
-	/**
-	 * @Description Thread safe method to update finished processes count
-	 * @Date Oct 9, 2018
-	 */
 	synchronized private void increaseFinishCount() {
 		++finishCount;
+		updateRunningCount(-1);
 	}
 
 	private void monitorAndUpdateProgress() {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// wait until all processes are done
-					while (finishCount < labelFileMap.size()) {
-						Thread.sleep(1000);
-					}
-
-					finish();
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when monitoring progress", false);
-					finish();
+		Thread thread = new Thread(() -> {
+			try {
+				// wait until all processes are done
+				while (finishCount < fileLableMap.size()) {
+					Thread.sleep(1000);
 				}
+
+				finish();
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when monitoring progress", false);
+				finish();
 			}
 		});
 
@@ -1019,41 +1025,37 @@ public class ZipController {
 	 * @Date Oct 9, 2018
 	 */
 	private void finish() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					running.set(false);
-					progressList.clear();
-					hbActions.setDisable(false);
-					btnStart.setDisable(false);
-					enableDisablePauseStop(true);
-					updateFolderAndFileLists();
+		Platform.runLater(() -> {
+			try {
+				isRunning.set(false);
+				progressList.clear();
+				hbActions.setDisable(false);
+				btnStart.setDisable(false);
+				enableDisablePauseStop(true);
+				updateFolderAndFileLists();
 
-					// play notification sound if process is not canceled prematurely
-					if (!stop) {
-						Media media = xyz.gnas.piz.common.ResourceManager.getNotificationSound();
-						MediaPlayer mediaPlayer = new MediaPlayer(media);
-						mediaPlayer.play();
-					}
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when finishing process", false);
+				// play notification sound if process is not canceled prematurely
+				if (!isStopped) {
+					Media media = xyz.gnas.piz.common.ResourceManager.getNotificationSound();
+					MediaPlayer mediaPlayer = new MediaPlayer(media);
+					mediaPlayer.play();
 				}
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when finishing process", false);
 			}
 		});
 	}
 
-	private void processOuterZip(Label label, String innerZipName, String zipPath)
+	private void processOuterZip(File originalFile, File innerZipFile, String zipPath)
 			throws ZipException, InterruptedException, IOException {
-		zipPath = prepareToZip(label, innerZipName, zipPath, cbEncrypt.isSelected(), true);
-		File innerZipFile = new File(innerZipName);
+		prepareToZip(originalFile, innerZipFile, zipPath, cbEncrypt.isSelected(), true);
 
 		// remove inner zip from disk
 		innerZipFile.delete();
 
 		// only add reference if user chooses to and process is not cancelled
 		if (cbAddReferences.isSelected() && zipPath != null) {
-			addReference(label, zipPath);
+			addReference(originalFile, zipPath);
 		}
 	}
 
@@ -1065,37 +1067,43 @@ public class ZipController {
 	 * @param outerZipPath path of the outer zip file
 	 * @throws IOException
 	 */
-	synchronized private void addReference(Label label, String outerZipPath) throws IOException {
+	synchronized private void addReference(File file, String outerZipPath) throws IOException {
 		File zipFile = new File(outerZipPath);
 
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// add reference to the top
-					appController.getReferenceList().add(0, new ZipReference(userSetting.getReferenceTag(),
-							labelFileMap.get(label).getName(), zipFile.getName()));
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when adding reference", false);
-				}
+		Platform.runLater(() -> {
+			try {
+				// add reference to the top
+				appController.getReferenceList().add(0,
+						new ZipReference(userSetting.getReferenceTag(), file.getName(), zipFile.getName()));
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when adding reference", false);
 			}
 		});
 	}
 
 	@FXML
 	private void pauseOrResume(ActionEvent event) {
-		paused.set(!paused.get());
+		try {
+			isPaused.set(!isPaused.get());
 
-		for (ProgressMonitor progress : progressList) {
-			progress.setPause(paused.get());
+			for (ProgressMonitor progress : progressList) {
+				progress.setPause(isPaused.get());
+			}
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not pause or resume all", false);
 		}
 	}
 
 	@FXML
 	private void stop(ActionEvent event) {
-		stopAllProcesses();
-		paused.set(false);
-		;
+		try {
+			if (CommonUtility.showConfirmation("Are you sure you want to stop all processes?")) {
+				stopAllProcesses();
+				isPaused.set(false);
+			}
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not stop all", false);
+		}
 	}
 
 	/**

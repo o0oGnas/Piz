@@ -83,11 +83,12 @@ public final class CommonUtility {
 	 * @param message the displayed message
 	 * @return confirmation result
 	 */
-	public static Optional<ButtonType> showConfirmation(String message) {
+	public static boolean showConfirmation(String message) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("Confirmation");
 		alert.setHeaderText("Please confirm this action");
 		alert.setContentText(message);
-		return alert.showAndWait();
+		Optional<ButtonType> result = alert.showAndWait();
+		return result.isPresent() && result.get() == ButtonType.OK;
 	}
 }

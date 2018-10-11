@@ -49,14 +49,11 @@ public class AppController {
 		this.referenceList = referenceList;
 
 		// save to file whenever there's a change
-		referenceList.addListener(new ListChangeListener<ZipReference>() {
-			@Override
-			public void onChanged(Change<? extends ZipReference> c) {
-				try {
-					saveReferences();
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when saving references to file", false);
-				}
+		referenceList.addListener((ListChangeListener<ZipReference>) listener -> {
+			try {
+				saveReferences();
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when saving references to file", false);
 			}
 		});
 	}

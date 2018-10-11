@@ -84,7 +84,7 @@
                               </PasswordField>
       								<ImageView fx:id="ivMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
       									<image>
-      										<Image url="@../resources/icons/unmask.png" />
+      										<Image url="@../resources/icons/masked.png" />
       									</image>
       									<HBox.margin>
       										<Insets left="2.0" />
@@ -117,45 +117,62 @@
 								<Insets top="10.0" />
 							</VBox.margin>
 						</HBox>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <TextField fx:id="tfProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0" text="5">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </TextField>
+                        <Label text="concurrent processes">
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+            				<HBox fx:id="hbActions" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            					<children>
+            						<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" prefWidth="100.0" text="Start">
+            							<graphic>
+            								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+            									<image>
+            										<Image url="@../resources/icons/start.png" />
+            									</image>
+            								</ImageView>
+            							</graphic>
+            						</Button>
+            						<Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
+            							<HBox.margin>
+            								<Insets left="10.0" />
+            							</HBox.margin>
+            							<graphic>
+            								<ImageView fx:id="ivPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+            									<image>
+            										<Image url="@../resources/icons/pause.png" />
+            									</image>
+            								</ImageView>
+            							</graphic>
+            						</Button>
+            						<Button fx:id="btnStop" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
+            							<HBox.margin>
+            								<Insets left="10.0" />
+            							</HBox.margin>
+            							<graphic>
+            								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+            									<image>
+            										<Image url="@../resources/icons/stop.png" />
+            									</image>
+            								</ImageView>
+            							</graphic>
+            						</Button>
+            					</children>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+            				</HBox>
+                     </children>
+                  </HBox>
 					</children>
 				</VBox>
-				<HBox fx:id="hbActions">
-					<children>
-						<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" prefWidth="100.0" text="Start">
-							<graphic>
-								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-									<image>
-										<Image url="@../resources/icons/start.png" />
-									</image>
-								</ImageView>
-							</graphic>
-						</Button>
-						<Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
-							<HBox.margin>
-								<Insets left="10.0" />
-							</HBox.margin>
-							<graphic>
-								<ImageView fx:id="ivPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-									<image>
-										<Image url="@../resources/icons/pause.png" />
-									</image>
-								</ImageView>
-							</graphic>
-						</Button>
-						<Button fx:id="btnStop" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
-							<HBox.margin>
-								<Insets left="10.0" />
-							</HBox.margin>
-							<graphic>
-								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-									<image>
-										<Image url="@../resources/icons/stop.png" />
-									</image>
-								</ImageView>
-							</graphic>
-						</Button>
-					</children>
-				</HBox>
 				<ScrollPane style="-fx-background: white;" VBox.vgrow="ALWAYS">
 					<VBox.margin>
 						<Insets top="10.0" />

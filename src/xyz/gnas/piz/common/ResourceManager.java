@@ -14,8 +14,8 @@ public class ResourceManager {
 	private static final String ICON_FOLDER = RESOURCE_FOLDER + "/icons";
 
 	private static Image appIcon;
-	private static Image maskIcon;
-	private static Image unmaskIcon;
+	private static Image maskedIcon;
+	private static Image unmaskedIcon;
 	private static Image resumeIcon;
 	private static Image pauseIcon;
 
@@ -38,20 +38,20 @@ public class ResourceManager {
 		return notificationSound;
 	}
 
-	public static Image getMaskIcon() {
-		if (maskIcon == null) {
-			maskIcon = new Image(Main.class.getResourceAsStream(ICON_FOLDER + "/mask.png"));
+	public static Image getMaskedIcon() {
+		if (maskedIcon == null) {
+			maskedIcon = new Image(Main.class.getResourceAsStream(ICON_FOLDER + "/masked.png"));
 		}
 
-		return maskIcon;
+		return maskedIcon;
 	}
 
-	public static Image getUnmaskIcon() {
-		if (unmaskIcon == null) {
-			unmaskIcon = new Image(Main.class.getResourceAsStream(ICON_FOLDER + "/unmask.png"));
+	public static Image getUnmaskedIcon() {
+		if (unmaskedIcon == null) {
+			unmaskedIcon = new Image(Main.class.getResourceAsStream(ICON_FOLDER + "/unmasked.png"));
 		}
 
-		return unmaskIcon;
+		return unmaskedIcon;
 	}
 
 	public static Image getPauseIcon() {

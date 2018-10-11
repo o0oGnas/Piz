@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -15,7 +14,6 @@ import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
@@ -250,10 +248,7 @@ public class ReferenceController {
 	@FXML
 	private void delete() {
 		try {
-			Optional<ButtonType> result = CommonUtility
-					.showConfirmation("Are you sure you want to delete selected reference(s)?");
-
-			if (result.isPresent() && result.get() == ButtonType.OK) {
+			if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
 				appController.getReferenceList().removeAll(tvTable.getSelectionModel().getSelectedItems());
 			}
 		} catch (Exception e) {
