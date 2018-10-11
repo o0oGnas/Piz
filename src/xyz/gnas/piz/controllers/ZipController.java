@@ -130,14 +130,9 @@ public class ZipController {
 	private UserSetting userSetting;
 
 	/**
-	 * Map a label with a folder name, used for showing progress
+	 * Map a label with a file or folder, used for showing progress
 	 */
-	private Map<Label, String> labelFolderMap = new HashMap<Label, String>();
-
-	/**
-	 * Map a label with a file name, used for showing progress
-	 */
-	private Map<Label, String> labelFileMap = new HashMap<Label, String>();
+	private Map<Label, File> labelFileMap = new HashMap<Label, File>();
 
 	/**
 	 * Keep track of the different abbreviations and files that will be abbreviated
@@ -362,23 +357,23 @@ public class ZipController {
 
 	private void updateFolderAndFileLists() {
 		vbList.getChildren().clear();
-		labelFolderMap.clear();
 		labelFileMap.clear();
 
 		if (inputFolder != null) {
 			for (final File file : inputFolder.listFiles()) {
 				Label lblFile = new Label(file.getName());
+				lblFile.setText(file.getName());
 
 				// filter according to selection, folders and files are shown in different
 				// colours
 				if (file.isDirectory()) {
 					if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
 						lblFile.setTextFill(Color.BLUE);
-						labelFolderMap.put(lblFile, file.getAbsolutePath());
+						labelFileMap.put(lblFile, file);
 						vbList.getChildren().add(lblFile);
 					}
 				} else if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
-					labelFileMap.put(lblFile, file.getAbsolutePath());
+					labelFileMap.put(lblFile, file);
 					vbList.getChildren().add(lblFile);
 				}
 			}
@@ -482,14 +477,7 @@ public class ZipController {
 					updateAbbreviationList();
 				}
 
-				if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDER)) {
-					processMap(labelFolderMap);
-				}
-
-				if (ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILE)) {
-					processMap(labelFileMap);
-				}
-
+				process();
 				monitorAndUpdateProgress();
 			}
 		} catch (Exception e) {
@@ -526,8 +514,7 @@ public class ZipController {
 
 	private void updateAbbreviationList() {
 		abbreviationList.clear();
-		updateAbbreviationFromMap(labelFolderMap);
-		updateAbbreviationFromMap(labelFileMap);
+		updateAbbreviation();
 		uniquifyAbbreviationList();
 
 		// It's not possible to guarantee unique names even after trying to uniquify
@@ -539,9 +526,9 @@ public class ZipController {
 	 * @Date Oct 9, 2018
 	 * @param map
 	 */
-	private void updateAbbreviationFromMap(Map<Label, String> map) {
-		for (Label label : map.keySet()) {
-			File file = new File(map.get(label));
+	private void updateAbbreviation() {
+		for (Label label : labelFileMap.keySet()) {
+			File file = labelFileMap.get(label);
 			String fileName = getAbbreviatedFileName(file.getName(), file.isDirectory());
 			AbbreviationWrapper abbreviation = new AbbreviationWrapper(fileName);
 
@@ -549,7 +536,7 @@ public class ZipController {
 				abbreviation = abbreviationList.get(abbreviation);
 			}
 
-			abbreviation.fileAbbreviationMap.put(file.getName(), abbreviation.abbreviation);
+			abbreviation.fileAbbreviationMap.put(file, abbreviation.abbreviation);
 			abbreviationList.put(abbreviation, abbreviation);
 		}
 	}
@@ -564,14 +551,14 @@ public class ZipController {
 		for (AbbreviationWrapper abbreviation : abbreviationList.keySet()) {
 			if (abbreviation.fileAbbreviationMap.size() > 1) {
 				// first try to add file extension to remove duplicate
-				Map<String, String> uniqueMap = uniquifyByExtension(abbreviation);
+				Map<File, String> uniqueMap = uniquifyByExtension(abbreviation);
 
-				// map that contains original file names and their rebuilt names used for
+				// map that contains original files and their rebuilt names used for
 				// abbreviation
-				Map<String, String> fileRebuiltNameMap = new HashMap<String, String>();
+				Map<File, String> fileRebuiltNameMap = new HashMap<File, String>();
 
-				for (String file : abbreviation.fileAbbreviationMap.keySet()) {
-					fileRebuiltNameMap.put(file, file);
+				for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+					fileRebuiltNameMap.put(file, file.getName());
 				}
 
 				int characterCount = 1;
@@ -588,32 +575,38 @@ public class ZipController {
 		}
 	}
 
-	private Map<String, String> uniquifyByExtension(AbbreviationWrapper abbreviation) {
-		Map<String, String> mapWithExtension = new HashMap<String, String>();
+	private Map<File, String> uniquifyByExtension(AbbreviationWrapper abbreviation) {
+		Map<File, String> mapWithExtension = new HashMap<File, String>();
 
-		for (String file : abbreviation.fileAbbreviationMap.keySet()) {
-			mapWithExtension.put(file, getAbbreviatedFileName(file, true));
+		for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+			String fileName = abbreviation.fileAbbreviationMap.get(file);
+
+			if (file.isDirectory()) {
+				mapWithExtension.put(file, fileName);
+			} else {
+				// add extension to file name by pretending that it's a folder
+				mapWithExtension.put(file, getAbbreviatedFileName(fileName, true));
+			}
 		}
 
 		return mapWithExtension;
 	}
 
-	private Map<String, String> uniquifyByAddingCharacters(Map<String, String> map, int characterCount,
-			Map<String, String> fileRebuiltNameMap) {
+	private Map<File, String> uniquifyByAddingCharacters(Map<File, String> map, int characterCount,
+			Map<File, String> fileRebuiltNameMap) {
 		// temporary new abbreviation list
 		SortedMap<AbbreviationWrapper, AbbreviationWrapper> newAbbreviationList = getNewAbbreviationList(map);
 		updateNewAbbreviationList(newAbbreviationList, characterCount, fileRebuiltNameMap);
-		Map<String, String> result = new HashMap<String, String>();
+		Map<File, String> result = new HashMap<File, String>();
 
 		for (AbbreviationWrapper abbreviation : newAbbreviationList.keySet()) {
-			for (String file : abbreviation.fileAbbreviationMap.keySet()) {
+			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
 				String newAbbreviatedName = map.get(file);
 
 				// get abbreviation of each file in abbreviation with duplicates using their
 				// rebuilt name
 				if (abbreviation.fileAbbreviationMap.size() > 1) {
-					File fileOnDisk = new File(file);
-					newAbbreviatedName = getAbbreviatedFileName(fileRebuiltNameMap.get(file), fileOnDisk.isDirectory());
+					newAbbreviatedName = getAbbreviatedFileName(fileRebuiltNameMap.get(file), file.isDirectory());
 				}
 
 				result.put(file, newAbbreviatedName);
@@ -623,7 +616,7 @@ public class ZipController {
 		return result;
 	}
 
-	private SortedMap<AbbreviationWrapper, AbbreviationWrapper> getNewAbbreviationList(Map<String, String> map) {
+	private SortedMap<AbbreviationWrapper, AbbreviationWrapper> getNewAbbreviationList(Map<File, String> map) {
 		SortedMap<AbbreviationWrapper, AbbreviationWrapper> newAbbreviationList = new TreeMap<AbbreviationWrapper, AbbreviationWrapper>();
 
 		for (String value : map.values()) {
@@ -633,7 +626,7 @@ public class ZipController {
 				abbreviation = newAbbreviationList.get(abbreviation);
 			}
 
-			for (String file : map.keySet()) {
+			for (File file : map.keySet()) {
 				if (map.get(file).equalsIgnoreCase(value)) {
 					abbreviation.fileAbbreviationMap.put(file, value);
 				}
@@ -646,12 +639,12 @@ public class ZipController {
 	}
 
 	private void updateNewAbbreviationList(SortedMap<AbbreviationWrapper, AbbreviationWrapper> newAbbreviationList,
-			int characterCount, Map<String, String> fileRebuiltNameMap) {
+			int characterCount, Map<File, String> fileRebuiltNameMap) {
 		for (AbbreviationWrapper abbreviation : newAbbreviationList.keySet()) {
 			// rebuild the original file names of abbreviation with multiple files
 			if (abbreviation.fileAbbreviationMap.size() > 1) {
-				for (String file : abbreviation.fileAbbreviationMap.keySet()) {
-					String[] split = FilenameUtils.removeExtension(file).split(" ");
+				for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+					String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
 					StringBuilder sb = new StringBuilder();
 
 					for (String word : split) {
@@ -676,10 +669,10 @@ public class ZipController {
 		SortedMap<AbbreviationWrapper, AbbreviationWrapper> newAbreviationList = new TreeMap<AbbreviationWrapper, AbbreviationWrapper>();
 
 		for (AbbreviationWrapper abbreviation : abbreviationList.keySet()) {
-			Map<String, String> newfileAbbreviationMap = new HashMap<String, String>();
+			Map<File, String> newfileAbbreviationMap = new HashMap<File, String>();
 
 			// create a new Abbreviation object for each newly generated abbreviation
-			for (String file : abbreviation.fileAbbreviationMap.keySet()) {
+			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
 				if (abbreviation.fileAbbreviationMap.get(file).equalsIgnoreCase(abbreviation.abbreviation)) {
 					newfileAbbreviationMap.put(file, abbreviation.abbreviation);
 				} else {
@@ -740,16 +733,16 @@ public class ZipController {
 	 * @Date Oct 9, 2018
 	 * @param map
 	 */
-	private void processMap(Map<Label, String> map) {
+	private void process() {
 		finishCount = 0;
 
-		for (Label label : map.keySet()) {
+		for (Label label : labelFileMap.keySet()) {
 			// run in threads to increase speed
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						executeZipThread(label, map);
+						executeZipThread(label);
 					} catch (Exception e) {
 						Platform.runLater(new Runnable() {
 							@Override
@@ -765,42 +758,61 @@ public class ZipController {
 		}
 	}
 
-	private void executeZipThread(Label label, Map<Label, String> map)
-			throws ZipException, InterruptedException, IOException {
+	private void executeZipThread(Label label) throws ZipException, InterruptedException, IOException {
 		if (cbObfuscateFileName.isSelected()) {
-			obfuscateFileNameAndZip(label, map);
+			obfuscateFileNameAndZip(label);
 		} else {
-			prepareToZip(label, map, map.get(label), FilenameUtils.removeExtension(map.get(label)),
-					cbEncrypt.isSelected(), true);
+			prepareToZip(label, labelFileMap.get(label).getAbsolutePath(),
+					FilenameUtils.removeExtension(labelFileMap.get(label).getAbsolutePath()), cbEncrypt.isSelected(),
+					true);
 			increaseFinishCount();
 		}
 	}
 
-	private void obfuscateFileNameAndZip(Label label, Map<Label, String> map)
-			throws ZipException, InterruptedException, IOException {
-		File originalFile = new File(map.get(label));
+	private void obfuscateFileNameAndZip(Label label) throws ZipException, InterruptedException, IOException {
+		File originalFile = labelFileMap.get(label);
+
+		AbbreviationWrapper abbreviation = null;
 
 		// find the abbreviation object whose file map contains this file
-		AbbreviationWrapper abbreviation = abbreviationList.keySet().stream()
-				.filter(a -> a.fileAbbreviationMap.containsKey(originalFile.getName())).findFirst().orElse(null);
+		for (AbbreviationWrapper current : abbreviationList.keySet()) {
+			boolean found = false;
+
+			for (File file : current.fileAbbreviationMap.keySet()) {
+				if (file.getName().equalsIgnoreCase(originalFile.getName())) {
+					found = true;
+					abbreviation = current;
+					break;
+				}
+			}
+
+			if (found) {
+				break;
+			}
+		}
 
 		// zip name is path to parent folder and abbreviated file name
 		String zipPath = getZipParentFolderPath(originalFile) + "\\" + abbreviation.abbreviation;
 
 		if (abbreviation.fileAbbreviationMap.size() > 1) {
-			ArrayList<String> temp = new ArrayList<String>(abbreviation.fileAbbreviationMap.keySet());
-			zipPath += "_" + (temp.indexOf(originalFile.getName()) + 1);
+			ArrayList<File> temp = new ArrayList<File>(abbreviation.fileAbbreviationMap.keySet());
+
+			for (int i = 0; i < temp.size(); ++i) {
+				if (originalFile.getName().equalsIgnoreCase(temp.get(i).getName())) {
+					zipPath += "_" + (i + 1);
+				}
+			}
 		}
 
 		// append _inner to inner zip name
 		String innerZipPath = zipPath + "_inner";
 
 		// create inner zip without encryption
-		innerZipPath = prepareToZip(label, map, map.get(label), innerZipPath, false, false);
+		innerZipPath = prepareToZip(label, labelFileMap.get(label).getAbsolutePath(), innerZipPath, false, false);
 
 		// only create outer zip if it's not cancelled
 		if (innerZipPath != null) {
-			processOuterZip(label, map, innerZipPath, zipPath);
+			processOuterZip(label, innerZipPath, zipPath);
 		}
 
 		increaseFinishCount();
@@ -827,8 +839,8 @@ public class ZipController {
 	 * @throws ZipException
 	 * @throws InterruptedException
 	 */
-	private String prepareToZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
-			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
+	private String prepareToZip(Label label, String sourcePath, String destinationPath, boolean encrypt,
+			boolean isOuter) throws ZipException, InterruptedException {
 		String zipPath = destinationPath + ".zip";
 		File fileZip = new File(zipPath);
 		int count = 1;
@@ -841,7 +853,7 @@ public class ZipController {
 			++count;
 		}
 
-		if (performZip(label, map, sourcePath, zipPath, encrypt, isOuter)) {
+		if (performZip(label, sourcePath, zipPath, encrypt, isOuter)) {
 			return zipPath;
 		} else {
 			return null;
@@ -861,8 +873,8 @@ public class ZipController {
 	 * @throws ZipException
 	 * @throws InterruptedException
 	 */
-	private boolean performZip(Label label, Map<Label, String> map, String sourcePath, String destinationPath,
-			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
+	private boolean performZip(Label label, String sourcePath, String destinationPath, boolean encrypt, boolean isOuter)
+			throws ZipException, InterruptedException {
 		ZipFile zip = getZipFile(sourcePath, destinationPath, encrypt);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
 		addProgress(progressMonitor);
@@ -870,7 +882,7 @@ public class ZipController {
 		// run while zip is not cancelled and is still in progress (paused is considered
 		// in progress)
 		while (!stop && (progressMonitor.getState() == ProgressMonitor.STATE_BUSY)) {
-			showProgress(label, map, progressMonitor, isOuter);
+			showProgress(label, progressMonitor, isOuter);
 
 			// update progress every 0.5 second
 			Thread.sleep(500);
@@ -885,7 +897,7 @@ public class ZipController {
 		} else {
 			// only show that the process is done if it's the outer layer
 			if (isOuter) {
-				showDoneProcess(label, map);
+				showDoneProcess(label);
 			}
 
 			return true;
@@ -933,7 +945,7 @@ public class ZipController {
 		progressList.add(progress);
 	}
 
-	private void showProgress(Label label, Map<Label, String> map, ProgressMonitor progressMonitor, boolean isOuter) {
+	private void showProgress(Label label, ProgressMonitor progressMonitor, boolean isOuter) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -951,7 +963,7 @@ public class ZipController {
 						}
 					}
 
-					label.setText("(" + Math.round(percent) + "%) " + map.get(label));
+					label.setText("(" + Math.round(percent) + "%) " + labelFileMap.get(label).getName());
 				} catch (Exception e) {
 					CommonUtility.showError(e, "Error when updating progress", false);
 				}
@@ -959,12 +971,12 @@ public class ZipController {
 		});
 	}
 
-	private void showDoneProcess(Label label, Map<Label, String> map) {
+	private void showDoneProcess(Label label) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					label.setText("(done) " + map.get(label));
+					label.setText("(done) " + labelFileMap.get(label));
 				} catch (Exception e) {
 					CommonUtility.showError(e, "Error when showing done process", false);
 				}
@@ -986,7 +998,7 @@ public class ZipController {
 			public void run() {
 				try {
 					// wait until all processes are done
-					while (finishCount < labelFolderMap.size() + labelFileMap.size()) {
+					while (finishCount < labelFileMap.size()) {
 						Thread.sleep(1000);
 					}
 
@@ -1031,9 +1043,9 @@ public class ZipController {
 		});
 	}
 
-	private void processOuterZip(Label label, Map<Label, String> map, String innerZipName, String zipPath)
+	private void processOuterZip(Label label, String innerZipName, String zipPath)
 			throws ZipException, InterruptedException, IOException {
-		zipPath = prepareToZip(label, map, innerZipName, zipPath, cbEncrypt.isSelected(), true);
+		zipPath = prepareToZip(label, innerZipName, zipPath, cbEncrypt.isSelected(), true);
 		File innerZipFile = new File(innerZipName);
 
 		// remove inner zip from disk
@@ -1041,7 +1053,7 @@ public class ZipController {
 
 		// only add reference if user chooses to and process is not cancelled
 		if (cbAddReferences.isSelected() && zipPath != null) {
-			addReference(label, map, zipPath);
+			addReference(label, zipPath);
 		}
 	}
 
@@ -1053,9 +1065,7 @@ public class ZipController {
 	 * @param outerZipPath path of the outer zip file
 	 * @throws IOException
 	 */
-	synchronized private void addReference(Label label, Map<Label, String> map, String outerZipPath)
-			throws IOException {
-		File originalFile = new File(map.get(label));
+	synchronized private void addReference(Label label, String outerZipPath) throws IOException {
 		File zipFile = new File(outerZipPath);
 
 		Platform.runLater(new Runnable() {
@@ -1063,8 +1073,8 @@ public class ZipController {
 			public void run() {
 				try {
 					// add reference to the top
-					appController.getReferenceList().add(0,
-							new ZipReference(userSetting.getReferenceTag(), originalFile.getName(), zipFile.getName()));
+					appController.getReferenceList().add(0, new ZipReference(userSetting.getReferenceTag(),
+							labelFileMap.get(label).getName(), zipFile.getName()));
 				} catch (Exception e) {
 					CommonUtility.showError(e, "Error when adding reference", false);
 				}
@@ -1104,7 +1114,7 @@ public class ZipController {
 		/**
 		 * Map the original file and its abbreviation
 		 */
-		private Map<String, String> fileAbbreviationMap = new HashMap<String, String>();
+		private Map<File, String> fileAbbreviationMap = new HashMap<File, String>();
 
 		public AbbreviationWrapper(String abbreviation) {
 			this.abbreviation = abbreviation;
