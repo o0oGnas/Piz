@@ -125,6 +125,11 @@
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                  </padding>
                                  <children>
+                                    <Label text="Password">
+                                       <HBox.margin>
+                                          <Insets right="10.0" />
+                                       </HBox.margin>
+                                    </Label>
             								<TextField fx:id="tfPassword" promptText="Password" visible="false" HBox.hgrow="ALWAYS">
             									<HBox.margin>
             										<Insets />
@@ -177,11 +182,22 @@
 										<Insets />
 									</HBox.margin>
 								</CheckBox>
-								<TextField fx:id="tfReferenceTag" promptText="Reference tag" HBox.hgrow="ALWAYS">
-									<HBox.margin>
-										<Insets left="10.0" />
-									</HBox.margin>
-								</TextField>
+                        <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                           <children>
+                              <Label text="Tag" />
+      								<TextField fx:id="tfReferenceTag" promptText="Reference tag" HBox.hgrow="ALWAYS">
+      									<HBox.margin>
+      										<Insets left="10.0" />
+      									</HBox.margin>
+      								</TextField>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </HBox>
                      </children>
                      <HBox.margin>
                         <Insets left="10.0" />
