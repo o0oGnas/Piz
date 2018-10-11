@@ -9,4 +9,6 @@ public class CommonConstants {
 	public static final String FILES = "Files";
 	public static final String FOLDERS = "Folders";
 	public static final String REFERENCE_FILE = "references.txt";
+	public static final String PAUSE = "pause";
+	public static final String RESUME = "resume";
 }

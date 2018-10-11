@@ -18,13 +18,13 @@
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<VBox fx:id="vbInputFields">
-					<children>
-						<HBox>
-							<children>
-                        <HBox style="-fx-border-color: lightgrey;" HBox.hgrow="ALWAYS">
-                           <children>
-      								<Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" text="Input folder" HBox.hgrow="NEVER">
+            <VBox fx:id="vbInputsAndActions">
+               <children>
+      				<VBox fx:id="vbInputFields">
+      					<children>
+      						<HBox>
+      							<children>
+      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" prefWidth="120.0" text="Input folder" HBox.hgrow="NEVER">
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
@@ -33,25 +33,16 @@
       										</ImageView>
       									</graphic>
       								</Button>
-      								<Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
+      								<Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0">
       									<HBox.margin>
       										<Insets left="10.0" />
       									</HBox.margin>
       								</Label>
-                           </children>
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                        </HBox>
-                        <HBox style="-fx-border-color: lightgrey;" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                           <children>
-      								<Button mnemonicParsing="false" onAction="#selectOutputFolder" text="Output folder">
+      							</children>
+      						</HBox>
+      						<HBox>
+      							<children>
+      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#selectOutputFolder" prefWidth="120.0" text="Output folder">
       									<HBox.margin>
       										<Insets />
       									</HBox.margin>
@@ -63,201 +54,195 @@
       										</ImageView>
       									</graphic>
       								</Button>
-      								<Label fx:id="lblOutputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
+      								<Label fx:id="lblOutputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0">
       									<HBox.margin>
       										<Insets left="10.0" />
       									</HBox.margin>
       								</Label>
-                           </children>
-                        </HBox>
-							</children>
-						</HBox>
-						<HBox alignment="CENTER_LEFT">
-							<VBox.margin>
-								<Insets top="10.0" />
-							</VBox.margin>
-							<children>
-                        <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                           <children>
-                              <Label text="Perform zip on" />
-      								<CheckComboBox fx:id="ccbFileFolder" prefWidth="150.0">
+      							</children>
+      							<VBox.margin>
+      								<Insets top="10.0" />
+      							</VBox.margin>
+      						</HBox>
+      						<HBox alignment="CENTER_LEFT">
+      							<VBox.margin>
+      								<Insets top="10.0" />
+      							</VBox.margin>
+      							<children>
+      								<HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+      									<padding>
+      										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      									</padding>
+      									<children>
+      										<Label text="Perform zip on" />
+      										<CheckComboBox fx:id="ccbFileFolder" prefWidth="110.0">
+      											<HBox.margin>
+      												<Insets left="10.0" />
+      											</HBox.margin>
+      										</CheckComboBox>
+      									</children>
+      								</HBox>
+      								<HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+      									<padding>
+      										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      									</padding>
+      									<children>
+      										<TextField fx:id="tfProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0" text="5">
+      											<HBox.margin>
+      												<Insets />
+      											</HBox.margin>
+      										</TextField>
+      										<Label text="simultaneous processes">
+      											<HBox.margin>
+      												<Insets left="5.0" />
+      											</HBox.margin>
+      										</Label>
+      									</children>
       									<HBox.margin>
       										<Insets left="10.0" />
       									</HBox.margin>
-      								</CheckComboBox>
-                           </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                           <children>
-                              <TextField fx:id="tfProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0" text="5">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                              </TextField>
-                              <Label text="concurrent processes">
-                                 <HBox.margin>
-                                    <Insets left="5.0" />
-                                 </HBox.margin>
-                              </Label>
-                           </children>
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                           <children>
-      								<CheckBox fx:id="cbEncrypt" mnemonicParsing="false" selected="true" text="Encrypt" HBox.hgrow="NEVER">
-      									<HBox.margin>
-      										<Insets left="10.0" />
-      									</HBox.margin>
-      								</CheckBox>
-                              <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
-                                 <padding>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                 </padding>
-                                 <children>
-                                    <Label text="Password">
-                                       <HBox.margin>
-                                          <Insets right="10.0" />
-                                       </HBox.margin>
-                                    </Label>
-            								<TextField fx:id="tfPassword" promptText="Password" visible="false" HBox.hgrow="ALWAYS">
+      								</HBox>
+      							</children>
+      						</HBox>
+            				<HBox alignment="CENTER_LEFT">
+            					<children>
+            						<CheckBox fx:id="cbEncrypt" mnemonicParsing="false" selected="true" text="Encrypt">
+            							<HBox.margin>
+            								<Insets />
+            							</HBox.margin>
+            						</CheckBox>
+            						<HBox fx:id="hbPassword" alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+            							<padding>
+            								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            							</padding>
+            							<children>
+            								<Label text="Password">
+            									<HBox.margin>
+            										<Insets right="10.0" />
+            									</HBox.margin>
+            								</Label>
+            								<TextField fx:id="tfPassword" promptText="Password" visible="false">
             									<HBox.margin>
             										<Insets />
             									</HBox.margin>
             								</TextField>
             								<PasswordField fx:id="pfPassword" promptText="Password">
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </PasswordField>
+            									<HBox.margin>
+            										<Insets />
+            									</HBox.margin>
+            								</PasswordField>
             								<ImageView fx:id="ivMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
             									<image>
             										<Image url="@../../resources/icons/masked.png" />
             									</image>
             									<HBox.margin>
-            										<Insets left="2.0" />
+            										<Insets left="5.0" />
             									</HBox.margin>
             								</ImageView>
-                                 </children>
-                                 <HBox.margin>
-                                    <Insets left="10.0" />
-                                 </HBox.margin>
-                              </HBox>
-                           </children>
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                        </HBox>
-							</children>
-						</HBox>
-					</children>
-				</VBox>
-            <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
-               <padding>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </padding>
-               <children>
-								<CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name" HBox.hgrow="NEVER">
-									<HBox.margin>
-										<Insets />
-									</HBox.margin>
-								</CheckBox>
-                  <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                     <children>
-								<CheckBox fx:id="cbAddReferences" mnemonicParsing="false" text="Add references" HBox.hgrow="NEVER">
-									<HBox.margin>
-										<Insets />
-									</HBox.margin>
-								</CheckBox>
-                        <HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                           <children>
-                              <Label text="Tag" />
-      								<TextField fx:id="tfReferenceTag" promptText="Reference tag" HBox.hgrow="ALWAYS">
+            							</children>
+            							<HBox.margin>
+            								<Insets left="10.0" />
+            							</HBox.margin>
+            						</HBox>
+            					</children>
+            					<VBox.margin>
+            						<Insets top="10.0" />
+            					</VBox.margin>
+            				</HBox>
+            				<HBox alignment="CENTER_LEFT">
+            					<children>
+            						<CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name">
+            							<HBox.margin>
+            								<Insets />
+            							</HBox.margin>
+            						</CheckBox>
+            						<HBox fx:id="hbReference" alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+            							<padding>
+            								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            							</padding>
+            							<children>
+            								<CheckBox fx:id="cbAddReferences" mnemonicParsing="false" text="Add references">
+            									<HBox.margin>
+            										<Insets />
+            									</HBox.margin>
+            								</CheckBox>
+            								<HBox fx:id="hbTag" alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+            									<padding>
+            										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            									</padding>
+            									<children>
+            										<Label text="Tag" />
+            										<TextField fx:id="tfReferenceTag" promptText="Reference tag">
+            											<HBox.margin>
+            												<Insets left="10.0" />
+            											</HBox.margin>
+            										</TextField>
+            									</children>
+            									<HBox.margin>
+            										<Insets left="10.0" />
+            									</HBox.margin>
+            								</HBox>
+            							</children>
+            							<HBox.margin>
+            								<Insets left="10.0" />
+            							</HBox.margin>
+            						</HBox>
+            					</children>
+            					<VBox.margin>
+            						<Insets top="10.0" />
+            					</VBox.margin>
+            				</HBox>
+      					</children>
+      				</VBox>
+      						<HBox fx:id="hbActions" alignment="CENTER_LEFT">
+      							<children>
+      								<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" prefWidth="100.0" text="Start">
+      									<graphic>
+      										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+      											<image>
+      												<Image url="@../../resources/icons/start.png" />
+      											</image>
+      										</ImageView>
+      									</graphic>
+      								</Button>
+      								<Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
       									<HBox.margin>
       										<Insets left="10.0" />
       									</HBox.margin>
-      								</TextField>
-                           </children>
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                        </HBox>
-                     </children>
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </HBox>
+      									<graphic>
+      										<ImageView fx:id="ivPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+      											<image>
+      												<Image url="@../../resources/icons/pause.png" />
+      											</image>
+      										</ImageView>
+      									</graphic>
+      								</Button>
+      								<Button fx:id="btnStop" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
+      									<HBox.margin>
+      										<Insets left="10.0" />
+      									</HBox.margin>
+      									<graphic>
+      										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+      											<image>
+      												<Image url="@../../resources/icons/stop.png" />
+      											</image>
+      										</ImageView>
+      									</graphic>
+      								</Button>
+      							</children>
+      							<VBox.margin>
+      								<Insets top="10.0" />
+      							</VBox.margin>
+      						</HBox>
                </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </HBox>
-				<HBox fx:id="hbActions" alignment="CENTER_LEFT">
-					<children>
-						<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" prefWidth="100.0" text="Start">
-							<graphic>
-      								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-      									<image>
-      										<Image url="@../../resources/icons/start.png" />
-      									</image>
-      								</ImageView>
-							</graphic>
-						</Button>
-						<Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
-							<HBox.margin>
-								<Insets left="10.0" />
-							</HBox.margin>
-							<graphic>
-      								<ImageView fx:id="ivPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-      									<image>
-      										<Image url="@../../resources/icons/pause.png" />
-      									</image>
-      								</ImageView>
-							</graphic>
-						</Button>
-						<Button fx:id="btnStop" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
-							<HBox.margin>
-								<Insets left="10.0" />
-							</HBox.margin>
-							<graphic>
-								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-									<image>
-										<Image url="@../../resources/icons/stop.png" />
-									</image>
-								</ImageView>
-							</graphic>
-						</Button>
-					</children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-				</HBox>
-				<ScrollPane style="-fx-background: white;" VBox.vgrow="ALWAYS">
+            </VBox>
+				<ScrollPane fx:id="spList" fitToWidth="true" style="-fx-background: white;" VBox.vgrow="ALWAYS">
 					<VBox.margin>
 						<Insets top="10.0" />
 					</VBox.margin>
 					<content>
 						<VBox fx:id="vbList" />
 					</content>
-					<padding>
-						<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-					</padding>
 				</ScrollPane>
 			</children>
 			<padding>
