@@ -134,7 +134,7 @@
                         <Insets />
                      </HBox.margin>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#filter" prefWidth="100.0" text="Filter">
+                  <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#filter" prefWidth="70.0" text="Filter">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
@@ -154,7 +154,7 @@
                      <HBox.margin>
                         <Insets left="5.0" />
                      </HBox.margin></Label>
-								<Button mnemonicParsing="false" onAction="#scrollToTop" prefWidth="150.0" text="Scroll to top">
+								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToTop" prefWidth="130.0" text="Scroll to top">
 									<graphic>
 										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 											<image>
@@ -166,7 +166,7 @@
                         <Insets left="10.0" />
                      </HBox.margin>
 								</Button>
-								<Button mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="150.0" text="Scroll to bottom">
+								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="130.0" text="Scroll to bottom">
 									<graphic>
 										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 											<image>
@@ -183,7 +183,7 @@
 						<Insets top="10.0" />
 					</VBox.margin>
 				</HBox>
-				<TableView fx:id="tvTable" editable="true" VBox.vgrow="ALWAYS">
+				<TableView fx:id="tvTable" editable="true" onKeyReleased="#tableKeyReleased" VBox.vgrow="ALWAYS">
 					<columns>
 						<TableColumn fx:id="tcDate" prefWidth="132.0" text="Date" />
 						<TableColumn fx:id="tcTag" prefWidth="166.0" text="Tag" />
@@ -196,7 +196,7 @@
 				</TableView>
 				<HBox prefHeight="2.0" prefWidth="900.0" VBox.vgrow="NEVER">
 					<children>
-						<Button mnemonicParsing="false" onAction="#add" prefWidth="150.0" text="Add reference">
+						<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#add" prefWidth="130.0" text="Add reference">
 							<graphic>
 								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 									<image>
@@ -205,7 +205,7 @@
 								</ImageView>
 							</graphic>
 						</Button>
-						<Button fx:id="btnDelete" mnemonicParsing="false" onAction="#delete" prefWidth="150.0" text="Delete reference">
+						<Button fx:id="btnDelete" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#delete" prefWidth="130.0" text="Delete reference">
 							<HBox.margin>
 								<Insets left="10.0" />
 							</HBox.margin>
@@ -217,7 +217,7 @@
 								</ImageView>
 							</graphic>
 						</Button>
-						<Button mnemonicParsing="false" onAction="#save" prefWidth="150.0" text="Save references">
+						<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#save" prefWidth="130.0" text="Save references">
 							<HBox.margin>
 								<Insets left="10.0" />
 							</HBox.margin>

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -26,6 +27,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.common.CommonConstants;
@@ -115,7 +118,6 @@ public class ReferenceController {
 		}
 
 		initialiseDateTimePickers();
-		setReferenceCount();
 		addListenerToList();
 	}
 
@@ -139,7 +141,7 @@ public class ReferenceController {
 	}
 
 	private void setReferenceCount() {
-		lblReferenceCount.setText(appController.getReferenceList().size() + " references");
+		lblReferenceCount.setText(tvTable.getItems().size() + " references");
 	}
 
 	private void addListenerToList() {
@@ -154,6 +156,7 @@ public class ReferenceController {
 				}
 
 				tvTable.setItems(appController.getReferenceList());
+				setReferenceCount();
 			} catch (Exception e) {
 				CommonUtility.showError(e, "Error when handling update to reference list", false);
 			}
@@ -176,6 +179,8 @@ public class ReferenceController {
 				btnDelete.setDisable(tvTable.getSelectionModel().getSelectedItems().size() == 0);
 			}
 		});
+
+		setReferenceCount();
 	}
 
 	private void initialiseDateColumn() {
@@ -287,7 +292,7 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void filter() {
+	private void filter(ActionEvent event) {
 		try {
 			Calendar cFrom = CommonUtility.convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
 			Calendar cTo = CommonUtility.convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
@@ -306,6 +311,7 @@ public class ReferenceController {
 			}
 
 			tvTable.setItems(filteredList);
+			setReferenceCount();
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not filter", false);
 		}
@@ -332,7 +338,7 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void scrollToTop() {
+	private void scrollToTop(ActionEvent event) {
 		try {
 			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
 			verticalBar.setValue(verticalBar.getMin());
@@ -342,7 +348,7 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void scrollToBottom() {
+	private void scrollToBottom(ActionEvent event) {
 		try {
 			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
 			verticalBar.setValue(verticalBar.getMax());
@@ -352,25 +358,25 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void add() {
+	private void add(ActionEvent event) {
 		try {
 			isManualUpdate = true;
 			appController.getReferenceList().add(0, new ZipReference(null, null, null));
 
 			// scroll to top
-			scrollToTop();
+			scrollToTop(null);
 
 			// focus on the new row
 			tvTable.requestFocus();
-			tvTable.getSelectionModel().clearAndSelect(appController.getReferenceList().size() - 1);
-			tvTable.getFocusModel().focus(appController.getReferenceList().size() - 1);
+			tvTable.getSelectionModel().clearAndSelect(0);
+			tvTable.getFocusModel().focus(0);
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not add reference", false);
 		}
 	}
 
 	@FXML
-	private void delete() {
+	private void delete(ActionEvent event) {
 		try {
 			isManualUpdate = true;
 
@@ -383,11 +389,23 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void save() {
+	private void save(ActionEvent event) {
 		try {
 			appController.saveReferences();
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not save references", false);
+		}
+	}
+
+	@FXML
+	private void tableKeyReleased(KeyEvent event) {
+		try {
+			// if user presses delete
+			if (event.getCode() == KeyCode.DELETE) {
+				delete(null);
+			}
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not handle key release event", false);
 		}
 	}
 }

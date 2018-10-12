@@ -196,7 +196,7 @@
       				</VBox>
       						<HBox fx:id="hbActions" alignment="CENTER_LEFT">
       							<children>
-      								<Button fx:id="btnStart" mnemonicParsing="false" onAction="#start" prefWidth="100.0" text="Start">
+      								<Button fx:id="btnStart" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#start" prefWidth="80.0" text="Start">
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
@@ -205,7 +205,7 @@
       										</ImageView>
       									</graphic>
       								</Button>
-      								<Button fx:id="btnPauseResume" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
+      								<Button fx:id="btnPauseResume" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="80.0" text="Pause">
       									<HBox.margin>
       										<Insets left="10.0" />
       									</HBox.margin>
@@ -217,7 +217,7 @@
       										</ImageView>
       									</graphic>
       								</Button>
-      								<Button fx:id="btnStop" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" text="Stop">
+      								<Button fx:id="btnStop" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="80.0" text="Stop">
       									<HBox.margin>
       										<Insets left="10.0" />
       									</HBox.margin>
