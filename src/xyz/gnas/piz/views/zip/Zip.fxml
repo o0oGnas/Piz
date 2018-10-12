@@ -69,7 +69,7 @@
       								<Insets top="10.0" />
       							</VBox.margin>
       							<children>
-      								<HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+      								<HBox alignment="CENTER_LEFT" styleClass="control-box">
       									<padding>
       										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
       									</padding>
@@ -82,7 +82,7 @@
       										</CheckComboBox>
       									</children>
       								</HBox>
-      								<HBox alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+      								<HBox alignment="CENTER_LEFT" styleClass="control-box">
       									<padding>
       										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
       									</padding>
@@ -111,7 +111,7 @@
             								<Insets />
             							</HBox.margin>
             						</CheckBox>
-            						<HBox fx:id="hbPassword" alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+            						<HBox fx:id="hbPassword" alignment="CENTER_LEFT" styleClass="control-box">
             							<padding>
             								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             							</padding>
@@ -156,7 +156,7 @@
             								<Insets />
             							</HBox.margin>
             						</CheckBox>
-            						<HBox fx:id="hbReference" alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+            						<HBox fx:id="hbReference" alignment="CENTER_LEFT" styleClass="control-box">
             							<padding>
             								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             							</padding>
@@ -166,7 +166,7 @@
             										<Insets />
             									</HBox.margin>
             								</CheckBox>
-            								<HBox fx:id="hbTag" alignment="CENTER_LEFT" style="-fx-border-color: lightgrey;">
+            								<HBox fx:id="hbTag" alignment="CENTER_LEFT" styleClass="control-box">
             									<padding>
             										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             									</padding>
@@ -236,7 +236,7 @@
       						</HBox>
                </children>
             </VBox>
-				<ScrollPane fx:id="spList" fitToWidth="true" style="-fx-background: white;" VBox.vgrow="ALWAYS">
+				<ScrollPane fitToWidth="true" style="-fx-background: white;" VBox.vgrow="ALWAYS">
 					<VBox.margin>
 						<Insets top="10.0" />
 					</VBox.margin>

@@ -2,52 +2,187 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import tornadofx.control.DateTimePicker?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xyz.gnas.piz.controllers.reference.ReferenceController">
+<AnchorPane prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xyz.gnas.piz.controllers.reference.ReferenceController">
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-            <HBox alignment="BOTTOM_LEFT">
-               <children>
-                  <Label fx:id="lblReferenceCount" text="reference count" />
-                  <HBox alignment="BOTTOM_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
+				<HBox alignment="CENTER_LEFT">
+					<children>
+						<HBox alignment="CENTER_LEFT" styleClass="control-box">
+							<padding>
+								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+							</padding>
                      <children>
-                        <Button mnemonicParsing="false" onAction="#scrollToTop" prefWidth="150.0" text="Scroll to top">
-                           <graphic>
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../resources/icons/top.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
-                        </Button>
-                        <Button mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="150.0" text="Scroll to bottom">
-                           <graphic>
-                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../../resources/icons/bottom.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
+                        <Label text="From" />
+                        <DateTimePicker fx:id="dtpFrom" format="dd MMMM yyyy HH:mm">
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
-                        </Button>
+                        </DateTimePicker>
+                     </children>
+						</HBox>
+                  <HBox alignment="CENTER_LEFT" styleClass="control-box">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <children>
+                        <Label text="To" />
+                        <DateTimePicker fx:id="dtpTo" format="dd MMMM yyyy HH:mm">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </DateTimePicker>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </HBox>
+					</children>
+				</HBox>
+            <HBox alignment="CENTER_LEFT">
+               <children>
+                  <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                           <children>
+                              <Label text="Original file/folder" />
+                              <ComboBox fx:id="cbbOriginal" prefWidth="100.0">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </ComboBox>
+                              <TextField fx:id="tfOriginal" maxWidth="1.7976931348623157E308" promptText="Original file/folder" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                           <children>
+                              <Label text="Zip file">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </Label>
+                              <ComboBox fx:id="cbbZip" prefWidth="100.0">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </ComboBox>
+                              <TextField fx:id="tfZip" maxWidth="1.7976931348623157E308" promptText="Zip file" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </HBox>
                      </children>
                   </HBox>
                </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
             </HBox>
+            <HBox alignment="CENTER_LEFT">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <children>
+                  <HBox alignment="CENTER_LEFT" styleClass="control-box">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <children>
+                        <Label text="Tag" />
+                        <ComboBox fx:id="cbbTag" prefWidth="100.0">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </ComboBox>
+                        <TextField fx:id="tfTag" prefWidth="100.0" promptText="Tag">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </HBox>
+                  <Button mnemonicParsing="false" onAction="#filter" prefWidth="100.0" text="Filter">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                     <graphic>
+                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../resources/icons/filter.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
+				<HBox alignment="CENTER_LEFT">
+					<children>
+						<Label fx:id="lblReferenceCount" text="reference count">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin></Label>
+								<Button mnemonicParsing="false" onAction="#scrollToTop" prefWidth="150.0" text="Scroll to top">
+									<graphic>
+										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+											<image>
+												<Image url="@../../resources/icons/top.png" />
+											</image>
+										</ImageView>
+									</graphic>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+								</Button>
+								<Button mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="150.0" text="Scroll to bottom">
+									<graphic>
+										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+											<image>
+												<Image url="@../../resources/icons/bottom.png" />
+											</image>
+										</ImageView>
+									</graphic>
+									<HBox.margin>
+										<Insets left="10.0" />
+									</HBox.margin>
+								</Button>
+					</children>
+					<VBox.margin>
+						<Insets top="10.0" />
+					</VBox.margin>
+				</HBox>
 				<TableView fx:id="tvTable" editable="true" VBox.vgrow="ALWAYS">
 					<columns>
 						<TableColumn fx:id="tcDate" prefWidth="132.0" text="Date" />
@@ -55,44 +190,45 @@
 						<TableColumn fx:id="tcOriginal" prefWidth="300.0" text="Original file/folder" />
 						<TableColumn fx:id="tcZip" prefWidth="300.0" text="Zip file" />
 					</columns>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
+					<VBox.margin>
+						<Insets top="10.0" />
+					</VBox.margin>
 				</TableView>
-				<HBox fx:id="hbActions" VBox.vgrow="NEVER">
+				<HBox prefHeight="2.0" prefWidth="900.0" VBox.vgrow="NEVER">
 					<children>
 						<Button mnemonicParsing="false" onAction="#add" prefWidth="150.0" text="Add reference">
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../resources/icons/add.png" />
-                           </image>
-                        </ImageView>
-                     </graphic></Button>
-                  <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#delete" prefWidth="150.0" text="Delete reference">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../resources/icons/delete.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
-                  <Button mnemonicParsing="false" onAction="#save" prefWidth="150.0" text="Save references">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../resources/icons/save.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
+							<graphic>
+								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../../resources/icons/add.png" />
+									</image>
+								</ImageView>
+							</graphic>
+						</Button>
+						<Button fx:id="btnDelete" mnemonicParsing="false" onAction="#delete" prefWidth="150.0" text="Delete reference">
+							<HBox.margin>
+								<Insets left="10.0" />
+							</HBox.margin>
+							<graphic>
+								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../../resources/icons/delete.png" />
+									</image>
+								</ImageView>
+							</graphic>
+						</Button>
+						<Button mnemonicParsing="false" onAction="#save" prefWidth="150.0" text="Save references">
+							<HBox.margin>
+								<Insets left="10.0" />
+							</HBox.margin>
+							<graphic>
+								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../../resources/icons/save.png" />
+									</image>
+								</ImageView>
+							</graphic>
+						</Button>
 					</children>
 					<VBox.margin>
 						<Insets top="10.0" />

@@ -60,6 +60,10 @@ public class AppController {
 		});
 	}
 
+	public boolean checkTabIsActive(String tabID) {
+		return tpTabs.getSelectionModel().getSelectedItem().getId().equalsIgnoreCase(tabID);
+	}
+
 	@FXML
 	private void initialize() {
 		try {
@@ -94,8 +98,6 @@ public class AppController {
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
 		prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-
-		// Object to JSON in file
 		mapper.writeValue(fileReference, referenceList.toArray());
 	}
 }

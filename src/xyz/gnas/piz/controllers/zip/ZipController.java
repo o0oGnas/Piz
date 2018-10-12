@@ -40,7 +40,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -114,9 +113,6 @@ public class ZipController {
 
 	@FXML
 	private HBox hbActions;
-
-	@FXML
-	private ScrollPane spList;
 
 	@FXML
 	private Button btnStart;
@@ -285,6 +281,7 @@ public class ZipController {
 	private void initialiseInputFields() {
 		tfPassword.setText(userSetting.getPassword());
 		tfReferenceTag.setText(userSetting.getReferenceTag());
+		tfProcessCount.setText(userSetting.getProcessCount() + "");
 		cbEncrypt.setSelected(userSetting.isEncrypt());
 		cbObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
 		cbAddReferences.setSelected(userSetting.isAddReference());
@@ -455,11 +452,13 @@ public class ZipController {
 	private void stopAllProcesses() {
 		// disable all actions until all processes are stopped properly
 		hbActions.setDisable(true);
+		vbList.setDisable(true);
 		isStopped = true;
 	}
 
 	private void updateFolderAndFileLists() throws IOException {
 		vbList.getChildren().clear();
+		vbList.setDisable(false);
 		fileZipItemMap.clear();
 		Label label = new Label();
 		label.setPadding(new Insets(5, 5, 5, 5));
@@ -887,12 +886,17 @@ public class ZipController {
 			protected Integer call() {
 				try {
 					for (File file : fileZipItemMap.keySet()) {
-						// wait until the number of concurrent processes are below the limit
-						while (runningCount == userSetting.getProcessCount()) {
+						// wait until the number of concurrent processes are below the limit or user is
+						// pausing all processes
+						while (runningCount == userSetting.getProcessCount() || isPaused.get()) {
 							Thread.sleep(500);
 						}
 
-						startNewProcess(file);
+						if (isStopped) {
+							increaseFinishCount();
+						} else {
+							startNewProcess(file);
+						}
 					}
 				} catch (Exception e) {
 					Platform.runLater(() -> {
@@ -1000,19 +1004,23 @@ public class ZipController {
 	 */
 	private File prepareToZip(File originalFile, File fileToZip, String zipName, String destinationPath,
 			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
-		String zipPath = destinationPath + ".zip";
+		String extension = ".zip";
+		String uniqueZipName = zipName + extension;
+		String zipPath = destinationPath + extension;
 		File fileZip = new File(zipPath);
 		int count = 1;
 
 		// if zip file with this name already exists, append a number until we get a
 		// unique file name
 		while (fileZip.exists()) {
-			zipPath = destinationPath + "_" + count + ".zip";
+			String suffix = "_" + count;
+			uniqueZipName = zipName + suffix + extension;
+			zipPath = destinationPath + suffix + extension;
 			fileZip = new File(destinationPath);
 			++count;
 		}
 
-		if (performZip(originalFile, fileToZip, zipName, zipPath, encrypt, isOuter)) {
+		if (performZip(originalFile, fileToZip, uniqueZipName, zipPath, encrypt, isOuter)) {
 			return fileZip;
 		} else {
 			return null;
@@ -1099,7 +1107,7 @@ public class ZipController {
 	private void showProcessOnZipItem(File originalFile, ProgressMonitor progressMonitor, String zipName) {
 		Platform.runLater(() -> {
 			try {
-				fileZipItemMap.get(originalFile).beginProcess(progressMonitor, zipName);
+				fileZipItemMap.get(originalFile).beginProcess(progressMonitor, zipName, isPaused);
 			} catch (Exception e) {
 				CommonUtility.showError(e, "Error when showing progress on file", false);
 			}

@@ -21,6 +21,8 @@ public class ResourceManager {
 
 	private static Media notificationSound;
 
+	private static String css;
+
 	public static Image getAppIcon() {
 		if (appIcon == null) {
 			appIcon = new Image(Main.class.getResourceAsStream(ICON_FOLDER + "/app.png"));
@@ -68,5 +70,13 @@ public class ResourceManager {
 		}
 
 		return resumeIcon;
+	}
+
+	public static String getCss() {
+		if (css == null) {
+			css = Main.class.getResource(RESOURCE_FOLDER + "/app.css").toExternalForm();
+		}
+
+		return css;
 	}
 }

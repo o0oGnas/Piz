@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import net.lingala.zip4j.progress.ProgressMonitor;
@@ -20,6 +21,9 @@ import xyz.gnas.piz.common.ResourceManager;
 
 public class ZipItemController {
 	@FXML
+	private AnchorPane apRoot;
+
+	@FXML
 	private Label lblStatus;
 
 	@FXML
@@ -27,6 +31,9 @@ public class ZipItemController {
 
 	@FXML
 	private Label lblZip;
+
+	@FXML
+	private HBox hbResult;
 
 	@FXML
 	private HBox hbProcess;
@@ -52,16 +59,17 @@ public class ZipItemController {
 					try {
 						ivPauseResume
 								.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-						btnPauseResume.setText(isPaused.get() ? CommonConstants.RESUME : CommonConstants.PAUSE);
-						lblStatus.setText("Paused (" + percent + "%)");
+						btnPauseResume.setText(newValue ? CommonConstants.RESUME : CommonConstants.PAUSE);
+
+						if (newValue) {
+							lblStatus.setText("Paused (" + percent + "%)");
+						}
 					} catch (Exception e) {
 						CommonUtility.showError(e, "Error handling pause", false);
 					}
 				}
 			});
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise zip item", true);
 		}
 	}
@@ -78,14 +86,18 @@ public class ZipItemController {
 		lblStatus.setText("Ready");
 	}
 
-	public void beginProcess(ProgressMonitor progress, String zipName) {
+	public void beginProcess(ProgressMonitor progress, String zipName, BooleanProperty isMasterPaused) {
 		this.progress = progress;
 		lblZip.setText(zipName);
+		hbResult.setVisible(true);
 		hbProcess.setVisible(true);
+		apRoot.setStyle("-fx-background-color: bisque;");
+		btnPauseResume.disableProperty().bind(isMasterPaused);
 	}
 
 	public void updateProgress(boolean isObfuscated, boolean isOuter) {
-		if (!isPaused.get()) {
+		// only show progress if progress isn't paused and isn't cancelled
+		if (!progress.isPause() && !progress.isCancelAllTasks()) {
 			percent = progress.getPercentDone();
 
 			// each layer of zip takes roughly 50% of the overall process
@@ -98,13 +110,18 @@ public class ZipItemController {
 				}
 			}
 
-			lblStatus.setText(percent + "%");
+			showCurrentProgress();
 		}
+	}
+
+	private void showCurrentProgress() {
+		lblStatus.setText("Working (" + percent + "%)");
 	}
 
 	public void finishProcess() {
 		lblStatus.setText("Finished");
 		hbProcess.setVisible(false);
+		apRoot.setStyle("-fx-background-color: aliceblue;");
 	}
 
 	@FXML
@@ -115,7 +132,7 @@ public class ZipItemController {
 
 			// set status to show only percentage done if user resumes
 			if (!isPaused.get()) {
-				lblStatus.setText(percent + "%");
+				showCurrentProgress();
 			}
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not pause the process [" + lblOriginal.getText() + "]", false);

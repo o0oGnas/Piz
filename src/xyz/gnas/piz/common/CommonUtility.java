@@ -1,8 +1,18 @@
 package xyz.gnas.piz.common;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
+
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -17,6 +27,8 @@ import javafx.scene.layout.Priority;
  * @Date Oct 9, 2018
  */
 public final class CommonUtility {
+	private static File errorFile = new File("error_log.txt");
+
 	/**
 	 * @Description Show error dialog with exception stack trace in expandable
 	 *              dialog
@@ -30,10 +42,12 @@ public final class CommonUtility {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
 		e.printStackTrace(pw);
-		String sStackTrace = sw.toString();
-		System.out.println(sStackTrace);
+		String stackTrace = sw.toString();
 
-		GridPane expContent = getExpandableContent(sStackTrace);
+		// print stack trace to console
+		System.out.println(stackTrace);
+
+		GridPane expContent = getExpandableContent(stackTrace);
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle("Error");
 		alert.setHeaderText("An error has occurred!");
@@ -41,8 +55,22 @@ public final class CommonUtility {
 		alert.getDialogPane().setExpandableContent(expContent);
 		alert.showAndWait();
 
+		saveErrorTofile(new ErrorLog(message, stackTrace));
+
 		if (exit) {
 			System.exit(1);
+		}
+	}
+
+	private static void saveErrorTofile(ErrorLog errorLog) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.enable(SerializationFeature.INDENT_OUTPUT);
+			DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+			prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+			mapper.writeValue(errorFile, errorLog);
+		} catch (Exception ex) {
+
 		}
 	}
 
@@ -90,5 +118,56 @@ public final class CommonUtility {
 		alert.setContentText(message);
 		Optional<ButtonType> result = alert.showAndWait();
 		return result.isPresent() && result.get() == ButtonType.OK;
+	}
+
+	public static Calendar convertLocalDateTimeToCalendar(LocalDateTime ldt) {
+		Calendar c = Calendar.getInstance();
+		Date dt = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+		c.setTime(dt);
+		return c;
+	}
+
+	public static LocalDateTime convertCalendarToLocalDateTime(Calendar c) {
+		return LocalDateTime.ofInstant(c.getTime().toInstant(), ZoneId.systemDefault());
+	}
+
+	public static class ErrorLog {
+		private Calendar date;
+
+		private String errorMessage;
+		private String stackTrace;
+
+		public Calendar getDate() {
+			return date;
+		}
+
+		public void setDate(Calendar date) {
+			this.date = date;
+		}
+
+		public String getErrorMessage() {
+			return errorMessage;
+		}
+
+		public void setErrorMessage(String errorMessage) {
+			this.errorMessage = errorMessage;
+		}
+
+		public String getStackTrace() {
+			return stackTrace;
+		}
+
+		public void setStackTrace(String stackTrace) {
+			this.stackTrace = stackTrace;
+		}
+
+		public ErrorLog() {
+		}
+
+		public ErrorLog(String errorMessage, String stackTrace) {
+			this.date = Calendar.getInstance();
+			this.errorMessage = errorMessage;
+			this.stackTrace = stackTrace;
+		}
 	}
 }

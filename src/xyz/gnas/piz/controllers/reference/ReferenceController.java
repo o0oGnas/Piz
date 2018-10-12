@@ -11,9 +11,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
@@ -21,9 +23,11 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
+import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.common.CommonConstants;
 import xyz.gnas.piz.common.CommonUtility;
 import xyz.gnas.piz.controllers.AppController;
@@ -42,6 +46,30 @@ import xyz.gnas.piz.models.ZipReference;
 public class ReferenceController {
 	@FXML
 	private Label lblReferenceCount;
+
+	@FXML
+	private DateTimePicker dtpFrom;
+
+	@FXML
+	private DateTimePicker dtpTo;
+
+	@FXML
+	private ComboBox<String> cbbOriginal;
+
+	@FXML
+	private ComboBox<String> cbbZip;
+
+	@FXML
+	private ComboBox<String> cbbTag;
+
+	@FXML
+	private TextField tfOriginal;
+
+	@FXML
+	private TextField tfZip;
+
+	@FXML
+	private TextField tfTag;
 
 	@FXML
 	private TableView<ZipReference> tvTable;
@@ -63,19 +91,16 @@ public class ReferenceController {
 
 	private AppController appController;
 
+	/**
+	 * Flag to check if the update is manual
+	 */
+	private boolean isManualUpdate;
+
 	public void setAppController(AppController appController)
 			throws JsonParseException, JsonMappingException, IOException {
 		this.appController = appController;
 		loadReferences();
 		initialiseTable();
-	}
-
-	@FXML
-	private void initialize() {
-		try {
-		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise reference tab", true);
-		}
 	}
 
 	private void loadReferences() throws JsonParseException, JsonMappingException, IOException {
@@ -89,23 +114,50 @@ public class ReferenceController {
 			appController.setReferenceList(FXCollections.observableArrayList());
 		}
 
+		initialiseDateTimePickers();
 		setReferenceCount();
+		addListenerToList();
+	}
 
-		// update reference count whenever reference list changes
-		appController.getReferenceList().addListener(new ListChangeListener<ZipReference>() {
-			@Override
-			public void onChanged(Change<? extends ZipReference> c) {
-				try {
-					setReferenceCount();
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when updating reference count", false);
-				}
+	private void initialiseDateTimePickers() {
+		Calendar cMin = Calendar.getInstance();
+		Calendar cMax = Calendar.getInstance();
+
+		for (ZipReference reference : appController.getReferenceList()) {
+			if (cMin == null || reference.getDate().compareTo(cMin) < 0) {
+				cMin = reference.getDate();
 			}
-		});
+
+			if (cMax == null || cMax.compareTo(reference.getDate()) < 0) {
+				cMax = reference.getDate();
+			}
+		}
+
+		dtpFrom.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMin));
+		dtpTo.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMax));
+
 	}
 
 	private void setReferenceCount() {
 		lblReferenceCount.setText(appController.getReferenceList().size() + " references");
+	}
+
+	private void addListenerToList() {
+		appController.getReferenceList().addListener((ListChangeListener<ZipReference>) listener -> {
+			try {
+				setReferenceCount();
+
+				if (!isManualUpdate && appController.checkTabIsActive("tabReference")) {
+					CommonUtility.showAlert("Update detected",
+							"Your reference file was updated, the list will be automatically refreshed");
+					isManualUpdate = false;
+				}
+
+				tvTable.setItems(appController.getReferenceList());
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when handling update to reference list", false);
+			}
+		});
 	}
 
 	private void initialiseTable() {
@@ -133,13 +185,17 @@ public class ReferenceController {
 				return new TableCell<ZipReference, Calendar>() {
 					@Override
 					protected void updateItem(Calendar item, boolean empty) {
-						super.updateItem(item, empty);
+						try {
+							super.updateItem(item, empty);
 
-						if (empty) {
-							setGraphic(null);
-						} else {
-							SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm");
-							setText(dateFormat.format(item.getTime()));
+							if (empty) {
+								setGraphic(null);
+							} else {
+								SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm");
+								setText(dateFormat.format(item.getTime()));
+							}
+						} catch (Exception e) {
+							CommonUtility.showError(e, "Error when displaying date column", false);
 						}
 					}
 				};
@@ -210,6 +266,72 @@ public class ReferenceController {
 	}
 
 	@FXML
+	private void initialize() {
+		try {
+			initialiseComboBox(cbbOriginal);
+			initialiseComboBox(cbbZip);
+			initialiseComboBox(cbbTag);
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not initialise reference tab", true);
+		}
+	}
+
+	/**
+	 * @Description Wrapper to initialise comobo boxes
+	 * @Date Oct 12, 2018
+	 * @param cbb the combo box
+	 */
+	private void initialiseComboBox(ComboBox<String> cbb) {
+		cbb.getItems().addAll(CommonConstants.CONTAINS, CommonConstants.MATCHES);
+		cbb.getSelectionModel().select(CommonConstants.CONTAINS);
+	}
+
+	@FXML
+	private void filter() {
+		try {
+			Calendar cFrom = CommonUtility.convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
+			Calendar cTo = CommonUtility.convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
+			ObservableList<ZipReference> filteredList = FXCollections.observableArrayList();
+
+			for (ZipReference reference : appController.getReferenceList()) {
+				boolean checkDate = cFrom.compareTo(reference.getDate()) <= 0
+						&& reference.getDate().compareTo(cTo) <= 1;
+
+				// filter by time
+				if (checkDate && checkField(cbbOriginal, tfOriginal, reference.getOriginal())
+						&& checkField(cbbZip, tfZip, reference.getZip())
+						&& checkField(cbbTag, tfTag, reference.getTag())) {
+					filteredList.add(reference);
+				}
+			}
+
+			tvTable.setItems(filteredList);
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not filter", false);
+		}
+	}
+
+	/**
+	 * @Description Wrapper to check if an attribute is valid for a filter criteria
+	 * @Date Oct 13, 2018
+	 * @param cbb   the combo box (matches or contains)
+	 * @param tf    the text input
+	 * @param value the value of the attribute
+	 * @return
+	 */
+	private boolean checkField(ComboBox<String> cbb, TextField tf, String value) {
+		if (tf.getText() == null || tf.getText().isEmpty()) {
+			return true;
+		} else {
+			boolean checkContains = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(CommonConstants.CONTAINS)
+					&& value.toUpperCase().contains(tf.getText().toUpperCase());
+			boolean checkMatches = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(CommonConstants.MATCHES)
+					&& value.equalsIgnoreCase(tf.getText());
+			return checkContains || checkMatches;
+		}
+	}
+
+	@FXML
 	private void scrollToTop() {
 		try {
 			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
@@ -232,6 +354,7 @@ public class ReferenceController {
 	@FXML
 	private void add() {
 		try {
+			isManualUpdate = true;
 			appController.getReferenceList().add(0, new ZipReference(null, null, null));
 
 			// scroll to top
@@ -249,6 +372,8 @@ public class ReferenceController {
 	@FXML
 	private void delete() {
 		try {
+			isManualUpdate = true;
+
 			if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
 				appController.getReferenceList().removeAll(tvTable.getSelectionModel().getSelectedItems());
 			}
