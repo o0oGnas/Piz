@@ -8,6 +8,7 @@
 	+ OpenJDK 10
 	+ OpenJFX 11
 	+ ControlsFX 9.0.0
+	+ tornadofx-controls 1.0.6
 	+ Zip4j 1.3.2
 	+ commons-io 2.6
 	+ commons-lang 3 3.8.1 
