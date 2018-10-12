@@ -1,8 +1,7 @@
-setting.bin
-user_data.bin
+*.bin
 .classpath
 .project
-references.txt
+*.txt
 .settings
 bin
 target
