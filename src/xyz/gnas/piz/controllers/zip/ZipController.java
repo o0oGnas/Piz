@@ -708,28 +708,30 @@ public class ZipController {
 	 */
 	private void uniquifyAbbreviationList() {
 		for (Abbreviation abbreviation : abbreviationList.keySet()) {
-			// first try to add file extension to remove duplicate
-			Map<File, String> uniqueMap = uniquifyByExtension(abbreviation);
+			if (abbreviation.fileAbbreviationMap.size() > 1) {
+				// first try to add file extension to remove duplicate
+				Map<File, String> uniqueMap = uniquifyByExtension(abbreviation);
 
-			// map that contains original files and their rebuilt names used for
-			// abbreviation
-			Map<File, String> fileRebuiltNameMap = new HashMap<File, String>();
+				// map that contains original files and their rebuilt names used for
+				// abbreviation
+				Map<File, String> fileRebuiltNameMap = new HashMap<File, String>();
 
-			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
-				fileRebuiltNameMap.put(file, file.getName());
+				for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+					fileRebuiltNameMap.put(file, file.getName());
+				}
+
+				int characterCount = 1;
+
+				// if there are still duplicates, add a character recursively until there are no
+				// duplicates
+				while (uniqueMap.values().stream().distinct().count() < uniqueMap.keySet().size()
+						&& characterCount < abbreviation.longestWordLength) {
+					uniqueMap = uniquifyByAddingCharacters(uniqueMap, characterCount, fileRebuiltNameMap);
+					++characterCount;
+				}
+
+				abbreviation.fileAbbreviationMap = uniqueMap;
 			}
-
-			int characterCount = 1;
-
-			// if there are still duplicates, add a character recursively until there are no
-			// duplicates
-			while (uniqueMap.values().stream().distinct().count() < uniqueMap.keySet().size()
-					&& characterCount < abbreviation.longestWordLength) {
-				uniqueMap = uniquifyByAddingCharacters(uniqueMap, characterCount, fileRebuiltNameMap);
-				++characterCount;
-			}
-
-			abbreviation.fileAbbreviationMap = uniqueMap;
 		}
 	}
 
@@ -827,28 +829,21 @@ public class ZipController {
 		SortedMap<Abbreviation, Abbreviation> newAbreviationList = new TreeMap<Abbreviation, Abbreviation>();
 
 		for (Abbreviation abbreviation : abbreviationList.keySet()) {
-			Map<File, String> newfileAbbreviationMap = new HashMap<File, String>();
-
-			// create a new Abbreviation object for each newly generated abbreviation
 			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
-				if (abbreviation.fileAbbreviationMap.get(file).equalsIgnoreCase(abbreviation.abbreviation)) {
-					newfileAbbreviationMap.put(file, abbreviation.abbreviation);
-				} else {
-					Abbreviation newAbbreviation = new Abbreviation(abbreviation.fileAbbreviationMap.get(file));
+				// create a new Abbreviation object for each newly generated abbreviation
+				Abbreviation newAbbreviation = new Abbreviation(abbreviation.fileAbbreviationMap.get(file));
 
-					if (newAbreviationList.containsKey(newAbbreviation)) {
-						newAbbreviation = newAbreviationList.get(newAbbreviation);
-					}
-
-					newAbbreviation.fileAbbreviationMap.put(file, newAbbreviation.abbreviation);
-					newAbreviationList.put(newAbbreviation, newAbbreviation);
+				if (newAbreviationList.containsKey(newAbbreviation)) {
+					newAbbreviation = newAbreviationList.get(newAbbreviation);
 				}
-			}
 
-			abbreviation.fileAbbreviationMap = newfileAbbreviationMap;
+				if (abbreviation.fileAbbreviationMap.get(file).equalsIgnoreCase(abbreviation.abbreviation)) {
+					newAbbreviation.fileAbbreviationMap.put(file, abbreviation.abbreviation);
+				} else {
+					newAbbreviation.fileAbbreviationMap.put(file, newAbbreviation.abbreviation);
+				}
 
-			if (abbreviation.fileAbbreviationMap.size() > 0) {
-				newAbreviationList.put(abbreviation, abbreviation);
+				newAbreviationList.put(newAbbreviation, newAbbreviation);
 			}
 		}
 
@@ -968,7 +963,6 @@ public class ZipController {
 
 	private void obfuscateFileNameAndZip(Abbreviation abbreviation, File file)
 			throws ZipException, InterruptedException, IOException {
-
 		// zip name is path to parent folder and abbreviated file name
 		String zipPath = getZipParentFolderPath(file) + "\\" + abbreviation.abbreviation;
 
