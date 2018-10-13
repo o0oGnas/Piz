@@ -92,6 +92,8 @@ public class ReferenceController {
 
 	private AppController appController;
 
+	private boolean isEditing = false;
+
 	/**
 	 * Flag to check if the update is manual
 	 */
@@ -200,6 +202,7 @@ public class ReferenceController {
 				try {
 					appController.getReferenceList().get(event.getTablePosition().getRow()).setTag(event.getNewValue());
 					appController.saveReferences();
+					isEditing = false;
 				} catch (Exception e) {
 					CommonUtility.showError(e, "Error when editing tag", false);
 				}
@@ -216,6 +219,22 @@ public class ReferenceController {
 	private void initialiseStringColumn(TableColumn<ZipReference, String> column, String propertyName) {
 		column.setCellValueFactory(new PropertyValueFactory<ZipReference, String>(propertyName));
 		column.setCellFactory(TextFieldTableCell.forTableColumn());
+
+		column.setOnEditStart((EventHandler<TableColumn.CellEditEvent<ZipReference, String>>) handler -> {
+			try {
+				isEditing = true;
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when starting to edit table", false);
+			}
+		});
+
+		column.setOnEditCancel((EventHandler<TableColumn.CellEditEvent<ZipReference, String>>) handler -> {
+			try {
+				isEditing = false;
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when cancelling edit", false);
+			}
+		});
 	}
 
 	private void initialiseOriginalColumn() {
@@ -228,6 +247,7 @@ public class ReferenceController {
 					appController.getReferenceList().get(event.getTablePosition().getRow())
 							.setOriginal(event.getNewValue());
 					appController.saveReferences();
+					isEditing = false;
 				} catch (Exception e) {
 					CommonUtility.showError(e, "Error when editing original", false);
 				}
@@ -244,6 +264,7 @@ public class ReferenceController {
 				try {
 					appController.getReferenceList().get(event.getTablePosition().getRow()).setZip(event.getNewValue());
 					appController.saveReferences();
+					isEditing = false;
 				} catch (Exception e) {
 					CommonUtility.showError(e, "Error when editing zip", false);
 				}
@@ -393,8 +414,8 @@ public class ReferenceController {
 	@FXML
 	private void tableKeyReleased(KeyEvent event) {
 		try {
-			// if user presses delete
-			if (event.getCode() == KeyCode.DELETE) {
+			// if user presses delete while not editing a cell
+			if (event.getCode() == KeyCode.DELETE && !isEditing) {
 				delete(null);
 			}
 		} catch (Exception e) {
