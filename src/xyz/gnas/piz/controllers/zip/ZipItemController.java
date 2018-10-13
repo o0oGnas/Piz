@@ -21,7 +21,7 @@ import xyz.gnas.piz.common.ResourceManager;
 
 public class ZipItemController {
 	@FXML
-	private AnchorPane apRoot;
+	private AnchorPane acpRoot;
 
 	@FXML
 	private Label lblStatus;
@@ -33,10 +33,13 @@ public class ZipItemController {
 	private Label lblZip;
 
 	@FXML
-	private HBox hbResult;
+	private HBox hboResult;
 
 	@FXML
-	private HBox hbProcess;
+	private HBox hboProcess;
+
+	@FXML
+	private Button btnStop;
 
 	@FXML
 	private Button btnPauseResume;
@@ -50,31 +53,7 @@ public class ZipItemController {
 
 	private int percent;
 
-	@FXML
-	private void initialize() {
-		try {
-			isPaused.addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-					try {
-						ivPauseResume
-								.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-						btnPauseResume.setText(newValue ? CommonConstants.RESUME : CommonConstants.PAUSE);
-
-						if (newValue) {
-							lblStatus.setText("Paused (" + percent + "%)");
-						}
-					} catch (Exception e) {
-						CommonUtility.showError(e, "Error handling pause", false);
-					}
-				}
-			});
-		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise zip item", true);
-		}
-	}
-
-	public void loadFile(File file) {
+	public void initialiseAll(File file) {
 		// folder is shown as blue
 		if (file.isDirectory()) {
 			lblOriginal.setTextFill(Color.BLUE);
@@ -89,10 +68,11 @@ public class ZipItemController {
 	public void beginProcess(ProgressMonitor progress, String zipName, BooleanProperty isMasterPaused) {
 		this.progress = progress;
 		lblZip.setText(zipName);
-		hbResult.setVisible(true);
-		hbProcess.setVisible(true);
-		apRoot.setStyle("-fx-background-color: bisque;");
+		hboResult.setVisible(true);
+		hboProcess.setVisible(true);
+		btnStop.setDisable(false);
 		btnPauseResume.disableProperty().bind(isMasterPaused);
+		acpRoot.setStyle("-fx-background-color: bisque;");
 	}
 
 	public void updateProgress(boolean isObfuscated, boolean isOuter) {
@@ -120,8 +100,32 @@ public class ZipItemController {
 
 	public void finishProcess() {
 		lblStatus.setText("Finished");
-		hbProcess.setVisible(false);
-		apRoot.setStyle("-fx-background-color: aliceblue;");
+		hboProcess.setVisible(false);
+		acpRoot.setStyle("-fx-background-color: aliceblue;");
+	}
+
+	@FXML
+	private void initialize() {
+		try {
+			isPaused.addListener(new ChangeListener<Boolean>() {
+				@Override
+				public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+					try {
+						ivPauseResume
+								.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+						btnPauseResume.setText(newValue ? CommonConstants.RESUME : CommonConstants.PAUSE);
+
+						if (newValue) {
+							lblStatus.setText("Paused (" + percent + "%)");
+						}
+					} catch (Exception e) {
+						CommonUtility.showError(e, "Error handling pause", false);
+					}
+				}
+			});
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not initialise zip item", true);
+		}
 	}
 
 	@FXML

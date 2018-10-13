@@ -18,9 +18,9 @@
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-            <VBox fx:id="vbInputsAndActions">
+            <VBox fx:id="vboInputsAndActions">
                <children>
-      				<VBox fx:id="vbInputFields">
+      				<VBox fx:id="vboInputFields">
       					<children>
       						<HBox>
       							<children>
@@ -71,7 +71,7 @@
       							<children>
       								<HBox alignment="CENTER_LEFT" styleClass="control-box">
       									<padding>
-      										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      										<Insets bottom="5.0" right="5.0" top="5.0" />
       									</padding>
       									<children>
       										<Label text="Perform zip on" />
@@ -87,7 +87,7 @@
       										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
       									</padding>
       									<children>
-      										<TextField fx:id="tfProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0" text="5">
+      										<TextField fx:id="txtProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0" text="5">
       											<HBox.margin>
       												<Insets />
       											</HBox.margin>
@@ -106,12 +106,12 @@
       						</HBox>
             				<HBox alignment="CENTER_LEFT">
             					<children>
-            						<CheckBox fx:id="cbEncrypt" mnemonicParsing="false" selected="true" text="Encrypt">
+            						<CheckBox fx:id="chkEncrypt" mnemonicParsing="false" selected="true" text="Encrypt">
             							<HBox.margin>
             								<Insets />
             							</HBox.margin>
             						</CheckBox>
-            						<HBox fx:id="hbPassword" alignment="CENTER_LEFT" styleClass="control-box">
+            						<HBox fx:id="hboPassword" alignment="CENTER_LEFT" styleClass="control-box">
             							<padding>
             								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             							</padding>
@@ -121,17 +121,17 @@
             										<Insets right="10.0" />
             									</HBox.margin>
             								</Label>
-            								<TextField fx:id="tfPassword" promptText="Password" visible="false">
+            								<TextField fx:id="txtPassword" promptText="Password" visible="false">
             									<HBox.margin>
             										<Insets />
             									</HBox.margin>
             								</TextField>
-            								<PasswordField fx:id="pfPassword" promptText="Password">
+            								<PasswordField fx:id="pwfPassword" promptText="Password">
             									<HBox.margin>
             										<Insets />
             									</HBox.margin>
             								</PasswordField>
-            								<ImageView fx:id="ivMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
+            								<ImageView fx:id="imvMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
             									<image>
             										<Image url="@../../resources/icons/masked.png" />
             									</image>
@@ -151,28 +151,28 @@
             				</HBox>
             				<HBox alignment="CENTER_LEFT">
             					<children>
-            						<CheckBox fx:id="cbObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name">
+            						<CheckBox fx:id="chkObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name">
             							<HBox.margin>
             								<Insets />
             							</HBox.margin>
             						</CheckBox>
-            						<HBox fx:id="hbReference" alignment="CENTER_LEFT" styleClass="control-box">
+            						<HBox fx:id="hboReference" alignment="CENTER_LEFT" styleClass="control-box">
             							<padding>
             								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             							</padding>
             							<children>
-            								<CheckBox fx:id="cbAddReferences" mnemonicParsing="false" text="Add references">
+            								<CheckBox fx:id="chkAddReferences" mnemonicParsing="false" text="Add references">
             									<HBox.margin>
             										<Insets />
             									</HBox.margin>
             								</CheckBox>
-            								<HBox fx:id="hbTag" alignment="CENTER_LEFT" styleClass="control-box">
+            								<HBox fx:id="hboTag" alignment="CENTER_LEFT" styleClass="control-box">
             									<padding>
             										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             									</padding>
             									<children>
             										<Label text="Tag" />
-            										<TextField fx:id="tfReferenceTag" promptText="Reference tag">
+            										<TextField fx:id="txtReferenceTag" promptText="Reference tag">
             											<HBox.margin>
             												<Insets left="10.0" />
             											</HBox.margin>
@@ -194,7 +194,7 @@
             				</HBox>
       					</children>
       				</VBox>
-      						<HBox fx:id="hbActions" alignment="CENTER_LEFT">
+      						<HBox fx:id="hboActions" alignment="CENTER_LEFT">
       							<children>
       								<Button fx:id="btnStart" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#start" prefWidth="80.0" text="Start">
       									<graphic>
@@ -210,7 +210,7 @@
       										<Insets left="10.0" />
       									</HBox.margin>
       									<graphic>
-      										<ImageView fx:id="ivPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+      										<ImageView fx:id="imvPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
       												<Image url="@../../resources/icons/pause.png" />
       											</image>
@@ -241,7 +241,7 @@
 						<Insets top="10.0" />
 					</VBox.margin>
 					<content>
-						<VBox fx:id="vbList" />
+						<VBox fx:id="vboList" />
 					</content>
 				</ScrollPane>
 			</children>

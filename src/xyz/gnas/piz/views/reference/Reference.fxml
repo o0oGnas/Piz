@@ -63,12 +63,12 @@
                                  </padding>
                                  <children>
                                     <Label text="Original file/folder" />
-                                    <ComboBox fx:id="cbbOriginal" prefWidth="100.0">
+                                    <ComboBox fx:id="cboOriginal" prefWidth="100.0">
                                        <HBox.margin>
                                           <Insets left="10.0" />
                                        </HBox.margin>
                                     </ComboBox>
-                                    <TextField fx:id="tfOriginal" maxWidth="1.7976931348623157E308" promptText="Original file/folder" HBox.hgrow="ALWAYS">
+                                    <TextField fx:id="txtOriginal" maxWidth="1.7976931348623157E308" promptText="Original file/folder" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
                                           <Insets left="10.0" />
                                        </HBox.margin>
@@ -88,12 +88,12 @@
                                           <Insets />
                                        </HBox.margin>
                                     </Label>
-                                    <ComboBox fx:id="cbbZip" prefWidth="100.0">
+                                    <ComboBox fx:id="cboZip" prefWidth="100.0">
                                        <HBox.margin>
                                           <Insets left="10.0" />
                                        </HBox.margin>
                                     </ComboBox>
-                                    <TextField fx:id="tfZip" maxWidth="1.7976931348623157E308" promptText="Zip file" HBox.hgrow="ALWAYS">
+                                    <TextField fx:id="txtZip" maxWidth="1.7976931348623157E308" promptText="Zip file" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
                                           <Insets left="10.0" />
                                        </HBox.margin>
@@ -121,12 +121,12 @@
                            </padding>
                            <children>
                               <Label text="Tag" />
-                              <ComboBox fx:id="cbbTag" prefWidth="100.0">
+                              <ComboBox fx:id="cboTag" prefWidth="100.0">
                                  <HBox.margin>
                                     <Insets left="10.0" />
                                  </HBox.margin>
                               </ComboBox>
-                              <TextField fx:id="tfTag" prefWidth="100.0" promptText="Tag">
+                              <TextField fx:id="txtTag" prefWidth="100.0" promptText="Tag">
                                  <HBox.margin>
                                     <Insets left="10.0" />
                                  </HBox.margin>
@@ -188,12 +188,12 @@
       				</HBox>
                </children>
             </VBox>
-				<TableView fx:id="tvTable" editable="true" onKeyReleased="#tableKeyReleased" VBox.vgrow="ALWAYS">
+				<TableView fx:id="tbvTable" editable="true" onKeyReleased="#tableKeyReleased" VBox.vgrow="ALWAYS">
 					<columns>
-						<TableColumn fx:id="tcDate" prefWidth="132.0" text="Date" />
-						<TableColumn fx:id="tcTag" prefWidth="166.0" text="Tag" />
-						<TableColumn fx:id="tcOriginal" prefWidth="300.0" text="Original file/folder" />
-						<TableColumn fx:id="tcZip" prefWidth="300.0" text="Zip file" />
+						<TableColumn fx:id="tbcDate" prefWidth="132.0" text="Date" />
+						<TableColumn fx:id="tbcTag" prefWidth="166.0" text="Tag" />
+						<TableColumn fx:id="tbcOriginal" prefWidth="300.0" text="Original file/folder" />
+						<TableColumn fx:id="tbcZip" prefWidth="300.0" text="Zip file" />
 					</columns>
 					<VBox.margin>
 						<Insets top="10.0" />

@@ -23,7 +23,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.common.CommonConstants;
@@ -43,49 +42,46 @@ import xyz.gnas.piz.models.ZipReference;
  */
 public class ReferenceController {
 	@FXML
-	private VBox vbFilter;
-
-	@FXML
 	private DateTimePicker dtpFrom;
 
 	@FXML
 	private DateTimePicker dtpTo;
 
 	@FXML
-	private ComboBox<String> cbbOriginal;
+	private ComboBox<String> cboOriginal;
 
 	@FXML
-	private ComboBox<String> cbbZip;
+	private ComboBox<String> cboZip;
 
 	@FXML
-	private ComboBox<String> cbbTag;
+	private ComboBox<String> cboTag;
 
 	@FXML
-	private TextField tfOriginal;
+	private TextField txtOriginal;
 
 	@FXML
-	private TextField tfZip;
+	private TextField txtZip;
 
 	@FXML
-	private TextField tfTag;
+	private TextField txtTag;
 
 	@FXML
 	private Label lblReferenceCount;
 
 	@FXML
-	private TableView<ZipReference> tvTable;
+	private TableView<ZipReference> tbvTable;
 
 	@FXML
-	private TableColumn<ZipReference, Calendar> tcDate;
+	private TableColumn<ZipReference, Calendar> tbcDate;
 
 	@FXML
-	private TableColumn<ZipReference, String> tcTag;
+	private TableColumn<ZipReference, String> tbcTag;
 
 	@FXML
-	private TableColumn<ZipReference, String> tcOriginal;
+	private TableColumn<ZipReference, String> tbcOriginal;
 
 	@FXML
-	private TableColumn<ZipReference, String> tcZip;
+	private TableColumn<ZipReference, String> tbcZip;
 
 	@FXML
 	private Button btnDelete;
@@ -115,7 +111,7 @@ public class ReferenceController {
 					isManualUpdate = false;
 				}
 
-				tvTable.setItems(appController.getReferenceList());
+				tbvTable.setItems(appController.getReferenceList());
 				setReferenceCount();
 			} catch (Exception e) {
 				CommonUtility.showError(e, "Error when handling update to reference list", false);
@@ -124,7 +120,7 @@ public class ReferenceController {
 	}
 
 	private void setReferenceCount() {
-		lblReferenceCount.setText(tvTable.getItems().size() + " references");
+		lblReferenceCount.setText(tbvTable.getItems().size() + " references");
 	}
 
 	private void initialiseDateTimePickers() {
@@ -152,14 +148,14 @@ public class ReferenceController {
 		initialiseOriginalColumn();
 		initialiseZipColumn();
 
-		tvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		tvTable.setItems(appController.getReferenceList());
+		tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		tbvTable.setItems(appController.getReferenceList());
 
-		tvTable.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<ZipReference>() {
+		tbvTable.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<ZipReference>() {
 			@Override
 			public void onChanged(Change<? extends ZipReference> c) {
 				// disable delete button if there is no selection
-				btnDelete.setDisable(tvTable.getSelectionModel().getSelectedItems().size() == 0);
+				btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
 			}
 		});
 
@@ -167,7 +163,7 @@ public class ReferenceController {
 	}
 
 	private void initialiseDateColumn() {
-		tcDate.setCellFactory(new Callback<TableColumn<ZipReference, Calendar>, TableCell<ZipReference, Calendar>>() {
+		tbcDate.setCellFactory(new Callback<TableColumn<ZipReference, Calendar>, TableCell<ZipReference, Calendar>>() {
 			@Override
 			public TableCell<ZipReference, Calendar> call(TableColumn<ZipReference, Calendar> param) {
 				return new TableCell<ZipReference, Calendar>() {
@@ -190,13 +186,13 @@ public class ReferenceController {
 			}
 		});
 
-		tcDate.setCellValueFactory(new PropertyValueFactory<ZipReference, Calendar>("date"));
+		tbcDate.setCellValueFactory(new PropertyValueFactory<ZipReference, Calendar>("date"));
 	}
 
 	private void initialiseTagColumn() {
-		initialiseStringColumn(tcTag, "tag");
+		initialiseStringColumn(tbcTag, "tag");
 
-		tcTag.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
+		tbcTag.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
 			@Override
 			public void handle(CellEditEvent<ZipReference, String> event) {
 				try {
@@ -238,9 +234,9 @@ public class ReferenceController {
 	}
 
 	private void initialiseOriginalColumn() {
-		initialiseStringColumn(tcOriginal, "original");
+		initialiseStringColumn(tbcOriginal, "original");
 
-		tcOriginal.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
+		tbcOriginal.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
 			@Override
 			public void handle(CellEditEvent<ZipReference, String> event) {
 				try {
@@ -256,9 +252,9 @@ public class ReferenceController {
 	}
 
 	private void initialiseZipColumn() {
-		initialiseStringColumn(tcZip, "zip");
+		initialiseStringColumn(tbcZip, "zip");
 
-		tcZip.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
+		tbcZip.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
 			@Override
 			public void handle(CellEditEvent<ZipReference, String> event) {
 				try {
@@ -275,9 +271,9 @@ public class ReferenceController {
 	@FXML
 	private void initialize() {
 		try {
-			initialiseComboBox(cbbOriginal);
-			initialiseComboBox(cbbZip);
-			initialiseComboBox(cbbTag);
+			initialiseComboBox(cboOriginal);
+			initialiseComboBox(cboZip);
+			initialiseComboBox(cboTag);
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise reference tab", true);
 		}
@@ -317,14 +313,14 @@ public class ReferenceController {
 						&& reference.getDate().compareTo(cTo) <= 1;
 
 				// filter by time
-				if (checkDate && checkField(cbbOriginal, tfOriginal, reference.getOriginal())
-						&& checkField(cbbZip, tfZip, reference.getZip())
-						&& checkField(cbbTag, tfTag, reference.getTag())) {
+				if (checkDate && checkField(cboOriginal, txtOriginal, reference.getOriginal())
+						&& checkField(cboZip, txtZip, reference.getZip())
+						&& checkField(cboTag, txtTag, reference.getTag())) {
 					filteredList.add(reference);
 				}
 			}
 
-			tvTable.setItems(filteredList);
+			tbvTable.setItems(filteredList);
 			setReferenceCount();
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not filter", false);
@@ -354,7 +350,7 @@ public class ReferenceController {
 	@FXML
 	private void scrollToTop(ActionEvent event) {
 		try {
-			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
+			ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
 			verticalBar.setValue(verticalBar.getMin());
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not scroll to top", false);
@@ -364,7 +360,7 @@ public class ReferenceController {
 	@FXML
 	private void scrollToBottom(ActionEvent event) {
 		try {
-			ScrollBar verticalBar = (ScrollBar) tvTable.lookup(".scroll-bar:vertical");
+			ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
 			verticalBar.setValue(verticalBar.getMax());
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not scroll to bottom", false);
@@ -381,9 +377,9 @@ public class ReferenceController {
 			scrollToTop(null);
 
 			// focus on the new row
-			tvTable.requestFocus();
-			tvTable.getSelectionModel().clearAndSelect(0);
-			tvTable.getFocusModel().focus(0);
+			tbvTable.requestFocus();
+			tbvTable.getSelectionModel().clearAndSelect(0);
+			tbvTable.getFocusModel().focus(0);
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not add reference", false);
 		}
@@ -395,7 +391,7 @@ public class ReferenceController {
 			isManualUpdate = true;
 
 			if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
-				appController.getReferenceList().removeAll(tvTable.getSelectionModel().getSelectedItems());
+				appController.getReferenceList().removeAll(tbvTable.getSelectionModel().getSelectedItems());
 			}
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not delete reference", false);
