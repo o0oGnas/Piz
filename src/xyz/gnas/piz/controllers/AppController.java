@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -47,19 +49,6 @@ public class AppController {
 		return referenceList;
 	}
 
-	public void setReferenceList(ObservableList<ZipReference> referenceList) {
-		this.referenceList = referenceList;
-
-		// save to file whenever there's a change
-		referenceList.addListener((ListChangeListener<ZipReference>) listener -> {
-			try {
-				saveReferences();
-			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when saving references to file", false);
-			}
-		});
-	}
-
 	public boolean checkTabIsActive(String tabID) {
 		return tpTabs.getSelectionModel().getSelectedItem().getId().equalsIgnoreCase(tabID);
 	}
@@ -67,13 +56,15 @@ public class AppController {
 	@FXML
 	private void initialize() {
 		try {
+			initialiseReferenceList();
+
 			// zip tab
 			zipController = (ZipController) initialiseTab(tabZip, "zip/Zip");
 			zipController.setAppController(this);
 
 			// reference tab
 			referenceController = (ReferenceController) initialiseTab(tabReference, "reference/Reference");
-			referenceController.setAppController(this);
+			referenceController.initialiseAll(this);
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise app", true);
 		}
@@ -83,6 +74,26 @@ public class AppController {
 		FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + path + ".fxml"));
 		tab.setContent((Parent) loader.load());
 		return loader.getController();
+	}
+
+	private void initialiseReferenceList() throws JsonParseException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		File file = new File(CommonConstants.REFERENCE_FILE);
+
+		if (file.exists()) {
+			ZipReference[] zipArray = mapper.readValue(file, ZipReference[].class);
+			referenceList = FXCollections.observableArrayList(zipArray);
+		} else {
+			referenceList = FXCollections.observableArrayList();
+		}
+
+		referenceList.addListener((ListChangeListener<ZipReference>) listener -> {
+			try {
+				saveReferences();
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when saving references to file", false);
+			}
+		});
 	}
 
 	/**

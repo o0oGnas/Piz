@@ -1,13 +1,7 @@
 package xyz.gnas.piz.controllers.reference;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -29,6 +23,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.common.CommonConstants;
@@ -48,7 +43,7 @@ import xyz.gnas.piz.models.ZipReference;
  */
 public class ReferenceController {
 	@FXML
-	private Label lblReferenceCount;
+	private VBox vbFilter;
 
 	@FXML
 	private DateTimePicker dtpFrom;
@@ -75,6 +70,9 @@ public class ReferenceController {
 	private TextField tfTag;
 
 	@FXML
+	private Label lblReferenceCount;
+
+	@FXML
 	private TableView<ZipReference> tvTable;
 
 	@FXML
@@ -99,26 +97,32 @@ public class ReferenceController {
 	 */
 	private boolean isManualUpdate;
 
-	public void setAppController(AppController appController)
-			throws JsonParseException, JsonMappingException, IOException {
+	public void initialiseAll(AppController appController) {
 		this.appController = appController;
-		loadReferences();
+		addListenerToList();
+		initialiseDateTimePickers();
 		initialiseTable();
 	}
 
-	private void loadReferences() throws JsonParseException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		File file = new File(CommonConstants.REFERENCE_FILE);
+	private void addListenerToList() {
+		appController.getReferenceList().addListener((ListChangeListener<ZipReference>) listener -> {
+			try {
+				if (!isManualUpdate && appController.checkTabIsActive("tabReference")) {
+					CommonUtility.showAlert("Update detected",
+							"Your reference file was updated, the list will be automatically refreshed");
+					isManualUpdate = false;
+				}
 
-		if (file.exists()) {
-			ZipReference[] zipArray = mapper.readValue(file, ZipReference[].class);
-			appController.setReferenceList(FXCollections.observableArrayList(zipArray));
-		} else {
-			appController.setReferenceList(FXCollections.observableArrayList());
-		}
+				tvTable.setItems(appController.getReferenceList());
+				setReferenceCount();
+			} catch (Exception e) {
+				CommonUtility.showError(e, "Error when handling update to reference list", false);
+			}
+		});
+	}
 
-		initialiseDateTimePickers();
-		addListenerToList();
+	private void setReferenceCount() {
+		lblReferenceCount.setText(tvTable.getItems().size() + " references");
 	}
 
 	private void initialiseDateTimePickers() {
@@ -138,29 +142,6 @@ public class ReferenceController {
 		dtpFrom.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMin));
 		dtpTo.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMax));
 
-	}
-
-	private void setReferenceCount() {
-		lblReferenceCount.setText(tvTable.getItems().size() + " references");
-	}
-
-	private void addListenerToList() {
-		appController.getReferenceList().addListener((ListChangeListener<ZipReference>) listener -> {
-			try {
-				setReferenceCount();
-
-				if (!isManualUpdate && appController.checkTabIsActive("tabReference")) {
-					CommonUtility.showAlert("Update detected",
-							"Your reference file was updated, the list will be automatically refreshed");
-					isManualUpdate = false;
-				}
-
-				tvTable.setItems(appController.getReferenceList());
-				setReferenceCount();
-			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when handling update to reference list", false);
-			}
-		});
 	}
 
 	private void initialiseTable() {
@@ -292,6 +273,18 @@ public class ReferenceController {
 	}
 
 	@FXML
+	private void filtersKeyPressed(KeyEvent event) {
+		try {
+			// if user presses enter
+			if (event.getCode() == KeyCode.ENTER) {
+				filter(null);
+			}
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not handle key event for filters", false);
+		}
+	}
+
+	@FXML
 	private void filter(ActionEvent event) {
 		try {
 			Calendar cFrom = CommonUtility.convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
@@ -405,7 +398,7 @@ public class ReferenceController {
 				delete(null);
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not handle key release event", false);
+			CommonUtility.showError(e, "Could not handle key event for table", false);
 		}
 	}
 }

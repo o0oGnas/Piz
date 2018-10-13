@@ -18,55 +18,115 @@
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<HBox alignment="CENTER_LEFT">
-					<children>
-						<HBox alignment="CENTER_LEFT" styleClass="control-box">
-							<padding>
-								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-							</padding>
-                     <children>
-                        <Label text="From" />
-                        <DateTimePicker fx:id="dtpFrom" format="dd MMMM yyyy HH:mm">
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                        </DateTimePicker>
-                     </children>
-						</HBox>
-                  <HBox alignment="CENTER_LEFT" styleClass="control-box">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                     <children>
-                        <Label text="To" />
-                        <DateTimePicker fx:id="dtpTo" format="dd MMMM yyyy HH:mm">
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                        </DateTimePicker>
-                     </children>
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </HBox>
-					</children>
-				</HBox>
-            <HBox alignment="CENTER_LEFT">
+            <VBox onKeyReleased="#filtersKeyPressed">
                <children>
-                  <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                     <children>
-                        <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+      				<HBox alignment="CENTER_LEFT">
+      					<children>
+      						<HBox alignment="CENTER_LEFT" styleClass="control-box">
+      							<padding>
+      								<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      							</padding>
+                           <children>
+                              <Label text="From" />
+                              <DateTimePicker fx:id="dtpFrom" format="dd MMMM yyyy HH:mm">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </DateTimePicker>
+                           </children>
+      						</HBox>
+                        <HBox alignment="CENTER_LEFT" styleClass="control-box">
                            <padding>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </padding>
                            <children>
-                              <Label text="Original file/folder" />
-                              <ComboBox fx:id="cbbOriginal" prefWidth="100.0">
+                              <Label text="To" />
+                              <DateTimePicker fx:id="dtpTo" format="dd MMMM yyyy HH:mm">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </DateTimePicker>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </HBox>
+      					</children>
+      				</HBox>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                                 <children>
+                                    <Label text="Original file/folder" />
+                                    <ComboBox fx:id="cbbOriginal" prefWidth="100.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ComboBox>
+                                    <TextField fx:id="tfOriginal" maxWidth="1.7976931348623157E308" promptText="Original file/folder" HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                                 <children>
+                                    <Label text="Zip file">
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </Label>
+                                    <ComboBox fx:id="cbbZip" prefWidth="100.0">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </ComboBox>
+                                    <TextField fx:id="tfZip" maxWidth="1.7976931348623157E308" promptText="Zip file" HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </TextField>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                              </HBox>
+                           </children>
+                        </HBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT">
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                     <children>
+                        <HBox alignment="CENTER_LEFT" styleClass="control-box">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                           <children>
+                              <Label text="Tag" />
+                              <ComboBox fx:id="cbbTag" prefWidth="100.0">
                                  <HBox.margin>
                                     <Insets left="10.0" />
                                  </HBox.margin>
                               </ComboBox>
-                              <TextField fx:id="tfOriginal" maxWidth="1.7976931348623157E308" promptText="Original file/folder" HBox.hgrow="ALWAYS">
+                              <TextField fx:id="tfTag" prefWidth="100.0" promptText="Tag">
                                  <HBox.margin>
                                     <Insets left="10.0" />
                                  </HBox.margin>
@@ -76,113 +136,58 @@
                               <Insets />
                            </HBox.margin>
                         </HBox>
-                        <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                           <children>
-                              <Label text="Zip file">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                              </Label>
-                              <ComboBox fx:id="cbbZip" prefWidth="100.0">
-                                 <HBox.margin>
-                                    <Insets left="10.0" />
-                                 </HBox.margin>
-                              </ComboBox>
-                              <TextField fx:id="tfZip" maxWidth="1.7976931348623157E308" promptText="Zip file" HBox.hgrow="ALWAYS">
-                                 <HBox.margin>
-                                    <Insets left="10.0" />
-                                 </HBox.margin>
-                              </TextField>
-                           </children>
+                        <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#filter" prefWidth="70.0" text="Filter">
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
-                        </HBox>
+                           <graphic>
+                              <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../../resources/icons/filter.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
                      </children>
                   </HBox>
-               </children>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </HBox>
-            <HBox alignment="CENTER_LEFT">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-               <children>
-                  <HBox alignment="CENTER_LEFT" styleClass="control-box">
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                     <children>
-                        <Label text="Tag" />
-                        <ComboBox fx:id="cbbTag" prefWidth="100.0">
+      				<HBox alignment="CENTER_LEFT">
+      					<children>
+      						<Label fx:id="lblReferenceCount" text="reference count">
+                           <HBox.margin>
+                              <Insets left="5.0" />
+                           </HBox.margin>
+                        </Label>
+      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToTop" prefWidth="130.0" text="Scroll to top">
+      									<graphic>
+      										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+      											<image>
+      												<Image url="@../../resources/icons/top.png" />
+      											</image>
+      										</ImageView>
+      									</graphic>
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
-                        </ComboBox>
-                        <TextField fx:id="tfTag" prefWidth="100.0" promptText="Tag">
-                           <HBox.margin>
-                              <Insets left="10.0" />
-                           </HBox.margin>
-                        </TextField>
-                     </children>
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </HBox>
-                  <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#filter" prefWidth="70.0" text="Filter">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../resources/icons/filter.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
+      								</Button>
+      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="130.0" text="Scroll to bottom">
+      									<graphic>
+      										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+      											<image>
+      												<Image url="@../../resources/icons/bottom.png" />
+      											</image>
+      										</ImageView>
+      									</graphic>
+      									<HBox.margin>
+      										<Insets left="10.0" />
+      									</HBox.margin>
+      								</Button>
+      					</children>
+      					<VBox.margin>
+      						<Insets top="10.0" />
+      					</VBox.margin>
+      				</HBox>
                </children>
-            </HBox>
-				<HBox alignment="CENTER_LEFT">
-					<children>
-						<Label fx:id="lblReferenceCount" text="reference count">
-                     <HBox.margin>
-                        <Insets left="5.0" />
-                     </HBox.margin></Label>
-								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToTop" prefWidth="130.0" text="Scroll to top">
-									<graphic>
-										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-											<image>
-												<Image url="@../../resources/icons/top.png" />
-											</image>
-										</ImageView>
-									</graphic>
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-								</Button>
-								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="130.0" text="Scroll to bottom">
-									<graphic>
-										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-											<image>
-												<Image url="@../../resources/icons/bottom.png" />
-											</image>
-										</ImageView>
-									</graphic>
-									<HBox.margin>
-										<Insets left="10.0" />
-									</HBox.margin>
-								</Button>
-					</children>
-					<VBox.margin>
-						<Insets top="10.0" />
-					</VBox.margin>
-				</HBox>
+            </VBox>
 				<TableView fx:id="tvTable" editable="true" onKeyReleased="#tableKeyReleased" VBox.vgrow="ALWAYS">
 					<columns>
 						<TableColumn fx:id="tcDate" prefWidth="132.0" text="Date" />
