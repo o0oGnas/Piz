@@ -21,7 +21,7 @@
                <children>
                   <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.62" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../../resources/icons/arrow_right.png" />
+                        <Image url="@../../icons/arrow_right.png" />
                      </image>
                      <HBox.margin>
                         <Insets />
@@ -44,7 +44,7 @@
                      <graphic>
                         <ImageView fx:id="ivPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../resources/icons/pause.png" />
+                              <Image url="@../../icons/pause.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -56,7 +56,7 @@
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../resources/icons/stop.png" />
+                              <Image url="@../../icons/stop.png" />
                            </image>
                         </ImageView>
                      </graphic>

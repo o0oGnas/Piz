@@ -28,7 +28,7 @@
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
-      												<Image url="@../../resources/icons/input_folder.png" />
+      												<Image url="@../../icons/input_folder.png" />
       											</image>
       										</ImageView>
       									</graphic>
@@ -49,7 +49,7 @@
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
-      												<Image url="@../../resources/icons/output_folder.png" />
+      												<Image url="@../../icons/output_folder.png" />
       											</image>
       										</ImageView>
       									</graphic>
@@ -71,7 +71,7 @@
       							<children>
       								<HBox alignment="CENTER_LEFT" styleClass="control-box">
       									<padding>
-      										<Insets bottom="5.0" right="5.0" top="5.0" />
+      										<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
       									</padding>
       									<children>
       										<Label text="Perform zip on" />
@@ -133,7 +133,7 @@
             								</PasswordField>
             								<ImageView fx:id="imvMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
             									<image>
-            										<Image url="@../../resources/icons/masked.png" />
+            										<Image url="@../../icons/masked.png" />
             									</image>
             									<HBox.margin>
             										<Insets left="5.0" />
@@ -200,7 +200,7 @@
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
-      												<Image url="@../../resources/icons/start.png" />
+      												<Image url="@../../icons/start.png" />
       											</image>
       										</ImageView>
       									</graphic>
@@ -212,7 +212,7 @@
       									<graphic>
       										<ImageView fx:id="imvPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
-      												<Image url="@../../resources/icons/pause.png" />
+      												<Image url="@../../icons/pause.png" />
       											</image>
       										</ImageView>
       									</graphic>
@@ -224,7 +224,7 @@
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
-      												<Image url="@../../resources/icons/stop.png" />
+      												<Image url="@../../icons/stop.png" />
       											</image>
       										</ImageView>
       									</graphic>

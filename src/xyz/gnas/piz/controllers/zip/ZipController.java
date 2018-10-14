@@ -54,7 +54,6 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import net.lingala.zip4j.util.Zip4jConstants;
-import xyz.gnas.piz.Main;
 import xyz.gnas.piz.common.CommonConstants;
 import xyz.gnas.piz.common.CommonUtility;
 import xyz.gnas.piz.common.ResourceManager;
@@ -168,12 +167,12 @@ public class ZipController {
 	/**
 	 * Keep track of how many processes are running
 	 */
-	private int runningCount = 0;
+	private int runningCount;
 
 	/**
 	 * Keep track of how many processes are finished
 	 */
-	private int finishCount = 0;
+	private int finishCount;
 
 	/**
 	 * Flag for masking/unmasking password
@@ -195,8 +194,27 @@ public class ZipController {
 	 */
 	private boolean isStopped;
 
-	public void setAppController(AppController appController) {
+	public void initialiseAll(AppController appController) {
 		this.appController = appController;
+
+		appController.getStage().setOnCloseRequest(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent event) {
+				try {
+					// show confirmation is there are running processes
+					if (isRunning.get()) {
+						if (CommonUtility
+								.showConfirmation("There are running processes, are you sure you want to exit?")) {
+							stopAllProcesses();
+						} else {
+							event.consume();
+						}
+					}
+				} catch (Exception e) {
+					CommonUtility.showError(e, "Error when closing the application", true);
+				}
+			}
+		});
 	}
 
 	@FXML
@@ -210,7 +228,6 @@ public class ZipController {
 			initialiseProcessCountTextField();
 			initialiseRunningListener();
 			initialisePausedListener();
-			handleClosingApplication();
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise zip tab", true);
 		}
@@ -317,8 +334,8 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Wrapper around initialing input and output folder
-	 * @Date Oct 9, 2018
+	 * @description Wrapper around initialing input and output folder
+	 * @date Oct 9, 2018
 	 * @param path
 	 * @param label
 	 * @return
@@ -428,27 +445,6 @@ public class ZipController {
 		});
 	}
 
-	private void handleClosingApplication() {
-		Main.getStage().setOnCloseRequest(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent event) {
-				try {
-					// show confirmation is there are running processes
-					if (isRunning.get()) {
-						if (CommonUtility
-								.showConfirmation("There are running processes, are you sure you want to exit?")) {
-							stopAllProcesses();
-						} else {
-							event.consume();
-						}
-					}
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when closing the application", true);
-				}
-			}
-		});
-	}
-
 	private void stopAllProcesses() {
 		// disable all actions until all processes are stopped properly
 		hboActions.setDisable(true);
@@ -512,7 +508,7 @@ public class ZipController {
 		List<Node> itemList = new LinkedList<Node>();
 
 		for (final File file : inputFolder.listFiles()) {
-			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/zip/ZipItem.fxml"));
+			FXMLLoader loader = new FXMLLoader(ResourceManager.getZipItemFXML());
 			boolean checkFolder = file.isDirectory()
 					&& ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDERS);
 			boolean checkFile = !file.isDirectory()
@@ -561,7 +557,7 @@ public class ZipController {
 			}
 		}
 
-		return chooser.showDialog(Main.getStage());
+		return chooser.showDialog(appController.getStage());
 	}
 
 	private void saveUserSetting() throws FileNotFoundException, IOException {
@@ -701,10 +697,10 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Create unique abbreviations when there are multiple
+	 * @description Create unique abbreviations when there are multiple
 	 *              files/folders with the same abbreviation under the most simple
 	 *              case
-	 * @Date Oct 9, 2018
+	 * @date Oct 9, 2018
 	 */
 	private void uniquifyAbbreviationList() {
 		for (Abbreviation abbreviation : abbreviationList.keySet()) {
@@ -851,8 +847,8 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Most simple case of abbreviation
-	 * @Date Oct 9, 2018
+	 * @description Most simple case of abbreviation
+	 * @date Oct 9, 2018
 	 * @param fileName name of the orinal file
 	 * @return
 	 */
@@ -881,9 +877,9 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Manage processes, ensure that the number of concurrent processes
+	 * @description Manage processes, ensure that the number of concurrent processes
 	 *              are within the limit
-	 * @Date Oct 11, 2018
+	 * @date Oct 11, 2018
 	 */
 	private void runProcessMasterThread() {
 		Thread masterThread = new Thread(new Task<Integer>() {
@@ -997,8 +993,8 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description do preparations and performing zipping
-	 * @Date Oct 11, 2018
+	 * @description do preparations and performing zipping
+	 * @date Oct 11, 2018
 	 * @param originalFile the original file
 	 * @param fileToZip    the file to perform zip on (same as original file if
 	 *                     encryption is not selected)
@@ -1033,8 +1029,8 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description
-	 * @Date Oct 11, 2018
+	 * @description
+	 * @date Oct 11, 2018
 	 * @param originalFile
 	 * @param fileToZip
 	 * @param destinationPath
@@ -1180,9 +1176,9 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Refresh all controls, refresh file/folder list, clear progress
+	 * @description Refresh all controls, refresh file/folder list, clear progress
 	 *              list and play notification sound
-	 * @Date Oct 9, 2018
+	 * @date Oct 9, 2018
 	 */
 	private void finish() {
 		Platform.runLater(() -> {
@@ -1221,8 +1217,8 @@ public class ZipController {
 	}
 
 	/**
-	 * @Description Synchronized to prevent concurrent modification
-	 * @Date Oct 9, 2018
+	 * @description Synchronized to prevent concurrent modification
+	 * @date Oct 9, 2018
 	 * @param label        the label object
 	 * @param map          the file/folder map
 	 * @param outerZipPath path of the outer zip file
@@ -1269,10 +1265,10 @@ public class ZipController {
 
 	/**
 	 * @author Gnas
-	 * @Description Class to make handling abbreviation easier, especially when
+	 * @date Oct 9, 2018
+	 * @description Class to make handling abbreviation easier, especially when
 	 *              multiple files/folder have the same abbreviation in the most
 	 *              simple case
-	 * @Date Oct 9, 2018
 	 */
 	private class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbreviation> {
 		/**

@@ -7,20 +7,17 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import xyz.gnas.piz.common.CommonUtility;
 import xyz.gnas.piz.common.ResourceManager;
+import xyz.gnas.piz.controllers.AppController;
 
 public class Main extends Application {
-	private static Stage stage;
-
-	public static Stage getStage() {
-		return stage;
-	}
-
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(Stage stage) {
 		try {
-			stage = primaryStage;
-			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/App.fxml"));
+			FXMLLoader loader = new FXMLLoader(ResourceManager.getAppFXML());
 			Scene scene = new Scene((Parent) loader.load());
+			AppController controlller = loader.getController();
+			controlller.setStage(stage);
+			controlller.initialiseTabs();
 			scene.getStylesheets().add(ResourceManager.getCss());
 			stage.setScene(scene);
 			stage.setTitle("Piz");

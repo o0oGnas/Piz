@@ -61,7 +61,7 @@ public class ZipItemController {
 
 		lblOriginal.setText(file.getName());
 
-		// originally set status text ro ready
+		// originally set status text to ready
 		lblStatus.setText("Ready");
 	}
 

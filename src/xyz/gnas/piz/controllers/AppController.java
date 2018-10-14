@@ -2,6 +2,7 @@ package xyz.gnas.piz.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -19,9 +20,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import xyz.gnas.piz.Main;
+import javafx.stage.Stage;
 import xyz.gnas.piz.common.CommonConstants;
 import xyz.gnas.piz.common.CommonUtility;
+import xyz.gnas.piz.common.ResourceManager;
 import xyz.gnas.piz.controllers.reference.ReferenceController;
 import xyz.gnas.piz.controllers.zip.ZipController;
 import xyz.gnas.piz.models.ZipReference;
@@ -36,6 +38,8 @@ public class AppController {
 	@FXML
 	private Tab tabReference;
 
+	private Stage stage;
+
 	private ZipController zipController;
 
 	private ReferenceController referenceController;
@@ -45,6 +49,14 @@ public class AppController {
 	 */
 	private ObservableList<ZipReference> referenceList;
 
+	public Stage getStage() {
+		return stage;
+	}
+
+	public void setStage(Stage stage) {
+		this.stage = stage;
+	}
+
 	public ObservableList<ZipReference> getReferenceList() {
 		return referenceList;
 	}
@@ -53,27 +65,29 @@ public class AppController {
 		return tpTabs.getSelectionModel().getSelectedItem().getId().equalsIgnoreCase(tabID);
 	}
 
+	public void initialiseTabs() throws IOException {
+		// zip tab
+		zipController = (ZipController) initialiseTab(tabZip, ResourceManager.getZipFXML());
+		zipController.initialiseAll(this);
+
+		// reference tab
+		referenceController = (ReferenceController) initialiseTab(tabReference, ResourceManager.getReferenceFXML());
+		referenceController.initialiseAll(this);
+	}
+
+	private Object initialiseTab(Tab tab, URL path) throws IOException {
+		FXMLLoader loader = new FXMLLoader(path);
+		tab.setContent((Parent) loader.load());
+		return loader.getController();
+	}
+
 	@FXML
 	private void initialize() {
 		try {
 			initialiseReferenceList();
-
-			// zip tab
-			zipController = (ZipController) initialiseTab(tabZip, "zip/Zip");
-			zipController.setAppController(this);
-
-			// reference tab
-			referenceController = (ReferenceController) initialiseTab(tabReference, "reference/Reference");
-			referenceController.initialiseAll(this);
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not initialise app", true);
 		}
-	}
-
-	private Object initialiseTab(Tab tab, String path) throws IOException {
-		FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + path + ".fxml"));
-		tab.setContent((Parent) loader.load());
-		return loader.getController();
 	}
 
 	private void initialiseReferenceList() throws JsonParseException, JsonMappingException, IOException {
