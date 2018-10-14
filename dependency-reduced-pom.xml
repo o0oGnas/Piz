@@ -20,34 +20,32 @@
         </configuration>
       </plugin>
       <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.1.1</version>
+        <executions>
+          <execution>
+            <id>unpack-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includes>**/*.css</includes>
+              <excludes>**/*.properties</excludes>
+              <outputDirectory>${project.build.directory}/lib-resources</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
           <archive>
             <manifest>
-              <mainClass>xyz.gnas.piz.Main</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifest>
-              <mainClass>xyz.gnas.piz.Main</mainClass>
+              <mainClass>main.java.xyz.gnas.piz.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -73,7 +71,7 @@
                 <filter>
                   <artifact>xyz.gnas.piz</artifact>
                   <excludes>
-                    <exclude>xyz/gnas/piz/test/*.*</exclude>
+                    <exclude>test/java/xyz/gnas/piz/</exclude>
                   </excludes>
                 </filter>
               </filters>
@@ -90,12 +88,23 @@
           <threadCount>1</threadCount>
           <printSummary>true</printSummary>
           <skipAfterFailureCount>1</skipAfterFailureCount>
-          <testSourceDirectory>${basedir}/src/xyz/gnas/piz/test</testSourceDirectory>
+          <testSourceDirectory>${basedir}/src/main/java/xyz/gnas/piz/test</testSourceDirectory>
           <testClassesDirectory>${project.build.directory}/classes/</testClassesDirectory>
+          <workingDirectory>${project.build.directory}/test-environment</workingDirectory>
         </configuration>
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-jerady-maven</id>
+      <name>bintray</name>
+      <url>https://dl.bintray.com/jerady/maven</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

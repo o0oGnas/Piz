@@ -1,0 +1,5 @@
+.control-box {
+	-fx-background-color: white;	
+	-fx-border-color: lightgrey;
+	-fx-padding: 5 5 5 5;
+}
