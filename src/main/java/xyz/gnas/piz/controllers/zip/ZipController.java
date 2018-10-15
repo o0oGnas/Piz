@@ -278,14 +278,19 @@ public class ZipController {
 		});
 	}
 
-	private void initialiseUserSetting() throws IOException, ClassNotFoundException {
+	private void initialiseUserSetting() throws IOException {
 		File file = new File(SETTING);
 
 		if (file.exists()) {
 			// load user data from file
 			try (FileInputStream fis = new FileInputStream(file)) {
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				userSetting = (UserSetting) ois.readObject();
+
+				try {
+					userSetting = (UserSetting) ois.readObject();
+				} catch (ClassNotFoundException e) {
+					CommonUtility.showError(e, "Error reading user setting file", false);
+				}
 			}
 		} else {
 			userSetting = new UserSetting(null, null, null, null, true, true, true,
@@ -534,11 +539,11 @@ public class ZipController {
 			// keep old folder if use cancels folder selection
 			if (folder != null) {
 				inputFolder = folder;
-				lblInputFolder.setText(userSetting.getInputFolder());
+				lblInputFolder.setText(inputFolder.getAbsolutePath());
 
 				if (outputFolder == null) {
 					outputFolder = inputFolder;
-					lblOutputFolder.setText(userSetting.getInputFolder());
+					lblOutputFolder.setText(outputFolder.getAbsolutePath());
 				}
 
 				saveUserSetting();
