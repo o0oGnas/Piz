@@ -45,7 +45,7 @@ public class ZipItemController {
 	private Button btnPauseResume;
 
 	@FXML
-	private ImageView ivPauseResume;
+	private ImageView imvPauseResume;
 
 	private ProgressMonitor progress;
 
@@ -111,7 +111,7 @@ public class ZipItemController {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 					try {
-						ivPauseResume
+						imvPauseResume
 								.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
 						btnPauseResume.setText(newValue ? CommonConstants.RESUME : CommonConstants.PAUSE);
 

@@ -20,26 +20,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.1</version>
-        <executions>
-          <execution>
-            <id>unpack-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <includes>**/*.css</includes>
-              <excludes>**/*.properties</excludes>
-              <outputDirectory>${project.build.directory}/lib-resources</outputDirectory>
-              <overWriteReleases>false</overWriteReleases>
-              <overWriteSnapshots>true</overWriteSnapshots>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
@@ -87,7 +67,6 @@
           <reuseForks>false</reuseForks>
           <threadCount>1</threadCount>
           <printSummary>true</printSummary>
-          <skipAfterFailureCount>1</skipAfterFailureCount>
           <testSourceDirectory>${basedir}/src/main/java/xyz/gnas/piz/test</testSourceDirectory>
           <testClassesDirectory>${project.build.directory}/classes/</testClassesDirectory>
           <workingDirectory>${project.build.directory}/test-environment</workingDirectory>
@@ -95,23 +74,7 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>bintray-jerady-maven</id>
-      <name>bintray</name>
-      <url>https://dl.bintray.com/jerady/maven</url>
-    </repository>
-  </repositories>
   <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.3.1</version>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>

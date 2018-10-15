@@ -10,47 +10,99 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.service.query.NodeQuery;
 
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import main.java.xyz.gnas.piz.common.CommonConstants;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import main.java.xyz.gnas.piz.controllers.AppController;
+import test.java.xyz.gnas.piz.CommonUtility;
 
 @ExtendWith(ApplicationExtension.class)
 public class ZipCommonTest {
+	private CheckComboBox<String> ccbFileFolder;
+
+	private HBox hboPassword;
+
+	private CheckBox chkEncrypt;
+
 	private PasswordField pwfPassword;
 
 	private TextField txtPassword;
 
 	private ImageView imvMaskUnmask;
 
-	private CheckComboBox<String> ccbFileFolder;
-
 	@Start
 	void onStart(Stage stage) throws IOException {
-		Platform.runLater(() -> {
-			try {
-				FXMLLoader loader = new FXMLLoader(ResourceManager.getAppFXML());
-				Scene scene = new Scene((Parent) loader.load());
-				AppController controlller = loader.getController();
-				controlller.setStage(stage);
-				controlller.initialiseTabs();
-				scene.getStylesheets().add(ResourceManager.getAppCSS());
-				stage.setScene(scene);
-				stage.setTitle("Piz");
-				stage.getIcons().add(ResourceManager.getAppIcon());
-				stage.show();
-			} catch (Exception e) {
+		FXMLLoader loader = new FXMLLoader(ResourceManager.getAppFXML());
+		Scene scene = new Scene((Parent) loader.load());
+		AppController controlller = loader.getController();
+		controlller.setStage(stage);
+		controlller.initialiseTabs();
+		scene.getStylesheets().add(ResourceManager.getAppCSS());
+		stage.setScene(scene);
+		stage.show();
+	}
 
-			}
-		});
+	@Test
+	void file_folder_check_combo_box_has_options(FxRobot robot) throws Exception {
+		assertThat(getFileFolderCheckComboBox(robot).getItems().contains(CommonConstants.FILES));
+		assertThat(getFileFolderCheckComboBox(robot).getItems().contains(CommonConstants.FOLDERS));
+	}
+
+	private CheckComboBox<String> getFileFolderCheckComboBox(FxRobot robot) throws Exception {
+		if (ccbFileFolder == null) {
+			ccbFileFolder = CommonUtility.getCheckComboBox(robot, "ccbFileFolder");
+		}
+
+		return ccbFileFolder;
+	}
+
+	@Test
+	void encrypt_checked_onload(FxRobot robot) {
+		assertThat(getEncryptCheckBox(robot).isSelected());
+	}
+
+	private CheckBox getEncryptCheckBox(FxRobot robot) {
+		if (chkEncrypt == null) {
+			chkEncrypt = CommonUtility.getCheckBox(robot, "chkEncrypt");
+		}
+
+		return chkEncrypt;
+	}
+
+	@Test
+	void click_on_encrypt_check_box(FxRobot robot) {
+		// first click to uncheck
+		robot.clickOn(getEncryptCheckBox(robot));
+
+		// password box is enabled
+		assertThat(!getPasswordHBox(robot).visibleProperty().get());
+
+		// click again to check
+		robot.clickOn(getMaskUnmaskIcon(robot));
+
+		// password box is disabled
+		assertThat(getPasswordHBox(robot).visibleProperty().get());
+	}
+
+	private HBox getPasswordHBox(FxRobot robot) {
+		if (hboPassword == null) {
+			hboPassword = getHBox(robot, "hboPassword");
+		}
+
+		return hboPassword;
+	}
+
+	private HBox getHBox(FxRobot robot, String id) {
+		return CommonUtility.getHBox(robot, id);
 	}
 
 	@Test
@@ -61,19 +113,15 @@ public class ZipCommonTest {
 
 	private PasswordField getPasswordField(FxRobot robot) {
 		if (pwfPassword == null) {
-			pwfPassword = getNodeQueryByID(robot, "pwfPassword").queryAs(PasswordField.class);
+			pwfPassword = CommonUtility.getPasswordField(robot, "pwfPassword");
 		}
 
 		return pwfPassword;
 	}
 
-	private NodeQuery getNodeQueryByID(FxRobot robot, String id) {
-		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id));
-	}
-
 	private TextField getTextPasswordField(FxRobot robot) {
 		if (txtPassword == null) {
-			txtPassword = getNodeQueryByID(robot, "txtPassword").queryAs(TextField.class);
+			txtPassword = CommonUtility.getTextField(robot, "txtPassword");
 		}
 
 		return txtPassword;
@@ -86,7 +134,7 @@ public class ZipCommonTest {
 
 	private ImageView getMaskUnmaskIcon(FxRobot robot) {
 		if (imvMaskUnmask == null) {
-			imvMaskUnmask = getNodeQueryByID(robot, "imvMaskUnmask").queryAs(ImageView.class);
+			imvMaskUnmask = CommonUtility.getImageView(robot, "imvMaskUnmask");
 		}
 
 		return imvMaskUnmask;
@@ -117,18 +165,5 @@ public class ZipCommonTest {
 
 		// icon is masked
 		assertThat(getMaskUnmaskIcon(robot).getImage().equals(ResourceManager.getMaskedIcon()));
-	}
-
-	@Test
-	void file_folder_check_combo_box_has_options(FxRobot robot) {
-		assertThat(getMaskUnmaskIcon(robot).getImage().equals(ResourceManager.getMaskedIcon()));
-	}
-
-	private CheckComboBox getFileFolderCheckComboBox(FxRobot robot) {
-		if (ccbFileFolder == null) {
-			ccbFileFolder = getNodeQueryByID(robot, "ccbFileFolder").queryAs(CheckComboBox.class);
-		}
-
-		return ccbFileFolder;
 	}
 }
