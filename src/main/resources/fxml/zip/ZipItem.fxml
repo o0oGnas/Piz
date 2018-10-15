@@ -40,7 +40,7 @@
             <HBox fx:id="hboProcess" alignment="CENTER_LEFT" visible="false">
                <children>
                   <Label fx:id="lblStatus" prefWidth="80.0" text="Working (99%)" textFill="#005500" />
-                  <Button fx:id="btnPauseResume" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="80.0" styleClass="sm" text="Pause">
+                  <Button fx:id="btnPauseResume" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm" text="Pause">
                      <graphic>
                         <ImageView fx:id="imvPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -52,7 +52,7 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="btnStop" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#stop" prefWidth="80.0" styleClass="sm" text="Stop">
+                  <Button fx:id="btnStop" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" styleClass="sm" text="Stop">
                      <graphic>
                         <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                            <image>

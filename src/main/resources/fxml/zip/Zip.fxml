@@ -194,7 +194,7 @@
 						</VBox>
 						<HBox fx:id="hboActions" alignment="CENTER_LEFT">
 							<children>
-								<Button fx:id="btnStart" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#start" prefWidth="80.0" styleClass="sm" text="Start">
+								<Button fx:id="btnStart" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#start" prefWidth="100.0" styleClass="sm" text="Start">
                            <graphic>
                               <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
@@ -202,7 +202,7 @@
                                  </image>
                               </ImageView>
                            </graphic></Button>
-								<Button fx:id="btnPauseResume" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="80.0" styleClass="sm" text="Pause">
+								<Button fx:id="btnPauseResume" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm" text="Pause">
 									<HBox.margin>
 										<Insets left="10.0" />
 									</HBox.margin>
@@ -214,7 +214,7 @@
                               </ImageView>
                            </graphic>
 								</Button>
-								<Button fx:id="btnStop" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="80.0" styleClass="sm" text="Stop">
+								<Button fx:id="btnStop" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" styleClass="sm" text="Stop">
 									<HBox.margin>
 										<Insets left="10.0" />
 									</HBox.margin>

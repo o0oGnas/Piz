@@ -98,6 +98,9 @@
 					<reuseForks>false</reuseForks>
 					<threadCount>1</threadCount>
 					<printSummary>true</printSummary>
+					
+					<!-- stop after a certain number of test classes fail -->
+					<skipAfterFailureCount >1</skipAfterFailureCount>
 
 					<!-- source folder of tests -->
 					<testSourceDirectory>${basedir}/src/main/java/xyz/gnas/piz/test</testSourceDirectory>

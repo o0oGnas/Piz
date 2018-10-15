@@ -388,9 +388,8 @@ public class ReferenceController {
 	@FXML
 	private void delete(ActionEvent event) {
 		try {
-			isManualUpdate = true;
-
 			if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
+				isManualUpdate = true;
 				appController.getReferenceList().removeAll(tbvTable.getSelectionModel().getSelectedItems());
 			}
 		} catch (Exception e) {

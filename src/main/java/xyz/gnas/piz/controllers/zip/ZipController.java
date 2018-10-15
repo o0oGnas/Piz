@@ -81,13 +81,13 @@ public class ZipController {
 	private CheckBox chkAddReferences;
 
 	@FXML
+	private TextField txtProcessCount;
+
+	@FXML
 	private TextField txtPassword;
 
 	@FXML
 	private TextField txtReferenceTag;
-
-	@FXML
-	private TextField txtProcessCount;
 
 	@FXML
 	private PasswordField pwfPassword;

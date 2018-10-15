@@ -13,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import main.java.xyz.gnas.piz.common.CommonConstants;
 import main.java.xyz.gnas.piz.common.CommonUtility;
 import main.java.xyz.gnas.piz.common.ResourceManager;
@@ -56,7 +55,7 @@ public class ZipItemController {
 	public void initialiseAll(File file) {
 		// folder is shown as blue
 		if (file.isDirectory()) {
-			lblOriginal.setTextFill(Color.BLUE);
+			lblOriginal.setStyle("-fx-text-fill: maroon");
 		}
 
 		lblOriginal.setText(file.getName());
@@ -154,8 +153,10 @@ public class ZipItemController {
 			if (CommonUtility.showConfirmation("Are you sure you want to stop this process?")) {
 				progress.setPause(false);
 				progress.cancelAllTasks();
-				lblStatus.setText("Stopped");
 				isPaused.set(false);
+				lblStatus.setText("Stopped");
+				btnPauseResume.setVisible(false);
+				btnStop.setVisible(false);
 			}
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not stop the process [" + lblOriginal.getText() + "]", false);

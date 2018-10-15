@@ -13,12 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 public class CommonUtility {
-	public static Button getButtonByText(FxRobot robot, String text) {
-		return robot
-				.lookup(a -> a.getId() != null && a instanceof Button && ((Button) a).getText().equalsIgnoreCase(text))
-				.queryAs(Button.class);
-	}
-
 	public static Label getLabel(FxRobot robot, String id) {
 		return getNodeQueryByID(robot, id).queryAs(Label.class);
 	}
@@ -53,5 +47,15 @@ public class CommonUtility {
 
 	public static ImageView getImageView(FxRobot robot, String id) {
 		return getNodeQueryByID(robot, id).queryAs(ImageView.class);
+	}
+
+	public static Button getButtonByID(FxRobot robot, String text) {
+		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(text)).queryAs(Button.class);
+	}
+
+	public static Button getButtonByText(FxRobot robot, String text) {
+		return robot
+				.lookup(a -> a.getId() != null && a instanceof Button && ((Button) a).getText().equalsIgnoreCase(text))
+				.queryAs(Button.class);
 	}
 }
