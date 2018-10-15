@@ -30,14 +30,66 @@ public class ZipCommonTest {
 	private CheckComboBox<String> ccbFileFolder;
 
 	private HBox hboPassword;
+	private HBox hboReference;
+	private HBox hboTag;
 
 	private CheckBox chkEncrypt;
+	private CheckBox chkObfuscateFileName;
+	private CheckBox chkAddReferences;
 
 	private PasswordField pwfPassword;
 
 	private TextField txtPassword;
 
 	private ImageView imvMaskUnmask;
+
+	private CheckComboBox<String> getFileFolderCheckComboBox(FxRobot robot) throws Exception {
+		if (ccbFileFolder == null) {
+			ccbFileFolder = CommonUtility.getCheckComboBox(robot, "ccbFileFolder");
+		}
+
+		return ccbFileFolder;
+	}
+
+	private HBox getPasswordHBox(FxRobot robot) {
+		if (hboPassword == null) {
+			hboPassword = CommonUtility.getHBox(robot, "hboPassword");
+		}
+
+		return hboPassword;
+	}
+
+	private CheckBox getEncryptCheckBox(FxRobot robot) {
+		if (chkEncrypt == null) {
+			chkEncrypt = CommonUtility.getCheckBox(robot, "chkEncrypt");
+		}
+
+		return chkEncrypt;
+	}
+
+	private PasswordField getPasswordField(FxRobot robot) {
+		if (pwfPassword == null) {
+			pwfPassword = CommonUtility.getPasswordField(robot, "pwfPassword");
+		}
+
+		return pwfPassword;
+	}
+
+	private TextField getTextPasswordField(FxRobot robot) {
+		if (txtPassword == null) {
+			txtPassword = CommonUtility.getTextField(robot, "txtPassword");
+		}
+
+		return txtPassword;
+	}
+
+	private ImageView getMaskUnmaskIcon(FxRobot robot) {
+		if (imvMaskUnmask == null) {
+			imvMaskUnmask = CommonUtility.getImageView(robot, "imvMaskUnmask");
+		}
+
+		return imvMaskUnmask;
+	}
 
 	@Start
 	void onStart(Stage stage) throws IOException {
@@ -57,25 +109,9 @@ public class ZipCommonTest {
 		assertThat(getFileFolderCheckComboBox(robot).getItems().contains(CommonConstants.FOLDERS));
 	}
 
-	private CheckComboBox<String> getFileFolderCheckComboBox(FxRobot robot) throws Exception {
-		if (ccbFileFolder == null) {
-			ccbFileFolder = CommonUtility.getCheckComboBox(robot, "ccbFileFolder");
-		}
-
-		return ccbFileFolder;
-	}
-
 	@Test
 	void encrypt_checked_onload(FxRobot robot) {
 		assertThat(getEncryptCheckBox(robot).isSelected());
-	}
-
-	private CheckBox getEncryptCheckBox(FxRobot robot) {
-		if (chkEncrypt == null) {
-			chkEncrypt = CommonUtility.getCheckBox(robot, "chkEncrypt");
-		}
-
-		return chkEncrypt;
 	}
 
 	@Test
@@ -93,51 +129,15 @@ public class ZipCommonTest {
 		assertThat(getPasswordHBox(robot).visibleProperty().get());
 	}
 
-	private HBox getPasswordHBox(FxRobot robot) {
-		if (hboPassword == null) {
-			hboPassword = getHBox(robot, "hboPassword");
-		}
-
-		return hboPassword;
-	}
-
-	private HBox getHBox(FxRobot robot, String id) {
-		return CommonUtility.getHBox(robot, id);
-	}
-
 	@Test
 	void password_is_masked_on_load(FxRobot robot) {
 		assertThat(getPasswordField(robot).visibleProperty().get());
 		assertThat(!getTextPasswordField(robot).visibleProperty().get());
 	}
 
-	private PasswordField getPasswordField(FxRobot robot) {
-		if (pwfPassword == null) {
-			pwfPassword = CommonUtility.getPasswordField(robot, "pwfPassword");
-		}
-
-		return pwfPassword;
-	}
-
-	private TextField getTextPasswordField(FxRobot robot) {
-		if (txtPassword == null) {
-			txtPassword = CommonUtility.getTextField(robot, "txtPassword");
-		}
-
-		return txtPassword;
-	}
-
 	@Test
 	void masked_icon_is_shown_on_load(FxRobot robot) {
 		assertThat(getMaskUnmaskIcon(robot).getImage().equals(ResourceManager.getMaskedIcon()));
-	}
-
-	private ImageView getMaskUnmaskIcon(FxRobot robot) {
-		if (imvMaskUnmask == null) {
-			imvMaskUnmask = CommonUtility.getImageView(robot, "imvMaskUnmask");
-		}
-
-		return imvMaskUnmask;
 	}
 
 	@Test
@@ -165,5 +165,20 @@ public class ZipCommonTest {
 
 		// icon is masked
 		assertThat(getMaskUnmaskIcon(robot).getImage().equals(ResourceManager.getMaskedIcon()));
+	}
+
+	@Test
+	void click_on_obfuscate_check_box(FxRobot robot) {
+		// first click to uncheck
+		robot.clickOn(getEncryptCheckBox(robot));
+
+		// password box is enabled
+		assertThat(!getPasswordHBox(robot).visibleProperty().get());
+
+		// click again to check
+		robot.clickOn(getMaskUnmaskIcon(robot));
+
+		// password box is disabled
+		assertThat(getPasswordHBox(robot).visibleProperty().get());
 	}
 }

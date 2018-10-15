@@ -72,7 +72,12 @@ public class ZipItemController {
 		hboProcess.setVisible(true);
 		btnStop.setDisable(false);
 		btnPauseResume.disableProperty().bind(isMasterPaused);
-		acpRoot.setStyle("-fx-background-color: cornsilk;");
+		setRootPanelClass("working-item");
+	}
+
+	private void setRootPanelClass(String className) {
+		acpRoot.getStyleClass().clear();
+		acpRoot.getStyleClass().add(className);
 	}
 
 	public void updateProgress(boolean isObfuscated, boolean isOuter) {
@@ -101,7 +106,7 @@ public class ZipItemController {
 	public void finishProcess() {
 		lblStatus.setText("Finished");
 		hboProcess.setVisible(false);
-		acpRoot.setStyle("-fx-background-color: aliceblue;");
+		setRootPanelClass("finished-item");
 	}
 
 	@FXML

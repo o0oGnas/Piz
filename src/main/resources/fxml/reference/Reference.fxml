@@ -231,8 +231,4 @@
 			</padding>
 		</VBox>
 	</children>
-   <stylesheets>
-      <URL value="@../../css/theme.css" />
-      <URL value="@../../css/app.css" />
-   </stylesheets>
 </AnchorPane>

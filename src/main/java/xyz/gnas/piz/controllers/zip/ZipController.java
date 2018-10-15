@@ -472,7 +472,7 @@ public class ZipController {
 			vboInputsAndActions.setDisable(true);
 			generateFileAndFolderList(label);
 		} else {
-			label.setText("There are no files or folders");
+			label.setText("There is nothing to zip");
 			vboList.getChildren().add(label);
 
 			// disable action buttons if there are no files or folders

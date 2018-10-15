@@ -1,5 +1,12 @@
-.control-box {
-	-fx-background-color: white;	
+.control-box {	
 	-fx-border-color: lightgrey;
 	-fx-padding: 5 5 5 5;
+}
+
+.working-item {
+	-fx-background-color: cornsilk
+}
+
+.finished-item {
+	-fx-background-color: aliceblue
 }
