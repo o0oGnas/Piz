@@ -22,7 +22,7 @@ public class ZipWithUserSettingTest {
 		AppController controlller = loader.getController();
 		controlller.setStage(stage);
 		controlller.initialiseTabs();
-		scene.getStylesheets().add(ResourceManager.getAppCSS());
+		scene.getStylesheets().addAll(ResourceManager.getCSSList());
 		stage.setScene(scene);
 		stage.show();
 	}

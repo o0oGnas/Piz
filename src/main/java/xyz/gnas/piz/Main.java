@@ -18,7 +18,7 @@ public class Main extends Application {
 			AppController controlller = loader.getController();
 			controlller.setStage(stage);
 			controlller.initialiseTabs();
-			scene.getStylesheets().addAll(ResourceManager.getAppCSS());
+			scene.getStylesheets().addAll(ResourceManager.getCSSList());
 			stage.setScene(scene);
 			stage.setTitle("Piz");
 			stage.getIcons().add(ResourceManager.getAppIcon());

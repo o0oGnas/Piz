@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -121,7 +122,7 @@
                               <Insets />
                            </HBox.margin>
                         </HBox>
-                        <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#filter" prefWidth="70.0" text="Filter">
+                        <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#filter" prefWidth="80.0" styleClass="sm" text="Filter">
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
@@ -142,7 +143,7 @@
                               <Insets left="5.0" />
                            </HBox.margin>
                         </Label>
-      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToTop" prefWidth="130.0" text="Scroll to top">
+      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToTop" prefWidth="150.0" styleClass="sm" text="Scroll to top">
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
@@ -154,7 +155,7 @@
                               <Insets left="10.0" />
                            </HBox.margin>
       								</Button>
-      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="130.0" text="Scroll to bottom">
+      								<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToBottom" prefWidth="150.0" styleClass="sm" text="Scroll to bottom">
       									<graphic>
       										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
       											<image>
@@ -186,7 +187,7 @@
 				</TableView>
 				<HBox prefHeight="2.0" prefWidth="900.0" VBox.vgrow="NEVER">
 					<children>
-						<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#add" prefWidth="130.0" text="Add reference">
+						<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#add" prefWidth="150.0" styleClass="sm" text="Add reference">
 							<graphic>
 								<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 									<image>
@@ -195,7 +196,7 @@
 								</ImageView>
 							</graphic>
 						</Button>
-						<Button fx:id="btnDelete" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#delete" prefWidth="130.0" text="Delete reference">
+						<Button fx:id="btnDelete" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#delete" prefWidth="150.0" styleClass="sm" text="Delete reference">
 							<HBox.margin>
 								<Insets left="10.0" />
 							</HBox.margin>
@@ -207,7 +208,7 @@
 								</ImageView>
 							</graphic>
 						</Button>
-						<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#save" prefWidth="130.0" text="Save references">
+						<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#save" prefWidth="150.0" styleClass="sm" text="Save references">
 							<HBox.margin>
 								<Insets left="10.0" />
 							</HBox.margin>
@@ -230,4 +231,8 @@
 			</padding>
 		</VBox>
 	</children>
+   <stylesheets>
+      <URL value="@../../css/theme.css" />
+      <URL value="@../../css/app.css" />
+   </stylesheets>
 </AnchorPane>

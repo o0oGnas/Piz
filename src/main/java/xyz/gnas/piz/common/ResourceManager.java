@@ -1,6 +1,8 @@
 package main.java.xyz.gnas.piz.common;
 
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
@@ -13,6 +15,7 @@ import main.java.xyz.gnas.piz.Main;
  */
 public class ResourceManager {
 	private static final String RESOURCE_FOLDER = "main/resources/";
+	private static final String CSS_FOLDER = RESOURCE_FOLDER + "css/";
 	private static final String ICON_FOLDER = RESOURCE_FOLDER + "icons/";
 	private static final String FXML_FOLDER = RESOURCE_FOLDER + "fxml/";
 	private static final String ZIP_FXML_FOLDER = FXML_FOLDER + "zip/";
@@ -25,7 +28,7 @@ public class ResourceManager {
 
 	private static Media notificationSound;
 
-	private static String appCSS;
+	private static List<String> cssList;
 
 	private static URL appFXML;
 	private static URL zipFXML;
@@ -81,12 +84,14 @@ public class ResourceManager {
 		return resumeIcon;
 	}
 
-	public static String getAppCSS() {
-		if (appCSS == null) {
-			appCSS = Main.class.getClassLoader().getResource(RESOURCE_FOLDER + "app.css").toExternalForm();
+	public static List<String> getCSSList() {
+		if (cssList == null) {
+			cssList = new LinkedList<String>();
+			cssList.add(Main.class.getClassLoader().getResource(CSS_FOLDER + "app.css").toExternalForm());
+			cssList.add(Main.class.getClassLoader().getResource(CSS_FOLDER + "theme.css").toExternalForm());
 		}
 
-		return appCSS;
+		return cssList;
 	}
 
 	public static URL getAppFXML() {
