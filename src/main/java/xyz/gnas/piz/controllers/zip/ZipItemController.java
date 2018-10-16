@@ -13,7 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import main.java.xyz.gnas.piz.common.CommonConstants;
+import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.CommonUtility;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import net.lingala.zip4j.progress.ProgressMonitor;
@@ -117,7 +117,7 @@ public class ZipItemController {
 					try {
 						imvPauseResume
 								.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-						btnPauseResume.setText(newValue ? CommonConstants.RESUME : CommonConstants.PAUSE);
+						btnPauseResume.setText(newValue ? Configurations.RESUME : Configurations.PAUSE);
 
 						if (newValue) {
 							lblStatus.setText("Paused (" + percent + "%)");

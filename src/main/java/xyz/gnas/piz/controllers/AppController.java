@@ -21,7 +21,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
-import main.java.xyz.gnas.piz.common.CommonConstants;
+import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.CommonUtility;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import main.java.xyz.gnas.piz.controllers.reference.ReferenceController;
@@ -92,7 +92,7 @@ public class AppController {
 
 	private void initialiseReferenceList() throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-		File file = new File(CommonConstants.REFERENCE_FILE);
+		File file = new File(Configurations.REFERENCE_FILE);
 
 		if (file.exists()) {
 			ZipReference[] zipArray = mapper.readValue(file, ZipReference[].class);
@@ -118,7 +118,7 @@ public class AppController {
 	 * @throws IOException
 	 */
 	public void saveReferences() throws JsonGenerationException, JsonMappingException, IOException {
-		File fileReference = new File(CommonConstants.REFERENCE_FILE);
+		File fileReference = new File(Configurations.REFERENCE_FILE);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();

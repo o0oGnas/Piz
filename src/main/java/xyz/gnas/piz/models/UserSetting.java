@@ -87,9 +87,9 @@ public class UserSetting implements Serializable {
 		this.processCount = processCount;
 	}
 
-	public UserSetting(String folderPath, String password, String referenceTag, String[] fileFolder, boolean encrypt,
+	public UserSetting(String inputFolder, String password, String referenceTag, String[] fileFolder, boolean encrypt,
 			boolean obfuscateFileName, boolean addReference, int processCount) {
-		this.inputFolder = folderPath;
+		this.inputFolder = inputFolder;
 		this.password = password;
 		this.referenceTag = referenceTag;
 		this.fileFolder = fileFolder;

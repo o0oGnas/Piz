@@ -6,22 +6,26 @@ import org.testfx.service.query.NodeQuery;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import tornadofx.control.DateTimePicker;
 
-public class CommonUtility {
+/**
+ * @author ADMIN
+ * @date Oct 16, 2018
+ * @description handles all UI control searching
+ */
+public class TestCommonUtility {
 	public static Label getLabel(FxRobot robot, String id) {
 		return getNodeQueryByID(robot, id).queryAs(Label.class);
 	}
 
-	private static NodeQuery getNodeQueryByID(FxRobot robot, String id) {
-		if (robot == null || (robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)) == null)) {
-			main.java.xyz.gnas.piz.common.CommonUtility.showAlert("null", "node null");
-		}
-
+	public static NodeQuery getNodeQueryByID(FxRobot robot, String id) {
 		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id));
 	}
 
@@ -49,13 +53,25 @@ public class CommonUtility {
 		return getNodeQueryByID(robot, id).queryAs(ImageView.class);
 	}
 
-	public static Button getButtonByID(FxRobot robot, String text) {
-		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(text)).queryAs(Button.class);
+	public static Button getButtonByID(FxRobot robot, String id) {
+		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(Button.class);
 	}
 
 	public static Button getButtonByText(FxRobot robot, String text) {
 		return robot
 				.lookup(a -> a.getId() != null && a instanceof Button && ((Button) a).getText().equalsIgnoreCase(text))
 				.queryAs(Button.class);
+	}
+
+	public static DateTimePicker getDateTimePicker(FxRobot robot, String id) {
+		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(DateTimePicker.class);
+	}
+
+	public static ComboBox getComBoBox(FxRobot robot, String id) {
+		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(ComboBox.class);
+	}
+
+	public static TableView getTableView(FxRobot robot, String id) {
+		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(TableView.class);
 	}
 }

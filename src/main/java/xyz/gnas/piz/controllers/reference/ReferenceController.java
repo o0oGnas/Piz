@@ -24,7 +24,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
-import main.java.xyz.gnas.piz.common.CommonConstants;
+import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.CommonUtility;
 import main.java.xyz.gnas.piz.controllers.AppController;
 import main.java.xyz.gnas.piz.models.ZipReference;
@@ -285,8 +285,8 @@ public class ReferenceController {
 	 * @param cbb the combo box
 	 */
 	private void initialiseComboBox(ComboBox<String> cbb) {
-		cbb.getItems().addAll(CommonConstants.CONTAINS, CommonConstants.MATCHES);
-		cbb.getSelectionModel().select(CommonConstants.CONTAINS);
+		cbb.getItems().addAll(Configurations.CONTAINS, Configurations.MATCHES);
+		cbb.getSelectionModel().select(Configurations.CONTAINS);
 	}
 
 	@FXML
@@ -339,9 +339,9 @@ public class ReferenceController {
 		if (tf.getText() == null || tf.getText().isEmpty()) {
 			return true;
 		} else {
-			boolean checkContains = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(CommonConstants.CONTAINS)
+			boolean checkContains = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(Configurations.CONTAINS)
 					&& value.toUpperCase().contains(tf.getText().toUpperCase());
-			boolean checkMatches = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(CommonConstants.MATCHES)
+			boolean checkMatches = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(Configurations.MATCHES)
 					&& value.equalsIgnoreCase(tf.getText());
 			return checkContains || checkMatches;
 		}

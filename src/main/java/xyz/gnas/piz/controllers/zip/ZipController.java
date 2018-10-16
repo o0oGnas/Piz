@@ -49,8 +49,8 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.WindowEvent;
-import main.java.xyz.gnas.piz.common.CommonConstants;
 import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import main.java.xyz.gnas.piz.controllers.AppController;
 import main.java.xyz.gnas.piz.models.UserSetting;
@@ -127,11 +127,6 @@ public class ZipController {
 
 	@FXML
 	private ImageView imvPauseResume;
-
-	private final String SETTING = "setting.bin";
-
-	private final int MIN_PROCESSES = 1;
-	private final int MAX_PROCESSES = 10;
 
 	private AppController appController;
 
@@ -279,7 +274,7 @@ public class ZipController {
 	}
 
 	private void initialiseUserSetting() throws IOException {
-		File file = new File(SETTING);
+		File file = new File(Configurations.SETTING_FILE);
 
 		if (file.exists()) {
 			// load user data from file
@@ -310,8 +305,8 @@ public class ZipController {
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
-		ccbFileFolder.getItems().add(CommonConstants.FILES);
-		ccbFileFolder.getItems().add(CommonConstants.FOLDERS);
+		ccbFileFolder.getItems().add(Configurations.FILES);
+		ccbFileFolder.getItems().add(Configurations.FOLDERS);
 
 		// check all by default
 		if (userSetting.getFileFolder() == null || userSetting.getFileFolder().length == 0) {
@@ -416,16 +411,16 @@ public class ZipController {
 	private void correctProcessCount() {
 		// if text is empty, set it to MIN_PROCESSES
 		if (txtProcessCount.getText() == null || txtProcessCount.getText().isEmpty()) {
-			txtProcessCount.setText(MIN_PROCESSES + "");
+			txtProcessCount.setText(Configurations.MIN_PROCESSES + "");
 		}
 
 		// keep the number of processes within range limit
 		int intProcessCount = Integer.parseInt(txtProcessCount.getText());
 
-		if (intProcessCount < MIN_PROCESSES) {
-			intProcessCount = MIN_PROCESSES;
-		} else if (intProcessCount > MAX_PROCESSES) {
-			intProcessCount = MAX_PROCESSES;
+		if (intProcessCount < Configurations.MIN_PROCESSES) {
+			intProcessCount = Configurations.MIN_PROCESSES;
+		} else if (intProcessCount > Configurations.MAX_PROCESSES) {
+			intProcessCount = Configurations.MAX_PROCESSES;
 		}
 
 		// this also helps removing leading zeroes
@@ -441,7 +436,7 @@ public class ZipController {
 	private void initialisePausedListener() {
 		isPaused.addListener(listener -> {
 			try {
-				btnPauseResume.setText(isPaused.get() ? CommonConstants.RESUME : CommonConstants.PAUSE);
+				btnPauseResume.setText(isPaused.get() ? Configurations.RESUME : Configurations.PAUSE);
 				imvPauseResume
 						.setImage(isPaused.get() ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
 			} catch (Exception e) {
@@ -512,12 +507,12 @@ public class ZipController {
 	private List<Node> getItemList() throws IOException {
 		List<Node> itemList = new LinkedList<Node>();
 
-		for (final File file : inputFolder.listFiles()) {
+		for (File file : inputFolder.listFiles()) {
 			FXMLLoader loader = new FXMLLoader(ResourceManager.getZipItemFXML());
 			boolean checkFolder = file.isDirectory()
-					&& ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FOLDERS);
+					&& ccbFileFolder.getCheckModel().getCheckedItems().contains(Configurations.FOLDERS);
 			boolean checkFile = !file.isDirectory()
-					&& ccbFileFolder.getCheckModel().getCheckedItems().contains(CommonConstants.FILES);
+					&& ccbFileFolder.getCheckModel().getCheckedItems().contains(Configurations.FILES);
 
 			if (checkFolder || checkFile) {
 				Node zipItem = loader.load();
@@ -590,7 +585,7 @@ public class ZipController {
 		userSetting.setProcessCount(Integer.parseInt(txtProcessCount.getText()));
 
 		// save user data to file
-		try (FileOutputStream fos = new FileOutputStream(SETTING)) {
+		try (FileOutputStream fos = new FileOutputStream(Configurations.SETTING_FILE)) {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(userSetting);
 		}
