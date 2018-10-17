@@ -67,7 +67,6 @@
           <reuseForks>false</reuseForks>
           <threadCount>1</threadCount>
           <printSummary>true</printSummary>
-          <skipAfterFailureCount>1</skipAfterFailureCount>
           <testSourceDirectory>${basedir}/src/main/java/xyz/gnas/piz/test</testSourceDirectory>
           <testClassesDirectory>${project.build.directory}/classes/</testClassesDirectory>
           <workingDirectory>${project.build.directory}/test-environment</workingDirectory>

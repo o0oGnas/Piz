@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,6 +79,8 @@ public class ReferenceTest {
 			} else if (i == REFERENCE_COUNT) {
 				reference.setDate(lastDate);
 			}
+
+			referenceList.add(reference);
 		}
 
 		File fileReference = new File(Configurations.REFERENCE_FILE);
@@ -88,7 +91,7 @@ public class ReferenceTest {
 		mapper.writeValue(fileReference, referenceList.toArray());
 	}
 
-	// @Test
+	@Test
 	void default_setting_on_load(FxRobot robot) {
 		assertThat(ReferenceTestUtility.getFromDateTimePicker(robot)).matches(
 				p -> CommonUtility.convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(firstDate) == 0,
@@ -130,8 +133,8 @@ public class ReferenceTest {
 				p -> p.getSelectionModel().getSelectedItem().equalsIgnoreCase(Configurations.CONTAINS),
 				"Tag combo box selects contains by default");
 
-		assertThat(ReferenceTestUtility.getReferenceCountLabel(robot)).matches(
-				p -> p.getText().equalsIgnoreCase(REFERENCE_COUNT + "references"), "Reference count label is correct");
+		assertThat(ReferenceTestUtility.getReferenceCountLabel(robot))
+				.matches(p -> p.getText().contains(REFERENCE_COUNT + ""), "Reference count label is correct");
 
 		assertThat(ReferenceTestUtility.getTableView(robot)).matches(p -> p.getItems().size() == REFERENCE_COUNT,
 				"Table view loads all references");

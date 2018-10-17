@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import tornadofx.control.DateTimePicker?>
 
-<AnchorPane prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.xyz.gnas.piz.controllers.reference.ReferenceController">
+<AnchorPane styleClass="test" prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.xyz.gnas.piz.controllers.reference.ReferenceController">
 	<children>
 		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>

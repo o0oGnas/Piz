@@ -15,3 +15,4 @@
 	+ jackson-databind 2.9.7
 - Requires OpenJDK 10 or later to run (https://github.com/ojdkbuild/ojdkbuild)
 - Uses jbootx theme (https://github.com/dicolar/jbootx)
+- Available as jar executable at https://github.com/o0oGnas/Piz/releases

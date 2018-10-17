@@ -26,6 +26,8 @@ public class ReferenceTestUtility {
 	private static TextField txtZip;
 	private static TextField txtTag;
 
+	private static Button btnFilter;
+
 	private static Label lblReferenceCount;
 
 	private static TableView<ZipReference> tbvTable;
@@ -94,6 +96,14 @@ public class ReferenceTestUtility {
 		}
 
 		return txtTag;
+	}
+
+	public static Button getFilterButton(FxRobot robot) {
+		if (btnFilter == null) {
+			btnFilter = TestCommonUtility.getButtonByText(robot, "Filter");
+		}
+
+		return btnFilter;
 	}
 
 	public static Label getReferenceCountLabel(FxRobot robot) {

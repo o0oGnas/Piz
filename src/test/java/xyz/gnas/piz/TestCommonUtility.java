@@ -58,8 +58,7 @@ public class TestCommonUtility {
 	}
 
 	public static Button getButtonByText(FxRobot robot, String text) {
-		return robot
-				.lookup(a -> a.getId() != null && a instanceof Button && ((Button) a).getText().equalsIgnoreCase(text))
+		return robot.lookup(a -> a instanceof Button && ((Button) a).getText().equalsIgnoreCase(text))
 				.queryAs(Button.class);
 	}
 
