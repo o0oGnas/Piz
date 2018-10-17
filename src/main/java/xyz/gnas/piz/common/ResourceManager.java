@@ -43,15 +43,6 @@ public class ResourceManager {
 		return appIcon;
 	}
 
-	public static Media getNotificationSound() {
-		if (notificationSound == null) {
-			notificationSound = new Media(
-					Main.class.getClassLoader().getResource(RESOURCE_FOLDER + "notification.wav").toExternalForm());
-		}
-
-		return notificationSound;
-	}
-
 	public static Image getMaskedIcon() {
 		if (maskedIcon == null) {
 			maskedIcon = new Image(Main.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "masked.png"));
@@ -82,6 +73,15 @@ public class ResourceManager {
 		}
 
 		return resumeIcon;
+	}
+
+	public static Media getNotificationSound() {
+		if (notificationSound == null) {
+			notificationSound = new Media(
+					Main.class.getClassLoader().getResource(RESOURCE_FOLDER + "notification.wav").toExternalForm());
+		}
+
+		return notificationSound;
 	}
 
 	public static List<String> getCSSList() {
