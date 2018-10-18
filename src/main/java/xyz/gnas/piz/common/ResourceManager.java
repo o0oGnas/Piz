@@ -96,7 +96,7 @@ public class ResourceManager {
 
 	public static URL getAppFXML() {
 		if (appFXML == null) {
-			appFXML = Main.class.getClassLoader().getResource(FXML_FOLDER + "App.fxml");
+			appFXML = Main.class.getClassLoader().getResource(FXML_FOLDER + "app.fxml");
 		}
 
 		return appFXML;

@@ -6,6 +6,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,8 +14,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import net.lingala.zip4j.progress.ProgressMonitor;
 
@@ -75,8 +76,9 @@ public class ZipItemController {
 	}
 
 	private void setRootPanelClass(String className) {
-		acpRoot.getStyleClass().clear();
-		acpRoot.getStyleClass().add(className);
+		ObservableList<String> styleClassList = acpRoot.getStyleClass();
+		styleClassList.clear();
+		styleClassList.add(className);
 	}
 
 	public void updateProgress(boolean isObfuscated, boolean isOuter) {

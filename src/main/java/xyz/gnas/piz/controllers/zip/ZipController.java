@@ -22,6 +22,7 @@ import java.util.TreeMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
+import org.controlsfx.control.IndexedCheckModel;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -29,6 +30,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -305,20 +307,22 @@ public class ZipController {
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
-		ccbFileFolder.getItems().add(Configurations.FILES);
-		ccbFileFolder.getItems().add(Configurations.FOLDERS);
+		ObservableList<String> itemList = ccbFileFolder.getItems();
+		itemList.add(Configurations.FILES);
+		itemList.add(Configurations.FOLDERS);
+		IndexedCheckModel<String> checkedModel = ccbFileFolder.getCheckModel();
 
 		// check all by default
 		if (userSetting.getFileFolder() == null || userSetting.getFileFolder().length == 0) {
-			ccbFileFolder.getCheckModel().checkAll();
+			checkedModel.checkAll();
 		} else {
 			for (String s : userSetting.getFileFolder()) {
-				ccbFileFolder.getCheckModel().check(s);
+				checkedModel.check(s);
 			}
 		}
 
 		// handle event when user changes selection
-		ccbFileFolder.getCheckModel().getCheckedItems().addListener((ListChangeListener<String>) listener -> {
+		checkedModel.getCheckedItems().addListener((ListChangeListener<String>) listener -> {
 			try {
 				updateFolderAndFileLists();
 			} catch (Exception e) {
@@ -409,14 +413,16 @@ public class ZipController {
 	}
 
 	private void correctProcessCount() {
+		String text = txtProcessCount.getText();
+
 		// if text is empty, set it to MIN_PROCESSES
-		if (txtProcessCount.getText() == null || txtProcessCount.getText().isEmpty()) {
+		if (text == null || text.isEmpty()) {
 			txtProcessCount.setText(Configurations.MIN_PROCESSES + "");
 		}
 
-		// keep the number of processes within range limit
-		int intProcessCount = Integer.parseInt(txtProcessCount.getText());
+		int intProcessCount = Integer.parseInt(text);
 
+		// keep the number of processes within range limit
 		if (intProcessCount < Configurations.MIN_PROCESSES) {
 			intProcessCount = Configurations.MIN_PROCESSES;
 		} else if (intProcessCount > Configurations.MAX_PROCESSES) {
@@ -434,13 +440,16 @@ public class ZipController {
 	}
 
 	private void initialisePausedListener() {
-		isPaused.addListener(listener -> {
-			try {
-				btnPauseResume.setText(isPaused.get() ? Configurations.RESUME : Configurations.PAUSE);
-				imvPauseResume
-						.setImage(isPaused.get() ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-			} catch (Exception e) {
-				CommonUtility.showError(e, "Error handling pausing/resuming", false);
+		isPaused.addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				try {
+					btnPauseResume.setText(newValue ? Configurations.RESUME : Configurations.PAUSE);
+					imvPauseResume
+							.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+				} catch (Exception e) {
+					CommonUtility.showError(e, "Error handling pause/resume", false);
+				}
 			}
 		});
 	}
@@ -453,7 +462,8 @@ public class ZipController {
 	}
 
 	private void updateFolderAndFileLists() throws IOException {
-		vboList.getChildren().clear();
+		ObservableList<Node> childrenList = vboList.getChildren();
+		childrenList.clear();
 		vboList.setDisable(false);
 		fileZipItemMap.clear();
 		Label label = new Label();
@@ -461,19 +471,18 @@ public class ZipController {
 
 		if (inputFolder != null && inputFolder.listFiles().length > 0) {
 			label.setText("Generating file and folder list ...");
-			vboList.getChildren().add(label);
 
 			// disable all controls
 			vboInputsAndActions.setDisable(true);
 			generateFileAndFolderList(label);
 		} else {
 			label.setText("There is nothing to zip");
-			vboList.getChildren().add(label);
 
 			// disable action buttons if there are no files or folders
 			hboActions.setDisable(true);
 		}
 
+		childrenList.add(label);
 		vboList.autosize();
 	}
 
@@ -486,8 +495,9 @@ public class ZipController {
 					List<Node> itemList = getItemList();
 
 					Platform.runLater(() -> {
-						vboList.getChildren().remove(label);
-						vboList.getChildren().addAll(itemList);
+						ObservableList<Node> childrenList = vboList.getChildren();
+						childrenList.remove(label);
+						childrenList.addAll(itemList);
 						vboInputsAndActions.setDisable(false);
 						hboActions.setDisable(false);
 					});
@@ -508,13 +518,13 @@ public class ZipController {
 		List<Node> itemList = new LinkedList<Node>();
 
 		for (File file : inputFolder.listFiles()) {
-			FXMLLoader loader = new FXMLLoader(ResourceManager.getZipItemFXML());
-			boolean checkFolder = file.isDirectory()
-					&& ccbFileFolder.getCheckModel().getCheckedItems().contains(Configurations.FOLDERS);
-			boolean checkFile = !file.isDirectory()
-					&& ccbFileFolder.getCheckModel().getCheckedItems().contains(Configurations.FILES);
+			boolean isDirectory = file.isDirectory();
+			ObservableList<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
+			boolean checkFolder = isDirectory && fileFolderSelection.contains(Configurations.FOLDERS);
+			boolean checkFile = !isDirectory && fileFolderSelection.contains(Configurations.FILES);
 
 			if (checkFolder || checkFile) {
+				FXMLLoader loader = new FXMLLoader(ResourceManager.getZipItemFXML());
 				Node zipItem = loader.load();
 				ZipItemController zipItemController = loader.getController();
 				zipItemController.initialiseAll(file);
@@ -534,11 +544,12 @@ public class ZipController {
 			// keep old folder if use cancels folder selection
 			if (folder != null) {
 				inputFolder = folder;
-				lblInputFolder.setText(inputFolder.getAbsolutePath());
+				String path = inputFolder.getAbsolutePath();
+				lblInputFolder.setText(path);
 
 				if (outputFolder == null) {
 					outputFolder = inputFolder;
-					lblOutputFolder.setText(outputFolder.getAbsolutePath());
+					lblOutputFolder.setText(path);
 				}
 
 				saveUserSetting();
@@ -577,8 +588,9 @@ public class ZipController {
 
 		userSetting.setPassword(txtPassword.getText());
 		userSetting.setReferenceTag(txtReferenceTag.getText());
-		userSetting.setFileFolder(Arrays.copyOf(ccbFileFolder.getCheckModel().getCheckedItems().toArray(),
-				ccbFileFolder.getCheckModel().getCheckedItems().size(), String[].class));
+		ObservableList<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
+		userSetting.setFileFolder(
+				Arrays.copyOf(fileFolderSelection.toArray(), fileFolderSelection.size(), String[].class));
 		userSetting.setEncrypt(chkEncrypt.isSelected());
 		userSetting.setObfuscateFileName(chkObfuscateFileName.isSelected());
 		userSetting.setAddReference(chkAddReferences.isSelected());
@@ -694,8 +706,10 @@ public class ZipController {
 				String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
 
 				for (String word : split) {
-					if (abbreviation.longestWordLength < word.length()) {
-						abbreviation.longestWordLength = word.length();
+					int length = word.length();
+
+					if (abbreviation.longestWordLength < length) {
+						abbreviation.longestWordLength = length;
 					}
 				}
 			}
@@ -710,7 +724,9 @@ public class ZipController {
 	 */
 	private void uniquifyAbbreviationList() {
 		for (Abbreviation abbreviation : abbreviationList.keySet()) {
-			if (abbreviation.fileAbbreviationMap.size() > 1) {
+			Map<File, String> map = abbreviation.fileAbbreviationMap;
+
+			if (map.size() > 1) {
 				// first try to add file extension to remove duplicate
 				Map<File, String> uniqueMap = uniquifyByExtension(abbreviation);
 
@@ -718,7 +734,7 @@ public class ZipController {
 				// abbreviation
 				Map<File, String> fileRebuiltNameMap = new HashMap<File, String>();
 
-				for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+				for (File file : map.keySet()) {
 					fileRebuiltNameMap.put(file, file.getName());
 				}
 
@@ -739,15 +755,17 @@ public class ZipController {
 
 	private Map<File, String> uniquifyByExtension(Abbreviation abbreviation) {
 		Map<File, String> mapWithExtension = new HashMap<File, String>();
+		Map<File, String> map = abbreviation.fileAbbreviationMap;
 
-		for (File file : abbreviation.fileAbbreviationMap.keySet()) {
-			String fileName = abbreviation.fileAbbreviationMap.get(file);
+		for (File file : map.keySet()) {
+			String fileName = map.get(file);
 
 			if (file.isDirectory()) {
 				mapWithExtension.put(file, fileName);
 			} else {
-				mapWithExtension.put(file, getAbbreviatedFileName(file.getName(), false) + "_"
-						+ FilenameUtils.getExtension(file.getName()));
+				String name = file.getName();
+				String abbreviatedName = getAbbreviatedFileName(name, false);
+				mapWithExtension.put(file, abbreviatedName + "_" + FilenameUtils.getExtension(name));
 			}
 		}
 
@@ -757,17 +775,19 @@ public class ZipController {
 	private Map<File, String> uniquifyByAddingCharacters(Map<File, String> map, int characterCount,
 			Map<File, String> fileRebuiltNameMap) {
 		// temporary new abbreviation list
-		SortedMap<Abbreviation, Abbreviation> newAbbreviationList = getNewAbbreviationList(map);
+		Map<Abbreviation, Abbreviation> newAbbreviationList = getNewAbbreviationList(map);
 		updateNewAbbreviationList(newAbbreviationList, characterCount, fileRebuiltNameMap);
 		Map<File, String> result = new HashMap<File, String>();
 
 		for (Abbreviation abbreviation : newAbbreviationList.keySet()) {
-			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+			Map<File, String> fileAbbreviationMap = abbreviation.fileAbbreviationMap;
+
+			for (File file : fileAbbreviationMap.keySet()) {
 				String newAbbreviatedName = map.get(file);
 
 				// get abbreviation of each file in abbreviation with duplicates using their
 				// rebuilt name
-				if (abbreviation.fileAbbreviationMap.size() > 1) {
+				if (fileAbbreviationMap.size() > 1) {
 					newAbbreviatedName = getAbbreviatedFileName(fileRebuiltNameMap.get(file), file.isDirectory());
 				}
 
@@ -778,8 +798,8 @@ public class ZipController {
 		return result;
 	}
 
-	private SortedMap<Abbreviation, Abbreviation> getNewAbbreviationList(Map<File, String> map) {
-		SortedMap<Abbreviation, Abbreviation> newAbbreviationList = new TreeMap<Abbreviation, Abbreviation>();
+	private Map<Abbreviation, Abbreviation> getNewAbbreviationList(Map<File, String> map) {
+		Map<Abbreviation, Abbreviation> newAbbreviationList = new HashMap<Abbreviation, Abbreviation>();
 
 		for (String value : map.values()) {
 			Abbreviation abbreviation = new Abbreviation(value);
@@ -800,12 +820,14 @@ public class ZipController {
 		return newAbbreviationList;
 	}
 
-	private void updateNewAbbreviationList(SortedMap<Abbreviation, Abbreviation> newAbbreviationList,
-			int characterCount, Map<File, String> fileRebuiltNameMap) {
+	private void updateNewAbbreviationList(Map<Abbreviation, Abbreviation> newAbbreviationList, int characterCount,
+			Map<File, String> fileRebuiltNameMap) {
 		for (Abbreviation abbreviation : newAbbreviationList.keySet()) {
+			Map<File, String> map = abbreviation.fileAbbreviationMap;
+
 			// rebuild the original file names of abbreviation with multiple files
-			if (abbreviation.fileAbbreviationMap.size() > 1) {
-				for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+			if (map.size() > 1) {
+				for (File file : map.keySet()) {
 					String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
 					StringBuilder sb = new StringBuilder();
 
@@ -831,7 +853,9 @@ public class ZipController {
 		SortedMap<Abbreviation, Abbreviation> newAbreviationList = new TreeMap<Abbreviation, Abbreviation>();
 
 		for (Abbreviation abbreviation : abbreviationList.keySet()) {
-			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
+			Map<File, String> map = abbreviation.fileAbbreviationMap;
+
+			for (File file : map.keySet()) {
 				// create a new Abbreviation object for each newly generated abbreviation
 				Abbreviation newAbbreviation = new Abbreviation(abbreviation.fileAbbreviationMap.get(file));
 
@@ -839,10 +863,12 @@ public class ZipController {
 					newAbbreviation = newAbreviationList.get(newAbbreviation);
 				}
 
-				if (abbreviation.fileAbbreviationMap.get(file).equalsIgnoreCase(abbreviation.abbreviation)) {
-					newAbbreviation.fileAbbreviationMap.put(file, abbreviation.abbreviation);
+				String abbreviatedName = abbreviation.abbreviation;
+
+				if (map.get(file).equalsIgnoreCase(abbreviatedName)) {
+					map.put(file, abbreviatedName);
 				} else {
-					newAbbreviation.fileAbbreviationMap.put(file, newAbbreviation.abbreviation);
+					map.put(file, newAbbreviation.abbreviation);
 				}
 
 				newAbreviationList.put(newAbbreviation, newAbbreviation);
@@ -966,9 +992,10 @@ public class ZipController {
 			throws ZipException, InterruptedException, IOException {
 		String parentPath = outputFolder.getAbsolutePath() + "\\";
 		String zipName = abbreviation.abbreviation;
+		Map<File, String> map = abbreviation.fileAbbreviationMap;
 
-		if (abbreviation.fileAbbreviationMap.size() > 1) {
-			ArrayList<File> temp = new ArrayList<File>(abbreviation.fileAbbreviationMap.keySet());
+		if (map.size() > 1) {
+			ArrayList<File> temp = new ArrayList<File>(map.keySet());
 
 			for (int i = 0; i < temp.size(); ++i) {
 				if (file.equals(temp.get(i))) {
@@ -1065,7 +1092,6 @@ public class ZipController {
 		ZipFile zip = new ZipFile(zipPath);
 		ZipParameters parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-		// maximum compression level
 		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
 
 		// set encryption
@@ -1190,7 +1216,7 @@ public class ZipController {
 
 				// play notification sound if process is not canceled prematurely
 				if (!isStopped) {
-					Media media = main.java.xyz.gnas.piz.common.ResourceManager.getNotificationSound();
+					Media media = ResourceManager.getNotificationSound();
 					MediaPlayer mediaPlayer = new MediaPlayer(media);
 					mediaPlayer.play();
 				}

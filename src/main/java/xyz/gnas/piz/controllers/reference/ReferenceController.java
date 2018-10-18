@@ -14,9 +14,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SortEvent;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -107,10 +107,10 @@ public class ReferenceController {
 			try {
 				if (!isManualUpdate && appController.checkTabIsActive("tabReference")) {
 					CommonUtility.showAlert("Update detected",
-							"Your reference file was updated, the list will be automatically refreshed");
-					isManualUpdate = false;
+							"Reference file was updated, the list will be automatically refreshed");
 				}
 
+				isManualUpdate = false;
 				tbvTable.setItems(appController.getReferenceList());
 				setReferenceCount();
 			} catch (Exception e) {
@@ -143,11 +143,6 @@ public class ReferenceController {
 	}
 
 	private void initialiseTable() {
-		initialiseDateColumn();
-		initialiseTagColumn();
-		initialiseOriginalColumn();
-		initialiseZipColumn();
-
 		tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tbvTable.setItems(appController.getReferenceList());
 
@@ -159,7 +154,16 @@ public class ReferenceController {
 			}
 		});
 
+		tbvTable.setOnSort((EventHandler<SortEvent<TableView<ZipReference>>>) handler -> {
+			isManualUpdate = true;
+		});
+
 		setReferenceCount();
+
+		initialiseDateColumn();
+		initialiseStringColumn(tbcTag, "tag");
+		initialiseStringColumn(tbcOriginal, "original");
+		initialiseStringColumn(tbcZip, "zip");
 	}
 
 	private void initialiseDateColumn() {
@@ -189,23 +193,6 @@ public class ReferenceController {
 		tbcDate.setCellValueFactory(new PropertyValueFactory<ZipReference, Calendar>("date"));
 	}
 
-	private void initialiseTagColumn() {
-		initialiseStringColumn(tbcTag, "tag");
-
-		tbcTag.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
-			@Override
-			public void handle(CellEditEvent<ZipReference, String> event) {
-				try {
-					appController.getReferenceList().get(event.getTablePosition().getRow()).setTag(event.getNewValue());
-					appController.saveReferences();
-					isEditing = false;
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when editing tag", false);
-				}
-			}
-		});
-	}
-
 	/**
 	 * @Description Wrapper to reduce copy paste
 	 * @Date Oct 9, 2018
@@ -215,57 +202,6 @@ public class ReferenceController {
 	private void initialiseStringColumn(TableColumn<ZipReference, String> column, String propertyName) {
 		column.setCellValueFactory(new PropertyValueFactory<ZipReference, String>(propertyName));
 		column.setCellFactory(TextFieldTableCell.forTableColumn());
-
-		column.setOnEditStart((EventHandler<TableColumn.CellEditEvent<ZipReference, String>>) handler -> {
-			try {
-				isEditing = true;
-			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when starting to edit table", false);
-			}
-		});
-
-		column.setOnEditCancel((EventHandler<TableColumn.CellEditEvent<ZipReference, String>>) handler -> {
-			try {
-				isEditing = false;
-			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when cancelling edit", false);
-			}
-		});
-	}
-
-	private void initialiseOriginalColumn() {
-		initialiseStringColumn(tbcOriginal, "original");
-
-		tbcOriginal.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
-			@Override
-			public void handle(CellEditEvent<ZipReference, String> event) {
-				try {
-					appController.getReferenceList().get(event.getTablePosition().getRow())
-							.setOriginal(event.getNewValue());
-					appController.saveReferences();
-					isEditing = false;
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when editing original", false);
-				}
-			}
-		});
-	}
-
-	private void initialiseZipColumn() {
-		initialiseStringColumn(tbcZip, "zip");
-
-		tbcZip.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ZipReference, String>>() {
-			@Override
-			public void handle(CellEditEvent<ZipReference, String> event) {
-				try {
-					appController.getReferenceList().get(event.getTablePosition().getRow()).setZip(event.getNewValue());
-					appController.saveReferences();
-					isEditing = false;
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when editing zip", false);
-				}
-			}
-		});
 	}
 
 	@FXML
@@ -309,8 +245,8 @@ public class ReferenceController {
 			ObservableList<ZipReference> filteredList = FXCollections.observableArrayList();
 
 			for (ZipReference reference : appController.getReferenceList()) {
-				boolean checkDate = cFrom.compareTo(reference.getDate()) <= 0
-						&& reference.getDate().compareTo(cTo) <= 1;
+				Calendar date = reference.getDate();
+				boolean checkDate = cFrom.compareTo(date) <= 0 && date.compareTo(cTo) <= 1;
 
 				// filter by time
 				if (checkDate && checkField(cboOriginal, txtOriginal, reference.getOriginal())
@@ -335,14 +271,17 @@ public class ReferenceController {
 	 * @param value the value of the attribute
 	 * @return
 	 */
-	private boolean checkField(ComboBox<String> cbb, TextField tf, String value) {
-		if (tf.getText() == null || tf.getText().isEmpty()) {
+	private boolean checkField(ComboBox<String> cbb, TextField txt, String value) {
+		String text = txt.getText();
+
+		if (text == null || text.isEmpty()) {
 			return true;
 		} else {
-			boolean checkContains = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(Configurations.CONTAINS)
-					&& value.toUpperCase().contains(tf.getText().toUpperCase());
-			boolean checkMatches = cbb.getSelectionModel().getSelectedItem().equalsIgnoreCase(Configurations.MATCHES)
-					&& value.equalsIgnoreCase(tf.getText());
+			String containsOrMatches = cbb.getSelectionModel().getSelectedItem();
+			boolean checkContains = containsOrMatches.equalsIgnoreCase(Configurations.CONTAINS)
+					&& value.toUpperCase().contains(text.toUpperCase());
+			boolean checkMatches = containsOrMatches.equalsIgnoreCase(Configurations.MATCHES)
+					&& value.equalsIgnoreCase(text);
 			return checkContains || checkMatches;
 		}
 	}
@@ -364,6 +303,45 @@ public class ReferenceController {
 			verticalBar.setValue(verticalBar.getMax());
 		} catch (Exception e) {
 			CommonUtility.showError(e, "Could not scroll to bottom", false);
+		}
+	}
+
+	@FXML
+	private void startEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
+		try {
+			isEditing = true;
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Error when starting edit", false);
+		}
+	}
+
+	@FXML
+	private void commitEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
+		try {
+			TableColumn<ZipReference, String> source = (TableColumn<ZipReference, String>) event.getSource();
+			ZipReference reference = appController.getReferenceList().get(event.getTablePosition().getRow());
+			String value = event.getNewValue();
+
+			if (source == tbcTag) {
+				reference.setTag(value);
+			} else if (source == tbcOriginal) {
+				reference.setOriginal(value);
+			} else {
+				reference.setZip(value);
+			}
+
+			appController.saveReferences();
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Error when committing edit", false);
+		}
+	}
+
+	@FXML
+	private void cancelEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
+		try {
+			isEditing = false;
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Error when cenceling edit", false);
 		}
 	}
 
