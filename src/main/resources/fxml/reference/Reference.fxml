@@ -175,7 +175,7 @@
             </VBox>
 				<TableView fx:id="tbvTable" editable="true" onKeyReleased="#tableKeyReleased" VBox.vgrow="ALWAYS">
 					<columns>
-						<TableColumn fx:id="tbcDate" editable="false" prefWidth="132.0" text="Date" />
+						<TableColumn fx:id="tbcDate" editable="false" prefWidth="120.0" style="-fx-alignment: CENTER-RIGHT;" text="Date" />
 						<TableColumn fx:id="tbcTag" onEditCancel="#cancelEdit" onEditCommit="#commitEdit" onEditStart="#startEdit" prefWidth="166.0" text="Tag" />
 						<TableColumn fx:id="tbcOriginal" onEditCancel="#cancelEdit" onEditCommit="#commitEdit" onEditStart="#startEdit" prefWidth="300.0" text="Original file/folder" />
 						<TableColumn fx:id="tbcZip" onEditCancel="#cancelEdit" onEditCommit="#commitEdit" onEditStart="#startEdit" prefWidth="300.0" text="Zip file" />

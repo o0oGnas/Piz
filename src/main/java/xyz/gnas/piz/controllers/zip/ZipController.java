@@ -857,20 +857,13 @@ public class ZipController {
 
 			for (File file : map.keySet()) {
 				// create a new Abbreviation object for each newly generated abbreviation
-				Abbreviation newAbbreviation = new Abbreviation(abbreviation.fileAbbreviationMap.get(file));
+				Abbreviation newAbbreviation = new Abbreviation(map.get(file));
 
 				if (newAbreviationList.containsKey(newAbbreviation)) {
 					newAbbreviation = newAbreviationList.get(newAbbreviation);
 				}
 
-				String abbreviatedName = abbreviation.abbreviation;
-
-				if (map.get(file).equalsIgnoreCase(abbreviatedName)) {
-					map.put(file, abbreviatedName);
-				} else {
-					map.put(file, newAbbreviation.abbreviation);
-				}
-
+				newAbbreviation.fileAbbreviationMap.put(file, newAbbreviation.abbreviation);
 				newAbreviationList.put(newAbbreviation, newAbbreviation);
 			}
 		}
