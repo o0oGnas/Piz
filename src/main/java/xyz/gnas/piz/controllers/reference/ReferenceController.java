@@ -119,10 +119,6 @@ public class ReferenceController {
 		});
 	}
 
-	private void setReferenceCount() {
-		lblReferenceCount.setText(tbvTable.getItems().size() + " references");
-	}
-
 	private void initialiseDateTimePickers() {
 		Calendar cMin = Calendar.getInstance();
 		Calendar cMax = Calendar.getInstance();
@@ -142,8 +138,11 @@ public class ReferenceController {
 
 	}
 
+	private void setReferenceCount() {
+		lblReferenceCount.setText(tbvTable.getItems().size() + " references");
+	}
+
 	private void initialiseTable() {
-		tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tbvTable.setItems(appController.getReferenceList());
 
 		tbvTable.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<ZipReference>() {
@@ -159,11 +158,32 @@ public class ReferenceController {
 		});
 
 		setReferenceCount();
+	}
 
-		initialiseDateColumn();
-		initialiseStringColumn(tbcTag, "tag");
-		initialiseStringColumn(tbcOriginal, "original");
-		initialiseStringColumn(tbcZip, "zip");
+	@FXML
+	private void initialize() {
+		try {
+			initialiseComboBox(cboOriginal);
+			initialiseComboBox(cboZip);
+			initialiseComboBox(cboTag);
+			tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			initialiseDateColumn();
+			initialiseStringColumn(tbcTag, "tag");
+			initialiseStringColumn(tbcOriginal, "original");
+			initialiseStringColumn(tbcZip, "zip");
+		} catch (Exception e) {
+			CommonUtility.showError(e, "Could not initialise reference tab", true);
+		}
+	}
+
+	/**
+	 * @Description Wrapper to initialise comobo boxes
+	 * @Date Oct 12, 2018
+	 * @param cbb the combo box
+	 */
+	private void initialiseComboBox(ComboBox<String> cbb) {
+		cbb.getItems().addAll(Configurations.CONTAINS, Configurations.MATCHES);
+		cbb.getSelectionModel().select(Configurations.CONTAINS);
 	}
 
 	private void initialiseDateColumn() {
@@ -202,27 +222,6 @@ public class ReferenceController {
 	private void initialiseStringColumn(TableColumn<ZipReference, String> column, String propertyName) {
 		column.setCellValueFactory(new PropertyValueFactory<ZipReference, String>(propertyName));
 		column.setCellFactory(TextFieldTableCell.forTableColumn());
-	}
-
-	@FXML
-	private void initialize() {
-		try {
-			initialiseComboBox(cboOriginal);
-			initialiseComboBox(cboZip);
-			initialiseComboBox(cboTag);
-		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise reference tab", true);
-		}
-	}
-
-	/**
-	 * @Description Wrapper to initialise comobo boxes
-	 * @Date Oct 12, 2018
-	 * @param cbb the combo box
-	 */
-	private void initialiseComboBox(ComboBox<String> cbb) {
-		cbb.getItems().addAll(Configurations.CONTAINS, Configurations.MATCHES);
-		cbb.getSelectionModel().select(Configurations.CONTAINS);
 	}
 
 	@FXML
