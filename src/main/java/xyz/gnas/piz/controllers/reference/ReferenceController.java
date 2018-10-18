@@ -199,7 +199,7 @@ public class ReferenceController {
 							if (empty) {
 								setGraphic(null);
 							} else {
-								SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy HH:mm");
+								SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
 								setText(dateFormat.format(item.getTime()));
 							}
 						} catch (Exception e) {
