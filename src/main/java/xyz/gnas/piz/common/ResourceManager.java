@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.sound.sampled.AudioInputStream;
+
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import main.java.xyz.gnas.piz.Main;
@@ -25,7 +27,7 @@ public class ResourceManager {
 	private static Image resumeIcon;
 	private static Image pauseIcon;
 
-	private static Media notificationSound;
+	private static Media notificationSound; 
 
 	private static List<String> cssList;
 

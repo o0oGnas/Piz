@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>xyz.gnas.piz</groupId>
 	<artifactId>piz</artifactId>
-	<version>1.4.1</version>
+	<version>1.4.2</version>
 
 	<!-- generate html test report -->
 	<reporting>
@@ -42,6 +42,23 @@
 							<mainClass>main.java.xyz.gnas.piz.Main</mainClass>
 						</manifest>
 					</archive>
+				</configuration>
+			</plugin>
+
+		    <!-- required to run Java FX -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>main.java.xyz.gnas.piz.Main</mainClass>
 				</configuration>
 			</plugin>
 
@@ -105,12 +122,20 @@
 	</build>
 
 	<dependencies>
-		<!-- UI libs -->
+		<!-- Java FX libs -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-fxml</artifactId>
 			<version>11</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-media</artifactId>
+			<version>11</version>
+		</dependency>
+
+		<!-- UI libs -->
 
 		<dependency>
 			<groupId>org.controlsfx</groupId>

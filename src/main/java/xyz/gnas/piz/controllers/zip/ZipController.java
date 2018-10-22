@@ -1255,7 +1255,7 @@ public class ZipController {
 				hboActions.setDisable(false);
 				btnStart.setDisable(false);
 				enableDisablePauseStop(true);
-				updateFolderAndFileLists();
+				updateFolderAndFileLists(); 
 
 				// play notification sound if process is not canceled prematurely
 				if (!isStopped) {

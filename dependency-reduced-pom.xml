@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>xyz.gnas.piz</groupId>
   <artifactId>piz</artifactId>
-  <version>1.4.1</version>
+  <version>1.4.2</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -23,6 +23,21 @@
               <mainClass>main.java.xyz.gnas.piz.Main</mainClass>
             </manifest>
           </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.6.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>main.java.xyz.gnas.piz.Main</mainClass>
         </configuration>
       </plugin>
       <plugin>

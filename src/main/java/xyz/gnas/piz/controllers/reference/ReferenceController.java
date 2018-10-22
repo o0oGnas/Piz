@@ -22,7 +22,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.util.Callback;
 import main.java.xyz.gnas.piz.common.CommonUtility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.controllers.AppController;
@@ -111,6 +110,7 @@ public class ReferenceController {
 
 				isManualUpdate = false;
 				tbvTable.setItems(appController.getReferenceList());
+				tbvTable.refresh();
 				setReferenceCount();
 			} catch (Exception e) {
 				showError(e, "Error when handling update to reference list", false);
@@ -187,27 +187,24 @@ public class ReferenceController {
 	}
 
 	private void initialiseDateColumn() {
-		tbcDate.setCellFactory(new Callback<TableColumn<ZipReference, Calendar>, TableCell<ZipReference, Calendar>>() {
-			@Override
-			public TableCell<ZipReference, Calendar> call(TableColumn<ZipReference, Calendar> param) {
-				return new TableCell<ZipReference, Calendar>() {
-					@Override
-					protected void updateItem(Calendar item, boolean empty) {
-						try {
-							super.updateItem(item, empty);
+		tbcDate.setCellFactory((TableColumn<ZipReference, Calendar> param) -> {
+			return new TableCell<ZipReference, Calendar>() {
+				@Override
+				protected void updateItem(Calendar item, boolean empty) {
+					try {
+						super.updateItem(item, empty);
 
-							if (empty) {
-								setGraphic(null);
-							} else {
-								SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
-								setText(dateFormat.format(item.getTime()));
-							}
-						} catch (Exception e) {
-							showError(e, "Error when displaying date column", false);
+						if (empty) {
+							setGraphic(null);
+						} else {
+							SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
+							setText(dateFormat.format(item.getTime()));
 						}
+					} catch (Exception e) {
+						showError(e, "Error when displaying date column", false);
 					}
-				};
-			}
+				}
+			};
 		});
 
 		tbcDate.setCellValueFactory(new PropertyValueFactory<ZipReference, Calendar>("date"));
