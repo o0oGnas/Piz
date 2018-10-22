@@ -8,6 +8,7 @@ package main.java.xyz.gnas.piz.common;
 public class Configurations {
 	public static final String FILES = "Files";
 	public static final String FOLDERS = "Folders";
+	public static final String EMPTY_LIST_MESSAGE = "There is nothing to zip";
 	public static final String REFERENCE_FILE = "references.txt";
 	public static final String PAUSE = "Pause";
 	public static final String RESUME = "Resume";

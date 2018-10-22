@@ -4,7 +4,6 @@ import java.io.File;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -47,13 +46,17 @@ public class ZipItemController {
 	@FXML
 	private ImageView imvPauseResume;
 
+	private File file;
+
 	private ProgressMonitor progress;
 
 	private BooleanProperty isPaused = new SimpleBooleanProperty();
 
 	private int percent;
 
-	public void initialiseAll(File file) {
+	public void initialiseAll(File inputFile) {
+		file = inputFile;
+
 		// folder is shown as blue
 		if (file.isDirectory()) {
 			lblOriginal.setStyle("-fx-text-fill: maroon");
@@ -110,27 +113,33 @@ public class ZipItemController {
 		setRootPanelClass("finished-item");
 	}
 
+	private void showError(Exception e, String message, boolean exit) {
+		CommonUtility.showError(getClass(), e, message, exit);
+	}
+
+	private void writeInfoLog(String log) {
+		CommonUtility.writeInfoLog(getClass(), log);
+	}
+
 	@FXML
 	private void initialize() {
 		try {
-			isPaused.addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-					try {
-						imvPauseResume
-								.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-						btnPauseResume.setText(newValue ? Configurations.RESUME : Configurations.PAUSE);
+			isPaused.addListener(
+					(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+						try {
+							imvPauseResume.setImage(
+									newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+							btnPauseResume.setText(newValue ? Configurations.RESUME : Configurations.PAUSE);
 
-						if (newValue) {
-							lblStatus.setText("Paused (" + percent + "%)");
+							if (newValue) {
+								lblStatus.setText("Paused (" + percent + "%)");
+							}
+						} catch (Exception e) {
+							showError(e, "Error handling pause", false);
 						}
-					} catch (Exception e) {
-						CommonUtility.showError(e, "Error handling pause", false);
-					}
-				}
-			});
+					});
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise zip item", true);
+			showError(e, "Could not initialise zip item", true);
 		}
 	}
 
@@ -138,14 +147,17 @@ public class ZipItemController {
 	private void pauseOrResume(ActionEvent event) {
 		try {
 			isPaused.set(!isPaused.get());
-			progress.setPause(isPaused.get());
+			boolean pause = isPaused.get();
+			String pauseResume = pause ? "Pausing" : "Resuming";
+			writeInfoLog(pauseResume + " process of file/folder [" + file.getName() + "]");
+			progress.setPause(pause);
 
 			// set status to show only percentage done if user resumes
-			if (!isPaused.get()) {
+			if (!pause) {
 				showCurrentProgress();
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not pause the process [" + lblOriginal.getText() + "]", false);
+			showError(e, "Could not pause the process [" + lblOriginal.getText() + "]", false);
 		}
 	}
 
@@ -153,6 +165,7 @@ public class ZipItemController {
 	private void stop(ActionEvent event) {
 		try {
 			if (CommonUtility.showConfirmation("Are you sure you want to stop this process?")) {
+				writeInfoLog(" Stopping process of file/folder [" + file.getName() + "]");
 				progress.setPause(false);
 				progress.cancelAllTasks();
 				isPaused.set(false);
@@ -161,7 +174,7 @@ public class ZipItemController {
 				btnStop.setVisible(false);
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not stop the process [" + lblOriginal.getText() + "]", false);
+			showError(e, "Could not stop the process [" + lblOriginal.getText() + "]", false);
 		}
 	}
 }

@@ -173,7 +173,7 @@
       				</HBox>
                </children>
             </VBox>
-				<TableView fx:id="tbvTable" editable="true" onKeyReleased="#tableKeyReleased" VBox.vgrow="ALWAYS">
+				<TableView fx:id="tbvTable" editable="true" onKeyReleased="#tableKeyReleased" onSort="#sortTable" VBox.vgrow="ALWAYS">
 					<columns>
 						<TableColumn fx:id="tbcDate" editable="false" prefWidth="120.0" style="-fx-alignment: CENTER-RIGHT;" text="Date" />
 						<TableColumn fx:id="tbcTag" onEditCancel="#cancelEdit" onEditCommit="#commitEdit" onEditStart="#startEdit" prefWidth="166.0" text="Tag" />

@@ -1,6 +1,5 @@
 package main.java.xyz.gnas.piz.common;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
@@ -9,10 +8,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -27,7 +24,6 @@ import javafx.scene.layout.Priority;
  * @Date Oct 9, 2018
  */
 public final class CommonUtility {
-	private static File errorFile = new File("error_log.txt");
 
 	/**
 	 * @Description Show error dialog with exception stack trace in expandable
@@ -37,7 +33,7 @@ public final class CommonUtility {
 	 * @param message A useful message for the user
 	 * @param exit    Flag to whether exit the application after showing the error
 	 */
-	public static void showError(Exception e, String message, boolean exit) {
+	public static void showError(Class callingClass, Exception e, String message, boolean exit) {
 		// Get stack trace as string
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
@@ -55,22 +51,10 @@ public final class CommonUtility {
 		alert.getDialogPane().setExpandableContent(expContent);
 		alert.showAndWait();
 
-		saveErrorTofile(new ErrorLog(message, stackTrace));
+		writeErrorLog(callingClass, "Message: " + message + " - Stack trace: " + stackTrace);
 
 		if (exit) {
 			System.exit(1);
-		}
-	}
-
-	private static void saveErrorTofile(ErrorLog errorLog) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.enable(SerializationFeature.INDENT_OUTPUT);
-			DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-			prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-			mapper.writeValue(errorFile, errorLog);
-		} catch (Exception ex) {
-
 		}
 	}
 
@@ -88,6 +72,33 @@ public final class CommonUtility {
 		expContent.setMaxWidth(Double.MAX_VALUE);
 		expContent.add(textArea, 0, 0);
 		return expContent;
+	}
+
+	public static void writeErrorLog(Class callingClass, String log) {
+		try {
+			Logger logger = LoggerFactory.getLogger(callingClass);
+			logger.error(log);
+		} catch (Exception ex) {
+			System.out.println("Error writing error log");
+		}
+	}
+
+	public static void writeInfoLog(Class callingClass, String log) {
+		try {
+			Logger logger = LoggerFactory.getLogger(callingClass);
+			logger.info(log);
+		} catch (Exception ex) {
+			System.out.println("Error writing info log");
+		}
+	}
+
+	public static void writeDebugLog(Class callingClass, String log) {
+		try {
+			Logger logger = LoggerFactory.getLogger(callingClass);
+			logger.debug(log);
+		} catch (Exception ex) {
+			System.out.println("Error writing debug log");
+		}
 	}
 
 	/**
@@ -129,45 +140,5 @@ public final class CommonUtility {
 
 	public static LocalDateTime convertCalendarToLocalDateTime(Calendar c) {
 		return LocalDateTime.ofInstant(c.getTime().toInstant(), ZoneId.systemDefault());
-	}
-
-	public static class ErrorLog {
-		private Calendar date;
-
-		private String errorMessage;
-		private String stackTrace;
-
-		public Calendar getDate() {
-			return date;
-		}
-
-		public void setDate(Calendar date) {
-			this.date = date;
-		}
-
-		public String getErrorMessage() {
-			return errorMessage;
-		}
-
-		public void setErrorMessage(String errorMessage) {
-			this.errorMessage = errorMessage;
-		}
-
-		public String getStackTrace() {
-			return stackTrace;
-		}
-
-		public void setStackTrace(String stackTrace) {
-			this.stackTrace = stackTrace;
-		}
-
-		public ErrorLog() {
-		}
-
-		public ErrorLog(String errorMessage, String stackTrace) {
-			this.date = Calendar.getInstance();
-			this.errorMessage = errorMessage;
-			this.stackTrace = stackTrace;
-		}
 	}
 }

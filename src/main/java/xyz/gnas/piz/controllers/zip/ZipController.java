@@ -208,10 +208,18 @@ public class ZipController {
 						}
 					}
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error when closing the application", true);
+					showError(e, "Error when closing the application", true);
 				}
 			}
 		});
+	}
+
+	private void showError(Exception e, String message, boolean exit) {
+		CommonUtility.showError(getClass(), e, message, exit);
+	}
+
+	private void writeInfoLog(String log) {
+		CommonUtility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -226,7 +234,7 @@ public class ZipController {
 			initialiseRunningListener();
 			initialisePausedListener();
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise zip tab", true);
+			showError(e, "Could not initialise zip tab", true);
 		}
 	}
 
@@ -237,29 +245,25 @@ public class ZipController {
 	}
 
 	private void initialiseEncryptCheckBox() {
-		chkEncrypt.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				try {
-					hboPassword.setDisable(!newValue);
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error handling checking encryption check box", false);
-				}
-			}
-		});
+		chkEncrypt.selectedProperty()
+				.addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+					try {
+						hboPassword.setDisable(!newValue);
+					} catch (Exception e) {
+						showError(e, "Error handling checking encryption check box", false);
+					}
+				});
 	}
 
 	private void initialiseObfuscateCheckBox() {
-		chkObfuscateFileName.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				try {
-					hboReference.setDisable(!newValue);
-				} catch (Exception e) {
-					CommonUtility.showError(e, "Error handling checking obfuscation check box", false);
-				}
-			}
-		});
+		chkObfuscateFileName.selectedProperty()
+				.addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
+					try {
+						hboReference.setDisable(!newValue);
+					} catch (Exception e) {
+						showError(e, "Error handling checking obfuscation check box", false);
+					}
+				});
 	}
 
 	private void initialiseAddReferenceCheckBox() {
@@ -269,7 +273,7 @@ public class ZipController {
 				try {
 					hboTag.setDisable(!newValue);
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error handling checking add reference check box", false);
+					showError(e, "Error handling checking add reference check box", false);
 				}
 			}
 		});
@@ -286,7 +290,7 @@ public class ZipController {
 				try {
 					userSetting = (UserSetting) ois.readObject();
 				} catch (ClassNotFoundException e) {
-					CommonUtility.showError(e, "Error reading user setting file", false);
+					showError(e, "Error reading user setting file", false);
 				}
 			}
 		} else {
@@ -326,7 +330,7 @@ public class ZipController {
 			try {
 				updateFolderAndFileLists();
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error filtering file/folder", false);
+				showError(e, "Error filtering file/folder", false);
 			}
 		});
 	}
@@ -378,7 +382,7 @@ public class ZipController {
 				imvMaskUnmask
 						.setImage(isMasked.get() ? ResourceManager.getMaskedIcon() : ResourceManager.getUnmaskedIcon());
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error handling masking/unmasking", false);
+				showError(e, "Error handling masking/unmasking", false);
 			}
 		});
 	}
@@ -392,7 +396,7 @@ public class ZipController {
 						txtProcessCount.setText(newValue.replaceAll("[^\\d]", ""));
 					}
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error handling process count text", false);
+					showError(e, "Error handling process count text", false);
 				}
 			}
 		});
@@ -406,7 +410,7 @@ public class ZipController {
 						correctProcessCount();
 					}
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error correcting process count text", false);
+					showError(e, "Error correcting process count text", false);
 				}
 			}
 		});
@@ -448,13 +452,14 @@ public class ZipController {
 					imvPauseResume
 							.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
 				} catch (Exception e) {
-					CommonUtility.showError(e, "Error handling pause/resume", false);
+					showError(e, "Error handling pause/resume", false);
 				}
 			}
 		});
 	}
 
 	private void stopAllProcesses() {
+		writeInfoLog("Stopping all proceses");
 		// disable all actions until all processes are stopped properly
 		hboActions.setDisable(true);
 		vboList.setDisable(true);
@@ -476,7 +481,7 @@ public class ZipController {
 			vboInputsAndActions.setDisable(true);
 			generateFileAndFolderList(label);
 		} else {
-			label.setText("There is nothing to zip");
+			label.setText(Configurations.EMPTY_LIST_MESSAGE);
 
 			// disable action buttons if there are no files or folders
 			hboActions.setDisable(true);
@@ -496,14 +501,19 @@ public class ZipController {
 
 					Platform.runLater(() -> {
 						ObservableList<Node> childrenList = vboList.getChildren();
-						childrenList.remove(label);
-						childrenList.addAll(itemList);
-						vboInputsAndActions.setDisable(false);
-						hboActions.setDisable(false);
+
+						if (itemList.size() > 0) {
+							childrenList.remove(label);
+							childrenList.addAll(itemList);
+							vboInputsAndActions.setDisable(false);
+							hboActions.setDisable(false);
+						} else {
+							label.setText(Configurations.EMPTY_LIST_MESSAGE);
+						}
 					});
 				} catch (Exception e) {
 					Platform.runLater(() -> {
-						CommonUtility.showError(e, "Error when generating file and folder list", true);
+						showError(e, "Error when generating file and folder list", true);
 					});
 				}
 
@@ -514,6 +524,12 @@ public class ZipController {
 		thread.start();
 	}
 
+	/**
+	 * @description loop through the input folder and check againsts checked combo
+	 *              box to get the list of files and/or folders
+	 * @return the list
+	 * @throws IOException
+	 */
 	private List<Node> getItemList() throws IOException {
 		List<Node> itemList = new LinkedList<Node>();
 
@@ -541,12 +557,14 @@ public class ZipController {
 		try {
 			File folder = showFolderChooser(userSetting.getInputFolder());
 
-			// keep old folder if use cancels folder selection
+			// keep old folder if user cancels folder selection
 			if (folder != null) {
+				writeInfoLog("Selected input folder " + folder.getAbsolutePath());
 				inputFolder = folder;
 				String path = inputFolder.getAbsolutePath();
 				lblInputFolder.setText(path);
 
+				// set output folder to the same as input folder if it is not yet selected
 				if (outputFolder == null) {
 					outputFolder = inputFolder;
 					lblOutputFolder.setText(path);
@@ -556,7 +574,7 @@ public class ZipController {
 				updateFolderAndFileLists();
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not select input folder", false);
+			showError(e, "Could not select input folder", false);
 		}
 	}
 
@@ -609,12 +627,13 @@ public class ZipController {
 			File folder = showFolderChooser(userSetting.getOutputFolder());
 
 			if (folder != null) {
+				writeInfoLog("Selected output folder " + folder.getAbsolutePath());
 				outputFolder = folder;
 				saveUserSetting();
 				lblOutputFolder.setText(userSetting.getOutputFolder());
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not select output folder", false);
+			showError(e, "Could not select output folder", false);
 		}
 	}
 
@@ -623,7 +642,7 @@ public class ZipController {
 		try {
 			isMasked.set(!isMasked.get());
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not mask/unmask password", false);
+			showError(e, "Could not mask/unmask password", false);
 		}
 	}
 
@@ -647,7 +666,7 @@ public class ZipController {
 				monitorAndUpdateProgress();
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not start", false);
+			showError(e, "Could not start", false);
 		}
 	}
 
@@ -679,6 +698,7 @@ public class ZipController {
 	}
 
 	private void updateAbbreviationList() {
+		writeInfoLog("Generating list of obfuscated names");
 		initialiseAbbreviationList();
 		uniquifyAbbreviationList();
 
@@ -907,6 +927,8 @@ public class ZipController {
 	 * @date Oct 11, 2018
 	 */
 	private void runProcessMasterThread() {
+		writeInfoLog("Running process master thread");
+
 		Thread masterThread = new Thread(new Task<Integer>() {
 			@Override
 			protected Integer call() {
@@ -926,7 +948,7 @@ public class ZipController {
 					}
 				} catch (Exception e) {
 					Platform.runLater(() -> {
-						CommonUtility.showError(e, "Error when running master thread", true);
+						showError(e, "Error when running master thread", true);
 					});
 				}
 
@@ -938,6 +960,8 @@ public class ZipController {
 	}
 
 	private void startNewProcess(File file) {
+		writeInfoLog("Running process thread for file/folder [" + file.getName() + "]");
+
 		// create a thread for each file
 		Thread processThread = new Thread(new Task<Integer>() {
 			@Override
@@ -946,7 +970,7 @@ public class ZipController {
 					runZipProcess(file);
 				} catch (Exception e) {
 					Platform.runLater(() -> {
-						CommonUtility.showError(e, "Error when executing a thread", true);
+						showError(e, "Error when executing a thread", true);
 					});
 				}
 
@@ -1008,6 +1032,7 @@ public class ZipController {
 		}
 
 		increaseFinishCount();
+		writeInfoLog("Finished process thread for file/folder [" + file.getName() + "]");
 	}
 
 	/**
@@ -1113,7 +1138,7 @@ public class ZipController {
 			try {
 				fileZipItemMap.get(originalFile).beginProcess(progressMonitor, zipName, isPaused);
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when showing progress on file", false);
+				showError(e, "Error when showing progress on file", false);
 			}
 		});
 	}
@@ -1127,7 +1152,7 @@ public class ZipController {
 			try {
 				zipItem.updateProgress(chkObfuscateFileName.isSelected(), isOuter);
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when updating progress", false);
+				showError(e, "Error when updating progress", false);
 			}
 		});
 	}
@@ -1156,7 +1181,7 @@ public class ZipController {
 			try {
 				zipItem.finishProcess();
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when showing done process", false);
+				showError(e, "Error when showing done process", false);
 			}
 		});
 	}
@@ -1179,7 +1204,7 @@ public class ZipController {
 					finish();
 				} catch (Exception e) {
 					Platform.runLater(() -> {
-						CommonUtility.showError(e, "Error when monitoring progress", false);
+						showError(e, "Error when monitoring progress", false);
 					});
 
 					finish();
@@ -1198,6 +1223,8 @@ public class ZipController {
 	 * @date Oct 9, 2018
 	 */
 	private void finish() {
+		writeInfoLog("Finished all processes");
+
 		Platform.runLater(() -> {
 			try {
 				isRunning.set(false);
@@ -1214,7 +1241,7 @@ public class ZipController {
 					mediaPlayer.play();
 				}
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when finishing process", false);
+				showError(e, "Error when finishing process", false);
 			}
 		});
 	}
@@ -1242,6 +1269,7 @@ public class ZipController {
 	 * @throws IOException
 	 */
 	synchronized private void addReference(File file, String outerZipPath) throws IOException {
+		writeInfoLog("Adding new reference for file/folder [" + file.getName() + "]");
 		File zipFile = new File(outerZipPath);
 
 		Platform.runLater(() -> {
@@ -1250,7 +1278,7 @@ public class ZipController {
 				appController.getReferenceList().add(0,
 						new ZipReference(userSetting.getReferenceTag(), file.getName(), zipFile.getName()));
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when adding reference", false);
+				showError(e, "Error when adding reference", false);
 			}
 		});
 	}
@@ -1259,12 +1287,15 @@ public class ZipController {
 	private void pauseOrResume(ActionEvent event) {
 		try {
 			isPaused.set(!isPaused.get());
+			boolean pause = isPaused.get();
+			String pauseResume = pause ? "Pausing" : "Resuming";
+			writeInfoLog(pauseResume + " all proceses");
 
 			for (ProgressMonitor progress : progressList) {
-				progress.setPause(isPaused.get());
+				progress.setPause(pause);
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not pause or resume all", false);
+			showError(e, "Could not pause or resume all", false);
 		}
 	}
 
@@ -1276,7 +1307,7 @@ public class ZipController {
 				isPaused.set(false);
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not stop all", false);
+			showError(e, "Could not stop all", false);
 		}
 	}
 

@@ -93,6 +93,7 @@ public class ReferenceTest {
 
 	@Test
 	void default_setting_on_load(FxRobot robot) {
+		robot.clickOn(".tab-pane > .tab-header-area > .headers-region > .tab");
 		assertThat(ReferenceTestUtility.getFromDateTimePicker(robot)).matches(
 				p -> CommonUtility.convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(firstDate) == 0,
 				"From date is minimum date");

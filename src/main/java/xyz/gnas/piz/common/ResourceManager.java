@@ -14,10 +14,9 @@ import main.java.xyz.gnas.piz.Main;
  * @Date Oct 10, 2018
  */
 public class ResourceManager {
-	private static final String RESOURCE_FOLDER = "main/resources/";
-	private static final String CSS_FOLDER = RESOURCE_FOLDER + "css/";
-	private static final String ICON_FOLDER = RESOURCE_FOLDER + "icons/";
-	private static final String FXML_FOLDER = RESOURCE_FOLDER + "fxml/";
+	private static final String CSS_FOLDER = "css/";
+	private static final String ICON_FOLDER = "icons/";
+	private static final String FXML_FOLDER = "fxml/";
 	private static final String ZIP_FXML_FOLDER = FXML_FOLDER + "zip/";
 
 	private static Image appIcon;
@@ -77,8 +76,7 @@ public class ResourceManager {
 
 	public static Media getNotificationSound() {
 		if (notificationSound == null) {
-			notificationSound = new Media(
-					Main.class.getClassLoader().getResource(RESOURCE_FOLDER + "notification.wav").toExternalForm());
+			notificationSound = new Media(Main.class.getClassLoader().getResource("notification.wav").toExternalForm());
 		}
 
 		return notificationSound;

@@ -54,7 +54,7 @@ public class TestCommonUtility {
 	}
 
 	public static Button getButtonByID(FxRobot robot, String id) {
-		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(Button.class);
+		return getNodeQueryByID(robot, id).queryAs(Button.class);
 	}
 
 	public static Button getButtonByText(FxRobot robot, String text) {
@@ -63,14 +63,14 @@ public class TestCommonUtility {
 	}
 
 	public static DateTimePicker getDateTimePicker(FxRobot robot, String id) {
-		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(DateTimePicker.class);
+		return getNodeQueryByID(robot, id).queryAs(DateTimePicker.class);
 	}
 
 	public static ComboBox getComBoBox(FxRobot robot, String id) {
-		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(ComboBox.class);
+		return getNodeQueryByID(robot, id).queryAs(ComboBox.class);
 	}
 
 	public static TableView getTableView(FxRobot robot, String id) {
-		return robot.lookup(a -> a.getId() != null && a.getId().equalsIgnoreCase(id)).queryAs(TableView.class);
+		return getNodeQueryByID(robot, id).queryAs(TableView.class);
 	}
 }

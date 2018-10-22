@@ -21,8 +21,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
-import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import main.java.xyz.gnas.piz.controllers.reference.ReferenceController;
 import main.java.xyz.gnas.piz.controllers.zip.ZipController;
@@ -86,7 +86,7 @@ public class AppController {
 		try {
 			initialiseReferenceList();
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise app", true);
+			CommonUtility.showError(getClass(), e, "Could not initialise app", true);
 		}
 	}
 
@@ -105,7 +105,7 @@ public class AppController {
 			try {
 				saveReferences();
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when saving references to file", false);
+				CommonUtility.showError(getClass(), e, "Error when saving references to file", false);
 			}
 		});
 	}
@@ -118,6 +118,7 @@ public class AppController {
 	 * @throws IOException
 	 */
 	public void saveReferences() throws JsonGenerationException, JsonMappingException, IOException {
+		CommonUtility.writeInfoLog(getClass(), "Saving references to file");
 		File fileReference = new File(Configurations.REFERENCE_FILE);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);

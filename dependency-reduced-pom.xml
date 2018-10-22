@@ -3,14 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>xyz.gnas.piz</groupId>
   <artifactId>piz</artifactId>
-  <version>1.4</version>
+  <version>1.4.1</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>src</directory>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

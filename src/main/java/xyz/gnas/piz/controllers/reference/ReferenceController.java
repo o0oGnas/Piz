@@ -7,7 +7,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -114,7 +113,7 @@ public class ReferenceController {
 				tbvTable.setItems(appController.getReferenceList());
 				setReferenceCount();
 			} catch (Exception e) {
-				CommonUtility.showError(e, "Error when handling update to reference list", false);
+				showError(e, "Error when handling update to reference list", false);
 			}
 		});
 	}
@@ -145,19 +144,20 @@ public class ReferenceController {
 	private void initialiseTable() {
 		tbvTable.setItems(appController.getReferenceList());
 
-		tbvTable.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<ZipReference>() {
-			@Override
-			public void onChanged(Change<? extends ZipReference> c) {
-				// disable delete button if there is no selection
-				btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
-			}
-		});
-
-		tbvTable.setOnSort((EventHandler<SortEvent<TableView<ZipReference>>>) handler -> {
-			isManualUpdate = true;
+		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ZipReference>) listener -> {
+			// disable delete button if there is no selection
+			btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
 		});
 
 		setReferenceCount();
+	}
+
+	private void showError(Exception e, String message, boolean exit) {
+		CommonUtility.showError(getClass(), e, message, exit);
+	}
+
+	private void writeInfoLog(String log) {
+		CommonUtility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -172,7 +172,7 @@ public class ReferenceController {
 			initialiseStringColumn(tbcOriginal, "original");
 			initialiseStringColumn(tbcZip, "zip");
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not initialise reference tab", true);
+			showError(e, "Could not initialise reference tab", true);
 		}
 	}
 
@@ -203,7 +203,7 @@ public class ReferenceController {
 								setText(dateFormat.format(item.getTime()));
 							}
 						} catch (Exception e) {
-							CommonUtility.showError(e, "Error when displaying date column", false);
+							showError(e, "Error when displaying date column", false);
 						}
 					}
 				};
@@ -232,13 +232,14 @@ public class ReferenceController {
 				filter(null);
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not handle key event for filters", false);
+			showError(e, "Could not handle key event for filters", false);
 		}
 	}
 
 	@FXML
 	private void filter(ActionEvent event) {
 		try {
+			writeInfoLog("Filtering references");
 			Calendar cFrom = CommonUtility.convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
 			Calendar cTo = CommonUtility.convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
 			ObservableList<ZipReference> filteredList = FXCollections.observableArrayList();
@@ -258,7 +259,7 @@ public class ReferenceController {
 			tbvTable.setItems(filteredList);
 			setReferenceCount();
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not filter", false);
+			showError(e, "Could not filter", false);
 		}
 	}
 
@@ -288,29 +289,42 @@ public class ReferenceController {
 	@FXML
 	private void scrollToTop(ActionEvent event) {
 		try {
+			writeInfoLog("Scrolling to top");
 			ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
 			verticalBar.setValue(verticalBar.getMin());
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not scroll to top", false);
+			showError(e, "Could not scroll to top", false);
 		}
 	}
 
 	@FXML
 	private void scrollToBottom(ActionEvent event) {
 		try {
+			writeInfoLog("Scrolling to bottom");
 			ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
 			verticalBar.setValue(verticalBar.getMax());
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not scroll to bottom", false);
+			showError(e, "Could not scroll to bottom", false);
+		}
+	}
+
+	@FXML
+	private void sortTable(SortEvent<TableView<ZipReference>> event) {
+		try {
+			writeInfoLog("Sorting table");
+			isManualUpdate = true;
+		} catch (Exception e) {
+			showError(e, "Could not handle sorting table", false);
 		}
 	}
 
 	@FXML
 	private void startEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
 		try {
+			writeInfoLog("Beginning edit on column " + ((TableColumn<ZipReference, String>) event.getSource()).getId());
 			isEditing = true;
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Error when starting edit", false);
+			showError(e, "Error when starting edit", false);
 		}
 	}
 
@@ -318,6 +332,7 @@ public class ReferenceController {
 	private void commitEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
 		try {
 			TableColumn<ZipReference, String> source = (TableColumn<ZipReference, String>) event.getSource();
+			writeInfoLog("Commiting edit on column " + source.getId());
 			ZipReference reference = appController.getReferenceList().get(event.getTablePosition().getRow());
 			String value = event.getNewValue();
 
@@ -331,16 +346,17 @@ public class ReferenceController {
 
 			appController.saveReferences();
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Error when committing edit", false);
+			showError(e, "Error when committing edit", false);
 		}
 	}
 
 	@FXML
 	private void cancelEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
 		try {
+			writeInfoLog("Canceling edit on column " + ((TableColumn<ZipReference, String>) event.getSource()).getId());
 			isEditing = false;
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Error when cenceling edit", false);
+			showError(e, "Error when cenceling edit", false);
 		}
 	}
 
@@ -357,8 +373,9 @@ public class ReferenceController {
 			tbvTable.requestFocus();
 			tbvTable.getSelectionModel().clearAndSelect(0);
 			tbvTable.getFocusModel().focus(0);
+			writeInfoLog("Added new reference");
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not add reference", false);
+			showError(e, "Could not add reference", false);
 		}
 	}
 
@@ -368,9 +385,10 @@ public class ReferenceController {
 			if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
 				isManualUpdate = true;
 				appController.getReferenceList().removeAll(tbvTable.getSelectionModel().getSelectedItems());
+				writeInfoLog("Deleted reference(s)");
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not delete reference", false);
+			showError(e, "Could not delete reference", false);
 		}
 	}
 
@@ -379,7 +397,7 @@ public class ReferenceController {
 		try {
 			appController.saveReferences();
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not save references", false);
+			showError(e, "Could not save references", false);
 		}
 	}
 
@@ -391,7 +409,7 @@ public class ReferenceController {
 				delete(null);
 			}
 		} catch (Exception e) {
-			CommonUtility.showError(e, "Could not handle key event for table", false);
+			showError(e, "Could not handle key event for table", false);
 		}
 	}
 }
