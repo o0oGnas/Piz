@@ -1,7 +1,8 @@
 *.bin
+*.txt
+*.log
 .classpath
 .project
-*.txt
 .settings
 bin
 target
