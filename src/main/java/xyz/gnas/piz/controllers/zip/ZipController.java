@@ -145,9 +145,14 @@ public class ZipController {
 	private UserSetting userSetting;
 
 	/**
+	 * Comparator object to handle logic of sorting of files and folders
+	 */
+	private Comparator<File> fileComparator;
+
+	/**
 	 * Map a file with its ZipItem object
 	 */
-	private Map<File, ZipItemController> fileZipItemMap = new HashMap<File, ZipItemController>();
+	private Map<File, ZipItemController> fileZipItemMap;
 
 	/**
 	 * Keep track of the different abbreviations and files that will be abbreviated
@@ -225,6 +230,7 @@ public class ZipController {
 	@FXML
 	private void initialize() {
 		try {
+			initialiseFileZipItemMap();
 			initialiseCheckBoxes();
 			initialiseUserSetting();
 			initialiseFileFolderCheckComboBox();
@@ -236,6 +242,21 @@ public class ZipController {
 		} catch (Exception e) {
 			showError(e, "Could not initialise zip tab", true);
 		}
+	}
+
+	private void initialiseFileZipItemMap() {
+		fileComparator = new Comparator<File>() {
+			@Override
+			public int compare(File o1, File o2) {
+				if (o1.isDirectory() == o2.isDirectory()) {
+					return o1.getName().compareTo(o2.getName());
+				} else {
+					return o1.isDirectory() ? -1 : 1;
+				}
+			}
+		};
+
+		fileZipItemMap = new TreeMap<File, ZipItemController>(fileComparator);
 	}
 
 	private void initialiseCheckBoxes() {
@@ -532,8 +553,10 @@ public class ZipController {
 	 */
 	private List<Node> getItemList() throws IOException {
 		List<Node> itemList = new LinkedList<Node>();
+		List<File> fileList = Arrays.asList(inputFolder.listFiles());
+		fileList.sort(fileComparator);
 
-		for (File file : inputFolder.listFiles()) {
+		for (File file : fileList) {
 			boolean isDirectory = file.isDirectory();
 			ObservableList<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
 			boolean checkFolder = isDirectory && fileFolderSelection.contains(Configurations.FOLDERS);

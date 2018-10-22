@@ -81,12 +81,20 @@ public class AppController {
 		return loader.getController();
 	}
 
+	private void showError(Exception e, String message, boolean exit) {
+		CommonUtility.showError(getClass(), e, message, exit);
+	}
+
+	private void writeInfoLog(String log) {
+		CommonUtility.writeInfoLog(getClass(), log);
+	}
+
 	@FXML
 	private void initialize() {
 		try {
 			initialiseReferenceList();
 		} catch (Exception e) {
-			CommonUtility.showError(getClass(), e, "Could not initialise app", true);
+			showError(e, "Could not initialise app", true);
 		}
 	}
 
@@ -118,7 +126,7 @@ public class AppController {
 	 * @throws IOException
 	 */
 	public void saveReferences() throws JsonGenerationException, JsonMappingException, IOException {
-		CommonUtility.writeInfoLog(getClass(), "Saving references to file");
+		writeInfoLog("Saving references to file");
 		File fileReference = new File(Configurations.REFERENCE_FILE);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
