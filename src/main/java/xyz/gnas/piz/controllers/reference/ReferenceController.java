@@ -3,6 +3,7 @@ package main.java.xyz.gnas.piz.controllers.reference;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -97,7 +98,7 @@ public class ReferenceController {
 		this.appController = appController;
 		addListenerToList();
 		initialiseDateTimePickers();
-		initialiseTable();
+		tbvTable.setItems(appController.getReferenceList());
 	}
 
 	private void addListenerToList() {
@@ -110,8 +111,6 @@ public class ReferenceController {
 
 				isManualUpdate = false;
 				tbvTable.setItems(appController.getReferenceList());
-				tbvTable.refresh();
-				setReferenceCount();
 			} catch (Exception e) {
 				showError(e, "Error when handling update to reference list", false);
 			}
@@ -137,21 +136,6 @@ public class ReferenceController {
 
 	}
 
-	private void setReferenceCount() {
-		lblReferenceCount.setText(tbvTable.getItems().size() + " references");
-	}
-
-	private void initialiseTable() {
-		tbvTable.setItems(appController.getReferenceList());
-
-		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ZipReference>) listener -> {
-			// disable delete button if there is no selection
-			btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
-		});
-
-		setReferenceCount();
-	}
-
 	private void showError(Exception e, String message, boolean exit) {
 		CommonUtility.showError(getClass(), e, message, exit);
 	}
@@ -166,11 +150,7 @@ public class ReferenceController {
 			initialiseComboBox(cboOriginal);
 			initialiseComboBox(cboZip);
 			initialiseComboBox(cboTag);
-			tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-			initialiseDateColumn();
-			initialiseStringColumn(tbcTag, "tag");
-			initialiseStringColumn(tbcOriginal, "original");
-			initialiseStringColumn(tbcZip, "zip");
+			initialiseTable();
 		} catch (Exception e) {
 			showError(e, "Could not initialise reference tab", true);
 		}
@@ -186,6 +166,26 @@ public class ReferenceController {
 		cbb.getSelectionModel().select(Configurations.CONTAINS);
 	}
 
+	private void initialiseTable() {
+		tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+		tbvTable.itemsProperty().addListener((ObservableValue<? extends ObservableList<ZipReference>> arg0,
+				ObservableList<ZipReference> arg1, ObservableList<ZipReference> arg2) -> {
+			tbvTable.refresh();
+			lblReferenceCount.setText(tbvTable.getItems().size() + " references");
+		});
+
+		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ZipReference>) listener -> {
+			// disable delete button if there is no selection
+			btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
+		});
+
+		initialiseDateColumn();
+		initialiseStringColumn(tbcTag, "tag");
+		initialiseStringColumn(tbcOriginal, "original");
+		initialiseStringColumn(tbcZip, "zip");
+	}
+
 	private void initialiseDateColumn() {
 		tbcDate.setCellFactory((TableColumn<ZipReference, Calendar> param) -> {
 			return new TableCell<ZipReference, Calendar>() {
@@ -194,7 +194,7 @@ public class ReferenceController {
 					try {
 						super.updateItem(item, empty);
 
-						if (empty) {
+						if (empty || item == null) {
 							setGraphic(null);
 						} else {
 							SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
@@ -254,7 +254,6 @@ public class ReferenceController {
 			}
 
 			tbvTable.setItems(filteredList);
-			setReferenceCount();
 		} catch (Exception e) {
 			showError(e, "Could not filter", false);
 		}

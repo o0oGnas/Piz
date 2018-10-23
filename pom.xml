@@ -45,7 +45,7 @@
 				</configuration>
 			</plugin>
 
-		    <!-- required to run Java FX -->
+			<!-- required to run Java FX -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -116,6 +116,13 @@
 
 					<!-- run test in a designated folder -->
 					<workingDirectory>${project.build.directory}/test-environment</workingDirectory>
+
+					<!-- run test in headless mode -->
+					<systemPropertyVariables>
+						<glass.platform>Monocle</glass.platform>
+						<monocle.platform>Headless</monocle.platform>
+						<prism.order>d3d</prism.order>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -164,12 +171,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.8.1</version>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
@@ -198,6 +199,12 @@
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-junit5</artifactId>
 			<version>4.0.15-alpha</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testfx</groupId>
+			<artifactId>openjfx-monocle</artifactId>
+			<version>jdk-11+26</version>
 		</dependency>
 	</dependencies>
 </project>

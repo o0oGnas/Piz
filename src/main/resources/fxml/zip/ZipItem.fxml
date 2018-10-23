@@ -8,68 +8,83 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
-<AnchorPane fx:id="acpRoot" style="-fx-border-color: lightgray;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.xyz.gnas.piz.controllers.zip.ZipItemController">
-   <children>
-      <HBox alignment="CENTER_LEFT" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-         <children>
-            <Label fx:id="lblOriginal" text="Original file name">
-               <HBox.margin>
-                  <Insets />
-               </HBox.margin>
-            </Label>
-            <HBox fx:id="hboResult" alignment="CENTER_LEFT" visible="false">
-               <children>
-                  <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.62" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../icons/arrow_right.png" />
-                     </image>
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </ImageView>
-                  <Label fx:id="lblZip" textFill="#ff7400">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </HBox>
-            <HBox fx:id="hboProcess" alignment="CENTER_LEFT" visible="false">
-               <children>
-                  <Label fx:id="lblStatus" prefWidth="80.0" text="Working (99%)" textFill="#005500" />
-                  <Button fx:id="btnPauseResume" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm" text="Pause">
-                     <graphic>
-                        <ImageView fx:id="imvPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../icons/pause.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Button>
-                  <Button fx:id="btnStop" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" styleClass="sm" text="Stop">
-                     <graphic>
-                        <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../icons/stop.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Button>
-               </children>
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </HBox>
-         </children>
-      </HBox>
-   </children>
+<AnchorPane fx:id="acpRoot"
+	style="-fx-border-color: lightgray;"
+	xmlns="http://javafx.com/javafx/10.0.1"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="main.java.xyz.gnas.piz.controllers.zip.ZipItemController">
+	<children>
+		<HBox alignment="CENTER_LEFT" AnchorPane.bottomAnchor="5.0"
+			AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0"
+			AnchorPane.topAnchor="5.0">
+			<children>
+				<Label fx:id="lblOriginal" text="Original file name">
+					<HBox.margin>
+						<Insets />
+					</HBox.margin>
+				</Label>
+				<HBox fx:id="hboResult" alignment="CENTER_LEFT" visible="false">
+					<children>
+						<ImageView fitHeight="15.0" fitWidth="15.0"
+							opacity="0.62" pickOnBounds="true" preserveRatio="true">
+							<image>
+								<Image url="@../../icons/arrow_right.png" />
+							</image>
+							<HBox.margin>
+								<Insets />
+							</HBox.margin>
+						</ImageView>
+						<Label fx:id="lblZip" textFill="#ff7400">
+							<HBox.margin>
+								<Insets left="10.0" />
+							</HBox.margin>
+						</Label>
+					</children>
+					<HBox.margin>
+						<Insets left="10.0" />
+					</HBox.margin>
+				</HBox>
+				<HBox fx:id="hboProcess" alignment="CENTER_LEFT"
+					visible="false">
+					<children>
+						<Label fx:id="lblStatus" prefWidth="80.0"
+							text="Working (99%)" textFill="#005500" />
+						<Button fx:id="btnPauseResume" alignment="TOP_LEFT"
+							mnemonicParsing="false" onAction="#pauseOrResume"
+							prefWidth="100.0" styleClass="sm" text="Pause">
+							<graphic>
+								<ImageView fx:id="imvPauseResume" fitHeight="16.0"
+									fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../../icons/pause.png" />
+									</image>
+								</ImageView>
+							</graphic>
+							<HBox.margin>
+								<Insets left="10.0" />
+							</HBox.margin>
+						</Button>
+						<Button fx:id="btnStop" alignment="TOP_LEFT"
+							mnemonicParsing="false" onAction="#stop" prefWidth="100.0"
+							styleClass="sm" text="Stop">
+							<graphic>
+								<ImageView fitHeight="16.0" fitWidth="16.0"
+									pickOnBounds="true" preserveRatio="true">
+									<image>
+										<Image url="@../../icons/stop.png" />
+									</image>
+								</ImageView>
+							</graphic>
+							<HBox.margin>
+								<Insets left="10.0" />
+							</HBox.margin>
+						</Button>
+					</children>
+					<HBox.margin>
+						<Insets left="10.0" />
+					</HBox.margin>
+				</HBox>
+			</children>
+		</HBox>
+	</children>
 </AnchorPane>

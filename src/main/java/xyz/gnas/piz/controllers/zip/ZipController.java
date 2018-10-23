@@ -20,7 +20,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.IndexedCheckModel;
 
@@ -875,14 +874,13 @@ public class ZipController {
 					StringBuilder sb = new StringBuilder();
 
 					for (String word : split) {
-						// only separate characters of a word if it's fully alphabetical
-						if (StringUtils.isAlpha(word)) {
-							// separate each consecutive character by a space
-							for (int i = 0; i <= characterCount && i < word.length(); ++i) {
-								sb.append(" " + word.charAt(i));
+						// separate each consecutive character by a space
+						for (int i = 0; i <= characterCount && i < word.length(); ++i) {
+							if (i > 0) {
+								sb.append(" ");
 							}
-						} else {
-							sb.append(word);
+
+							sb.append(word.charAt(i));
 						}
 					}
 
@@ -928,12 +926,7 @@ public class ZipController {
 
 		// get the first character of each word in upper case and append to result
 		for (String word : split) {
-			// only abbreviate if the word contains only letters
-			if (StringUtils.isAlpha(word)) {
-				sb.append(word.substring(0, 1));
-			} else {
-				sb.append(word);
-			}
+			sb.append(word.substring(0, 1));
 		}
 
 		return sb.toString().toUpperCase();
@@ -1255,7 +1248,7 @@ public class ZipController {
 				hboActions.setDisable(false);
 				btnStart.setDisable(false);
 				enableDisablePauseStop(true);
-				updateFolderAndFileLists(); 
+				updateFolderAndFileLists();
 
 				// play notification sound if process is not canceled prematurely
 				if (!isStopped) {

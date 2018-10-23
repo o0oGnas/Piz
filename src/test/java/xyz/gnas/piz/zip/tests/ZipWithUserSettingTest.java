@@ -1,4 +1,4 @@
-package test.java.xyz.gnas.piz.zip;
+package test.java.xyz.gnas.piz.zip.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,14 +19,11 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import main.java.xyz.gnas.piz.common.Configurations;
-import main.java.xyz.gnas.piz.common.ResourceManager;
-import main.java.xyz.gnas.piz.controllers.AppController;
 import main.java.xyz.gnas.piz.models.UserSetting;
+import test.java.xyz.gnas.piz.TestUtility;
+import test.java.xyz.gnas.piz.zip.ZipTestUtility;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(ApplicationExtension.class)
@@ -42,14 +39,7 @@ public class ZipWithUserSettingTest {
 
 	@Start
 	void onStart(Stage stage) throws IOException {
-		FXMLLoader loader = new FXMLLoader(ResourceManager.getAppFXML());
-		Scene scene = new Scene((Parent) loader.load());
-		AppController controlller = loader.getController();
-		controlller.setStage(stage);
-		controlller.initialiseTabs();
-		scene.getStylesheets().addAll(ResourceManager.getCSSList());
-		stage.setScene(scene);
-		stage.show();
+		TestUtility.initialiseStage(stage);
 	}
 
 	@BeforeAll
@@ -73,14 +63,22 @@ public class ZipWithUserSettingTest {
 	}
 
 	@Test
-	void default_setting_on_load(FxRobot robot) {
+	void file_folder_check_combobox(FxRobot robot) {
 		assertThat(ZipTestUtility.getFileFolderCheckComboBox(robot)).matches(
 				p -> p.getCheckModel().getCheckedItems()
 						.containsAll(new LinkedList<String>(Arrays.asList(setting.getFileFolder()))),
 				"Selected items on file folder check combo box is correct");
+	}
+
+	@Test
+	void process_count(FxRobot robot) {
 		assertThat(ZipTestUtility.getProcessCountTextField(robot)).matches(
 				p -> p.getText().equalsIgnoreCase(setting.getProcessCount() + ""),
 				"Process count is " + setting.getProcessCount());
+	}
+
+	@Test
+	void checkboxes(FxRobot robot) {
 		assertThat(ZipTestUtility.getEncryptCheckBox(robot)).matches(p -> p.isSelected() == setting.isEncrypt(),
 				"Encryption is " + setting.isEncrypt());
 		assertThat(ZipTestUtility.getObfuscateCheckBox(robot)).matches(
@@ -88,10 +86,18 @@ public class ZipWithUserSettingTest {
 				"Obfuscation is " + setting.isObfuscateFileName());
 		assertThat(ZipTestUtility.getAddReferenceCheckBox(robot)).matches(
 				p -> p.isSelected() == setting.isAddReference(), "Add reference is " + setting.isAddReference());
+	}
+
+	@Test
+	void password(FxRobot robot) {
 		assertThat(ZipTestUtility.getPasswordField(robot)).matches(
 				p -> p.getText().equalsIgnoreCase(setting.getPassword()), "password is " + setting.getPassword());
 		assertThat(ZipTestUtility.getPasswordTextField(robot)).matches(
 				p -> p.getText().equalsIgnoreCase(setting.getPassword()), "password is " + setting.getPassword());
+	}
+
+	@Test
+	void referenceTag(FxRobot robot) {
 		assertThat(ZipTestUtility.getReferenceTagTextField(robot)).matches(
 				p -> p.getText().equalsIgnoreCase(setting.getReferenceTag()),
 				"reference tag is " + setting.getReferenceTag());

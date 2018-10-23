@@ -9,7 +9,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import test.java.xyz.gnas.piz.TestCommonUtility;
+import test.java.xyz.gnas.piz.TestUtility;
 
 public class ZipTestUtility {
 	private static CheckComboBox<String> ccbFileFolder;
@@ -34,7 +34,7 @@ public class ZipTestUtility {
 
 	public static CheckComboBox<String> getFileFolderCheckComboBox(FxRobot robot) {
 		if (ccbFileFolder == null) {
-			ccbFileFolder = TestCommonUtility.getCheckComboBox(robot, "ccbFileFolder");
+			ccbFileFolder = TestUtility.getCheckComboBox(robot, "ccbFileFolder");
 		}
 
 		return ccbFileFolder;
@@ -42,7 +42,7 @@ public class ZipTestUtility {
 
 	public static HBox getPasswordHBox(FxRobot robot) {
 		if (hboPassword == null) {
-			hboPassword = TestCommonUtility.getHBox(robot, "hboPassword");
+			hboPassword = TestUtility.getHBox(robot, "hboPassword");
 		}
 
 		return hboPassword;
@@ -50,7 +50,7 @@ public class ZipTestUtility {
 
 	public static HBox getReferenceHBox(FxRobot robot) {
 		if (hboReference == null) {
-			hboReference = TestCommonUtility.getHBox(robot, "hboReference");
+			hboReference = TestUtility.getHBox(robot, "hboReference");
 		}
 
 		return hboReference;
@@ -58,7 +58,7 @@ public class ZipTestUtility {
 
 	public static HBox getTagHBox(FxRobot robot) {
 		if (hboTag == null) {
-			hboTag = TestCommonUtility.getHBox(robot, "hboTag");
+			hboTag = TestUtility.getHBox(robot, "hboTag");
 		}
 
 		return hboTag;
@@ -66,7 +66,7 @@ public class ZipTestUtility {
 
 	public static CheckBox getEncryptCheckBox(FxRobot robot) {
 		if (chkEncrypt == null) {
-			chkEncrypt = TestCommonUtility.getCheckBox(robot, "chkEncrypt");
+			chkEncrypt = TestUtility.getCheckBox(robot, "chkEncrypt");
 		}
 
 		return chkEncrypt;
@@ -74,7 +74,7 @@ public class ZipTestUtility {
 
 	public static CheckBox getObfuscateCheckBox(FxRobot robot) {
 		if (chkObfuscateFileName == null) {
-			chkObfuscateFileName = TestCommonUtility.getCheckBox(robot, "chkObfuscateFileName");
+			chkObfuscateFileName = TestUtility.getCheckBox(robot, "chkObfuscateFileName");
 		}
 
 		return chkObfuscateFileName;
@@ -82,7 +82,7 @@ public class ZipTestUtility {
 
 	public static CheckBox getAddReferenceCheckBox(FxRobot robot) {
 		if (chkAddReferences == null) {
-			chkAddReferences = TestCommonUtility.getCheckBox(robot, "chkAddReferences");
+			chkAddReferences = TestUtility.getCheckBox(robot, "chkAddReferences");
 		}
 
 		return chkAddReferences;
@@ -90,7 +90,7 @@ public class ZipTestUtility {
 
 	public static PasswordField getPasswordField(FxRobot robot) {
 		if (pwfPassword == null) {
-			pwfPassword = TestCommonUtility.getPasswordField(robot, "pwfPassword");
+			pwfPassword = TestUtility.getPasswordField(robot, "pwfPassword");
 		}
 
 		return pwfPassword;
@@ -98,7 +98,7 @@ public class ZipTestUtility {
 
 	public static TextField getProcessCountTextField(FxRobot robot) {
 		if (txtProcessCount == null) {
-			txtProcessCount = TestCommonUtility.getTextField(robot, "txtProcessCount");
+			txtProcessCount = TestUtility.getTextField(robot, "txtProcessCount");
 		}
 
 		return txtProcessCount;
@@ -106,7 +106,7 @@ public class ZipTestUtility {
 
 	public static TextField getPasswordTextField(FxRobot robot) {
 		if (txtPassword == null) {
-			txtPassword = TestCommonUtility.getTextField(robot, "txtPassword");
+			txtPassword = TestUtility.getTextField(robot, "txtPassword");
 		}
 
 		return txtPassword;
@@ -114,7 +114,7 @@ public class ZipTestUtility {
 
 	public static TextField getReferenceTagTextField(FxRobot robot) {
 		if (txtReferenceTag == null) {
-			txtReferenceTag = TestCommonUtility.getTextField(robot, "txtReferenceTag");
+			txtReferenceTag = TestUtility.getTextField(robot, "txtReferenceTag");
 		}
 
 		return txtReferenceTag;
@@ -122,7 +122,7 @@ public class ZipTestUtility {
 
 	public static ImageView getMaskUnmaskIcon(FxRobot robot) {
 		if (imvMaskUnmask == null) {
-			imvMaskUnmask = TestCommonUtility.getImageView(robot, "imvMaskUnmask");
+			imvMaskUnmask = TestUtility.getImageView(robot, "imvMaskUnmask");
 		}
 
 		return imvMaskUnmask;
@@ -130,7 +130,7 @@ public class ZipTestUtility {
 
 	public static Button getStartButton(FxRobot robot) {
 		if (btnStart == null) {
-			btnStart = TestCommonUtility.getButtonByID(robot, "btnStart");
+			btnStart = TestUtility.getButtonByID(robot, "btnStart");
 		}
 
 		return btnStart;

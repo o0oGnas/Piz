@@ -4,9 +4,13 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="500.0" prefWidth="900.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.xyz.gnas.piz.controllers.AppController">
+<AnchorPane prefHeight="500.0" prefWidth="900.0"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="main.java.xyz.gnas.piz.controllers.AppController">
 	<children>
-		<TabPane fx:id="tpTabs" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+		<TabPane fx:id="tpTabs" tabClosingPolicy="UNAVAILABLE"
+			AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<tabs>
 				<Tab fx:id="tabZip" text="Zip files/folders">
 					<content>

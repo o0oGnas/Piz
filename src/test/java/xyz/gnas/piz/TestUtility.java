@@ -1,9 +1,15 @@
 package test.java.xyz.gnas.piz;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.controlsfx.control.CheckComboBox;
 import org.testfx.api.FxRobot;
 import org.testfx.service.query.NodeQuery;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -13,6 +19,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import main.java.xyz.gnas.piz.common.ResourceManager;
+import main.java.xyz.gnas.piz.controllers.AppController;
 import tornadofx.control.DateTimePicker;
 
 /**
@@ -20,7 +29,18 @@ import tornadofx.control.DateTimePicker;
  * @date Oct 16, 2018
  * @description handles all UI control searching
  */
-public class TestCommonUtility {
+public class TestUtility {
+	public static void initialiseStage(Stage stage) throws FileNotFoundException, IOException {
+		FXMLLoader loader = new FXMLLoader(ResourceManager.getAppFXML());
+		Scene scene = new Scene((Parent) loader.load());
+		AppController controlller = loader.getController();
+		controlller.setStage(stage);
+		controlller.initialiseTabs();
+		scene.getStylesheets().addAll(ResourceManager.getCSSList());
+		stage.setScene(scene);
+		stage.show();
+	}
+
 	public static Label getLabel(FxRobot robot, String id) {
 		return getNodeQueryByID(robot, id).queryAs(Label.class);
 	}

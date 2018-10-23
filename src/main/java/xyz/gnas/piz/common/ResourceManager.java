@@ -8,7 +8,7 @@ import javax.sound.sampled.AudioInputStream;
 
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
-import main.java.xyz.gnas.piz.Main;
+import main.java.xyz.gnas.piz.FXMain;
 
 /**
  * @author Gnas
@@ -38,7 +38,7 @@ public class ResourceManager {
 
 	public static Image getAppIcon() {
 		if (appIcon == null) {
-			appIcon = new Image(Main.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "app.png"));
+			appIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "app.png"));
 		}
 
 		return appIcon;
@@ -46,7 +46,7 @@ public class ResourceManager {
 
 	public static Image getMaskedIcon() {
 		if (maskedIcon == null) {
-			maskedIcon = new Image(Main.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "masked.png"));
+			maskedIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "masked.png"));
 		}
 
 		return maskedIcon;
@@ -54,7 +54,7 @@ public class ResourceManager {
 
 	public static Image getUnmaskedIcon() {
 		if (unmaskedIcon == null) {
-			unmaskedIcon = new Image(Main.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "unmasked.png"));
+			unmaskedIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "unmasked.png"));
 		}
 
 		return unmaskedIcon;
@@ -62,7 +62,7 @@ public class ResourceManager {
 
 	public static Image getPauseIcon() {
 		if (pauseIcon == null) {
-			pauseIcon = new Image(Main.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "pause.png"));
+			pauseIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "pause.png"));
 		}
 
 		return pauseIcon;
@@ -70,7 +70,7 @@ public class ResourceManager {
 
 	public static Image getResumeIcon() {
 		if (resumeIcon == null) {
-			resumeIcon = new Image(Main.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "resume.png"));
+			resumeIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "resume.png"));
 		}
 
 		return resumeIcon;
@@ -78,7 +78,7 @@ public class ResourceManager {
 
 	public static Media getNotificationSound() {
 		if (notificationSound == null) {
-			notificationSound = new Media(Main.class.getClassLoader().getResource("notification.wav").toExternalForm());
+			notificationSound = new Media(FXMain.class.getClassLoader().getResource("notification.wav").toExternalForm());
 		}
 
 		return notificationSound;
@@ -87,8 +87,8 @@ public class ResourceManager {
 	public static List<String> getCSSList() {
 		if (cssList == null) {
 			cssList = new LinkedList<String>();
-			cssList.add(Main.class.getClassLoader().getResource(CSS_FOLDER + "app.css").toExternalForm());
-			cssList.add(Main.class.getClassLoader().getResource(CSS_FOLDER + "theme.css").toExternalForm());
+			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "app.css").toExternalForm());
+			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "theme.css").toExternalForm());
 		}
 
 		return cssList;
@@ -96,7 +96,7 @@ public class ResourceManager {
 
 	public static URL getAppFXML() {
 		if (appFXML == null) {
-			appFXML = Main.class.getClassLoader().getResource(FXML_FOLDER + "App.fxml");
+			appFXML = FXMain.class.getClassLoader().getResource(FXML_FOLDER + "App.fxml");
 		}
 
 		return appFXML;
@@ -104,7 +104,7 @@ public class ResourceManager {
 
 	public static URL getZipFXML() {
 		if (zipFXML == null) {
-			zipFXML = Main.class.getClassLoader().getResource(ZIP_FXML_FOLDER + "Zip.fxml");
+			zipFXML = FXMain.class.getClassLoader().getResource(ZIP_FXML_FOLDER + "Zip.fxml");
 		}
 
 		return zipFXML;
@@ -112,7 +112,7 @@ public class ResourceManager {
 
 	public static URL getZipItemFXML() {
 		if (zipItemFXML == null) {
-			zipItemFXML = Main.class.getClassLoader().getResource(ZIP_FXML_FOLDER + "ZipItem.fxml");
+			zipItemFXML = FXMain.class.getClassLoader().getResource(ZIP_FXML_FOLDER + "ZipItem.fxml");
 		}
 
 		return zipItemFXML;
@@ -120,7 +120,7 @@ public class ResourceManager {
 
 	public static URL getReferenceFXML() {
 		if (referenceFXML == null) {
-			referenceFXML = Main.class.getClassLoader().getResource(FXML_FOLDER + "reference/Reference.fxml");
+			referenceFXML = FXMain.class.getClassLoader().getResource(FXML_FOLDER + "reference/Reference.fxml");
 		}
 
 		return referenceFXML;
