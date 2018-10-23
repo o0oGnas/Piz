@@ -40,10 +40,8 @@ public final class CommonUtility {
 		e.printStackTrace(pw);
 		String stackTrace = sw.toString();
 
-		// print stack trace to console
-		System.out.println(stackTrace);
-
 		GridPane expContent = getExpandableContent(stackTrace);
+
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle("Error");
 		alert.setHeaderText("An error has occurred!");
@@ -62,13 +60,13 @@ public final class CommonUtility {
 		TextArea textArea = new TextArea(sStackTrace);
 		textArea.setEditable(false);
 		textArea.setWrapText(true);
-
 		textArea.setMaxWidth(Double.MAX_VALUE);
 		textArea.setMaxHeight(Double.MAX_VALUE);
+
 		GridPane.setVgrow(textArea, Priority.ALWAYS);
 		GridPane.setHgrow(textArea, Priority.ALWAYS);
-
 		GridPane expContent = new GridPane();
+
 		expContent.setMaxWidth(Double.MAX_VALUE);
 		expContent.add(textArea, 0, 0);
 		return expContent;

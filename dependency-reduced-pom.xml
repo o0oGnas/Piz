@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>xyz.gnas.piz</groupId>
   <artifactId>piz</artifactId>
-  <version>1.4.2</version>
+  <version>1.4.3</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -51,18 +51,36 @@
             </goals>
             <configuration>
               <minimizeJar>true</minimizeJar>
-              <artifactSet>
-                <excludes>
-                  <exclude>org.junit.jupiter:*</exclude>
-                  <exclude>org.testfx:*</exclude>
-                </excludes>
-              </artifactSet>
               <filters>
                 <filter>
-                  <artifact>xyz.gnas.piz</artifact>
+                  <artifact>org.testfx</artifact>
                   <excludes>
-                    <exclude>test/java/xyz/gnas/piz/</exclude>
+                    <exclude>**</exclude>
                   </excludes>
+                </filter>
+                <filter>
+                  <artifact>org.junit.jupiter</artifact>
+                  <excludes>
+                    <exclude>**</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>org.openjfx</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>ch.qos.logback</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
+                <filter>
+                  <artifact>org.slf4j</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
                 </filter>
               </filters>
             </configuration>
@@ -89,32 +107,6 @@
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>org.testfx</groupId>
-      <artifactId>testfx-core</artifactId>
-      <version>4.0.15-alpha</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testfx</groupId>
-      <artifactId>testfx-junit5</artifactId>
-      <version>4.0.15-alpha</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testfx</groupId>
-      <artifactId>openjfx-monocle</artifactId>
-      <version>jdk-11+26</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.3.1</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
   <reporting>
     <plugins>
       <plugin>

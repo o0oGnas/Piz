@@ -75,21 +75,49 @@
 						</goals>
 						<configuration>
 							<minimizeJar>true</minimizeJar>
-							<artifactSet>
-								<!-- list of dependencies to exclude -->
-								<excludes>
-									<exclude>org.junit.jupiter:*</exclude>
-									<exclude>org.testfx:*</exclude>
-								</excludes>
-							</artifactSet>
 
-							<!-- list of classes to exclude (test classes) -->
+							<!-- list of packages to include and exclude -->
 							<filters>
 								<filter>
 									<artifact>xyz.gnas.piz</artifact>
 									<excludes>
-										<exclude>test/java/xyz/gnas/piz/</exclude>
+										<exclude>test/**</exclude>
 									</excludes>
+								</filter>
+								
+								<filter>
+									<artifact>org.testfx</artifact>
+									<excludes>
+										<exclude>**</exclude>
+									</excludes>
+								</filter>
+								
+								<filter>
+									<artifact>org.junit.jupiter</artifact>
+									<excludes>
+										<exclude>**</exclude>
+									</excludes>
+								</filter>
+								
+								<filter>
+									<artifact>org.openjfx</artifact>
+									<includes>
+										<include>**</include>
+									</includes>
+								</filter>
+								
+								<filter>
+									<artifact>ch.qos.logback</artifact>
+									<includes>
+										<include>**</include>
+									</includes>
+								</filter>
+								
+								<filter>
+									<artifact>org.slf4j</artifact>
+									<includes>
+										<include>**</include>
+									</includes>
 								</filter>
 							</filters>
 						</configuration>
