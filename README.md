@@ -14,6 +14,6 @@
 	+ org.apache.commons.commons-lang 3 3.8.1 
 	+ commons-io.commons-io 2.6
 	+ net.lingala.zip4j.zip4j 1.3.2
-- Requires OpenJDK 11 or later to run (https://adoptopenjdk.net/)
-- Uses jbootx theme (https://github.com/dicolar/jbootx)
+- Requires OpenJDK 11 or later to run
+- Uses jbootx theme - https://github.com/dicolar/jbootx
 - Available as jar executable at https://github.com/o0oGnas/Piz/releases
