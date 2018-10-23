@@ -672,18 +672,8 @@ public class ZipController {
 	private void start(ActionEvent event) {
 		try {
 			if (checkInput()) {
-				isStopped = false;
-				saveUserSetting();
-				btnStart.setDisable(true);
-				enableDisablePauseStop(false);
-				isRunning.set(true);
-				runningCount = 0;
-				finishCount = 0;
-
-				if (chkObfuscateFileName.isSelected()) {
-					updateAbbreviationList();
-				}
-
+				prepareToStart();
+				updateAbbreviationList();
 				runProcessMasterThread();
 				monitorAndUpdateProgress();
 			}
@@ -719,21 +709,24 @@ public class ZipController {
 		return true;
 	}
 
-	private void updateAbbreviationList() {
-		writeInfoLog("Generating list of obfuscated names");
-		initialiseAbbreviationList();
-		uniquifyAbbreviationList();
-
-		// It's not possible to guarantee unique names even after trying to uniquify
-		mergeDuplicateAbbreviations();
+	private void prepareToStart() throws FileNotFoundException, IOException {
+		isStopped = false;
+		saveUserSetting();
+		btnStart.setDisable(true);
+		enableDisablePauseStop(false);
+		isRunning.set(true);
+		runningCount = 0;
+		finishCount = 0;
+		abbreviationList.clear();
 	}
 
-	private void initialiseAbbreviationList() {
-		abbreviationList.clear();
-
+	private void updateAbbreviationList() {
 		for (File file : fileZipItemMap.keySet()) {
-			String fileName = getAbbreviatedFileName(file.getName(), file.isDirectory());
-			Abbreviation abbreviation = new Abbreviation(fileName);
+			String fileName = file.getName();
+			String zipFileName = chkObfuscateFileName.isSelected()
+					? getAbbreviatedFileName(fileName, file.isDirectory())
+					: FilenameUtils.removeExtension(fileName);
+			Abbreviation abbreviation = new Abbreviation(zipFileName);
 
 			if (abbreviationList.containsKey(abbreviation)) {
 				abbreviation = abbreviationList.get(abbreviation);
@@ -742,6 +735,14 @@ public class ZipController {
 			abbreviation.fileAbbreviationMap.put(file, abbreviation.abbreviation);
 			abbreviationList.put(abbreviation, abbreviation);
 		}
+
+		if (chkObfuscateFileName.isSelected()) {
+			generateObfuscatedAbbreviationList();
+		}
+	}
+
+	private void generateObfuscatedAbbreviationList() {
+		writeInfoLog("Generating list of obfuscated names");
 
 		for (Abbreviation abbreviation : abbreviationList.keySet()) {
 			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
@@ -756,6 +757,10 @@ public class ZipController {
 				}
 			}
 		}
+
+		uniquifyAbbreviationList();
+		// It's not possible to guarantee unique names even after trying to uniquify
+		mergeDuplicateAbbreviations();
 	}
 
 	/**

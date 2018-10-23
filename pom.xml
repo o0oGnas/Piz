@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>xyz.gnas.piz</groupId>
 	<artifactId>piz</artifactId>
-	<version>1.4.2</version>
+	<version>1.4.3</version>
 
 	<!-- generate html test report -->
 	<reporting>
@@ -31,21 +31,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- generate a jar file with Main manifest -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.0</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>main.java.xyz.gnas.piz.Main</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-
-			<!-- required to run Java FX -->
+			<!-- run Java FX app -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -59,6 +45,20 @@
 				</executions>
 				<configuration>
 					<mainClass>main.java.xyz.gnas.piz.Main</mainClass>
+				</configuration>
+			</plugin>
+
+			<!-- generate a jar file with Main manifest -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>main.java.xyz.gnas.piz.Main</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
 
@@ -129,7 +129,7 @@
 	</build>
 
 	<dependencies>
-		<!-- Java FX libs -->
+		<!-- Java FX -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-fxml</artifactId>
@@ -142,8 +142,7 @@
 			<version>11</version>
 		</dependency>
 
-		<!-- UI libs -->
-
+		<!-- UI -->
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
@@ -156,14 +155,14 @@
 			<version>1.0.6</version>
 		</dependency>
 
-		<!-- logging lib -->
+		<!-- logging -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.3.0-alpha4</version>
 		</dependency>
 
-		<!-- logic libs -->
+		<!-- utility -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -182,13 +181,7 @@
 			<version>1.3.2</version>
 		</dependency>
 
-		<!-- test libs -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.3.1</version>
-		</dependency>
-
+		<!-- test -->
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-core</artifactId>
@@ -205,6 +198,12 @@
 			<groupId>org.testfx</groupId>
 			<artifactId>openjfx-monocle</artifactId>
 			<version>jdk-11+26</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.3.1</version>
 		</dependency>
 	</dependencies>
 </project>
