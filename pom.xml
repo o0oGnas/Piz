@@ -84,35 +84,35 @@
 										<exclude>test/**</exclude>
 									</excludes>
 								</filter>
-								
+
 								<filter>
 									<artifact>org.testfx</artifact>
 									<excludes>
 										<exclude>**</exclude>
 									</excludes>
 								</filter>
-								
+
 								<filter>
 									<artifact>org.junit.jupiter</artifact>
 									<excludes>
 										<exclude>**</exclude>
 									</excludes>
 								</filter>
-								
+
 								<filter>
 									<artifact>org.openjfx</artifact>
 									<includes>
 										<include>**</include>
 									</includes>
 								</filter>
-								
+
 								<filter>
 									<artifact>ch.qos.logback</artifact>
 									<includes>
 										<include>**</include>
 									</includes>
 								</filter>
-								
+
 								<filter>
 									<artifact>org.slf4j</artifact>
 									<includes>
@@ -191,6 +191,12 @@
 		</dependency>
 
 		<!-- utility -->
+		<dependency>
+			<groupId>org.greenrobot</groupId>
+			<artifactId>eventbus</artifactId>
+			<version>3.1.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>

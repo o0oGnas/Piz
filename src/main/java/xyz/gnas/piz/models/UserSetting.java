@@ -106,9 +106,4 @@ public class UserSetting implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public UserSetting(String folderPath, String password) {
-		this.inputFolder = folderPath;
-		this.password = password;
-	}
 }

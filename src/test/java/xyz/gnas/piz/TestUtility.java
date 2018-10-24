@@ -21,7 +21,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import main.java.xyz.gnas.piz.common.ResourceManager;
-import main.java.xyz.gnas.piz.controllers.AppController;
 import tornadofx.control.DateTimePicker;
 
 /**
@@ -33,11 +32,10 @@ public class TestUtility {
 	public static void initialiseStage(Stage stage) throws FileNotFoundException, IOException {
 		FXMLLoader loader = new FXMLLoader(ResourceManager.getAppFXML());
 		Scene scene = new Scene((Parent) loader.load());
-		AppController controlller = loader.getController();
-		controlller.setStage(stage);
-		controlller.initialiseTabs();
 		scene.getStylesheets().addAll(ResourceManager.getCSSList());
 		stage.setScene(scene);
+		stage.setTitle("Piz");
+		stage.getIcons().add(ResourceManager.getAppIcon());
 		stage.show();
 	}
 

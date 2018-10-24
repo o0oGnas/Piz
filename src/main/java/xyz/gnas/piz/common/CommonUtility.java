@@ -90,15 +90,6 @@ public final class CommonUtility {
 		}
 	}
 
-	public static void writeDebugLog(Class callingClass, String log) {
-		try {
-			Logger logger = LoggerFactory.getLogger(callingClass);
-			logger.debug(log);
-		} catch (Exception ex) {
-			System.out.println("Error writing debug log");
-		}
-	}
-
 	/**
 	 * @Description Show a message dialog
 	 * @Date Oct 9, 2018

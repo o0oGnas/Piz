@@ -22,6 +22,8 @@ import java.util.TreeMap;
 import org.apache.commons.io.FilenameUtils;
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.IndexedCheckModel;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -32,7 +34,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -49,11 +50,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.WindowEvent;
 import main.java.xyz.gnas.piz.common.CommonUtility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
-import main.java.xyz.gnas.piz.controllers.AppController;
+import main.java.xyz.gnas.piz.events.ExitEvent;
+import main.java.xyz.gnas.piz.models.ApplicationModel;
 import main.java.xyz.gnas.piz.models.UserSetting;
 import main.java.xyz.gnas.piz.models.ZipReference;
 import net.lingala.zip4j.core.ZipFile;
@@ -129,8 +130,6 @@ public class ZipController {
 	@FXML
 	private ImageView imvPauseResume;
 
-	private AppController appController;
-
 	/**
 	 * Source folder containing original files and folders
 	 */
@@ -195,27 +194,20 @@ public class ZipController {
 	 */
 	private boolean isStopped;
 
-	public void initialiseAll(AppController appController) {
-		this.appController = appController;
-
-		appController.getStage().setOnCloseRequest(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent event) {
-				try {
-					// show confirmation is there are running processes
-					if (isRunning.get()) {
-						if (CommonUtility
-								.showConfirmation("There are running processes, are you sure you want to exit?")) {
-							stopAllProcesses();
-						} else {
-							event.consume();
-						}
-					}
-				} catch (Exception e) {
-					showError(e, "Error when closing the application", true);
+	@Subscribe
+	public void onExitEvent(ExitEvent event) {
+		try {
+			// show confirmation is there are running processes
+			if (isRunning.get()) {
+				if (CommonUtility.showConfirmation("There are running processes, are you sure you want to exit?")) {
+					stopAllProcesses();
+				} else {
+					event.getWindowEvent().consume();
 				}
 			}
-		});
+		} catch (Exception e) {
+			showError(e, "Error when closing the application", true);
+		}
 	}
 
 	private void showError(Exception e, String message, boolean exit) {
@@ -229,6 +221,7 @@ public class ZipController {
 	@FXML
 	private void initialize() {
 		try {
+			EventBus.getDefault().register(this);
 			initialiseFileZipItemMap();
 			initialiseCheckBoxes();
 			initialiseUserSetting();
@@ -614,7 +607,7 @@ public class ZipController {
 			}
 		}
 
-		return chooser.showDialog(appController.getStage());
+		return chooser.showDialog(lblInputFolder.getScene().getWindow());
 	}
 
 	private void saveUserSetting() throws FileNotFoundException, IOException {
@@ -1297,7 +1290,7 @@ public class ZipController {
 		Platform.runLater(() -> {
 			try {
 				// add reference to the top
-				appController.getReferenceList().add(0,
+				ApplicationModel.getInstance().getReferenceList().add(0,
 						new ZipReference(userSetting.getReferenceTag(), file.getName(), zipFile.getName()));
 			} catch (Exception e) {
 				showError(e, "Error when adding reference", false);

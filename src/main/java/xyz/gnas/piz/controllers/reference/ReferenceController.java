@@ -3,6 +3,9 @@ package main.java.xyz.gnas.piz.controllers.reference;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -25,7 +28,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import main.java.xyz.gnas.piz.common.CommonUtility;
 import main.java.xyz.gnas.piz.common.Configurations;
-import main.java.xyz.gnas.piz.controllers.AppController;
+import main.java.xyz.gnas.piz.events.ChangeTabEvent;
+import main.java.xyz.gnas.piz.events.SaveReferenceEvent;
+import main.java.xyz.gnas.piz.models.ApplicationModel;
 import main.java.xyz.gnas.piz.models.ZipReference;
 import tornadofx.control.DateTimePicker;
 
@@ -85,7 +90,10 @@ public class ReferenceController {
 	@FXML
 	private Button btnDelete;
 
-	private AppController appController;
+	/**
+	 * Flag to tell if reference tab is active
+	 */
+	private boolean isActive;
 
 	private boolean isEditing = false;
 
@@ -94,46 +102,13 @@ public class ReferenceController {
 	 */
 	private boolean isManualUpdate;
 
-	public void initialiseAll(AppController appController) {
-		this.appController = appController;
-		addListenerToList();
-		initialiseDateTimePickers();
-		tbvTable.setItems(appController.getReferenceList());
-	}
-
-	private void addListenerToList() {
-		appController.getReferenceList().addListener((ListChangeListener<ZipReference>) listener -> {
-			try {
-				if (!isManualUpdate && appController.checkTabIsActive("tabReference")) {
-					CommonUtility.showAlert("Update detected",
-							"Reference file was updated, the list will be automatically refreshed");
-				}
-
-				isManualUpdate = false;
-				tbvTable.setItems(appController.getReferenceList());
-			} catch (Exception e) {
-				showError(e, "Error when handling update to reference list", false);
-			}
-		});
-	}
-
-	private void initialiseDateTimePickers() {
-		Calendar cMin = Calendar.getInstance();
-		Calendar cMax = Calendar.getInstance();
-
-		for (ZipReference reference : appController.getReferenceList()) {
-			if (cMin == null || reference.getDate().compareTo(cMin) < 0) {
-				cMin = reference.getDate();
-			}
-
-			if (cMax == null || cMax.compareTo(reference.getDate()) < 0) {
-				cMax = reference.getDate();
-			}
+	@Subscribe
+	public void onChangeTabEvent(ChangeTabEvent event) {
+		try {
+			isActive = event.getNewTab().getId().equalsIgnoreCase("tabReference");
+		} catch (Exception e) {
+			showError(e, "Could not update isActive flag of reference tab", false);
 		}
-
-		dtpFrom.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMin));
-		dtpTo.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMax));
-
 	}
 
 	private void showError(Exception e, String message, boolean exit) {
@@ -147,6 +122,8 @@ public class ReferenceController {
 	@FXML
 	private void initialize() {
 		try {
+			EventBus.getDefault().register(this);
+			addListenerToList();
 			initialiseComboBox(cboOriginal);
 			initialiseComboBox(cboZip);
 			initialiseComboBox(cboTag);
@@ -154,6 +131,49 @@ public class ReferenceController {
 		} catch (Exception e) {
 			showError(e, "Could not initialise reference tab", true);
 		}
+	}
+
+	private void addListenerToList() {
+		ApplicationModel.getInstance().getReferenceListPropery()
+				.addListener((ObservableValue<? extends ObservableList<ZipReference>> arg0,
+						ObservableList<ZipReference> arg1, ObservableList<ZipReference> arg2) -> {
+					tbvTable.setItems(arg2);
+					initialiseDateTimePickers();
+
+					arg2.addListener((ListChangeListener<ZipReference>) listener -> {
+						try {
+							// only show alert if the tab is active and the change was automatic
+							if (!isManualUpdate && isActive) {
+								CommonUtility.showAlert("Update detected",
+										"Reference file was updated, the list will be automatically refreshed");
+							}
+
+							isManualUpdate = false;
+							tbvTable.setItems(arg2);
+						} catch (Exception e) {
+							showError(e, "Error when handling update to reference list", false);
+						}
+					});
+				});
+	}
+
+	private void initialiseDateTimePickers() {
+		Calendar cMin = Calendar.getInstance();
+		Calendar cMax = Calendar.getInstance();
+
+		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+			if (cMin == null || reference.getDate().compareTo(cMin) < 0) {
+				cMin = reference.getDate();
+			}
+
+			if (cMax == null || cMax.compareTo(reference.getDate()) < 0) {
+				cMax = reference.getDate();
+			}
+		}
+
+		dtpFrom.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMin));
+		dtpTo.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMax));
+
 	}
 
 	/**
@@ -241,7 +261,7 @@ public class ReferenceController {
 			Calendar cTo = CommonUtility.convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
 			ObservableList<ZipReference> filteredList = FXCollections.observableArrayList();
 
-			for (ZipReference reference : appController.getReferenceList()) {
+			for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
 				Calendar date = reference.getDate();
 				boolean checkDate = cFrom.compareTo(date) <= 0 && date.compareTo(cTo) <= 1;
 
@@ -329,7 +349,8 @@ public class ReferenceController {
 		try {
 			TableColumn<ZipReference, String> source = (TableColumn<ZipReference, String>) event.getSource();
 			writeInfoLog("Commiting edit on column " + source.getId());
-			ZipReference reference = appController.getReferenceList().get(event.getTablePosition().getRow());
+			ZipReference reference = ApplicationModel.getInstance().getReferenceList()
+					.get(event.getTablePosition().getRow());
 			String value = event.getNewValue();
 
 			if (source == tbcTag) {
@@ -340,10 +361,14 @@ public class ReferenceController {
 				reference.setZip(value);
 			}
 
-			appController.saveReferences();
+			saveReferences();
 		} catch (Exception e) {
 			showError(e, "Error when committing edit", false);
 		}
+	}
+
+	private void saveReferences() {
+		EventBus.getDefault().post(new SaveReferenceEvent());
 	}
 
 	@FXML
@@ -360,7 +385,7 @@ public class ReferenceController {
 	private void add(ActionEvent event) {
 		try {
 			isManualUpdate = true;
-			appController.getReferenceList().add(0, new ZipReference(null, null, null));
+			ApplicationModel.getInstance().getReferenceList().add(0, new ZipReference(null, null, null));
 
 			// scroll to top
 			scrollToTop(null);
@@ -380,7 +405,8 @@ public class ReferenceController {
 		try {
 			if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
 				isManualUpdate = true;
-				appController.getReferenceList().removeAll(tbvTable.getSelectionModel().getSelectedItems());
+				ApplicationModel.getInstance().getReferenceList()
+						.removeAll(tbvTable.getSelectionModel().getSelectedItems());
 				writeInfoLog("Deleted reference(s)");
 			}
 		} catch (Exception e) {
@@ -391,7 +417,7 @@ public class ReferenceController {
 	@FXML
 	private void save(ActionEvent event) {
 		try {
-			appController.saveReferences();
+			saveReferences();
 		} catch (Exception e) {
 			showError(e, "Could not save references", false);
 		}
