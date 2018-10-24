@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -38,6 +39,12 @@ public class ZipItemController {
 	private HBox hboProcess;
 
 	@FXML
+	private HBox hboActions;
+
+	@FXML
+	private ProgressIndicator pgiProgress;
+
+	@FXML
 	private Button btnStop;
 
 	@FXML
@@ -46,13 +53,15 @@ public class ZipItemController {
 	@FXML
 	private ImageView imvPauseResume;
 
+	private final String PROCESSING = "[Processing]";
+
 	private File file;
 
-	private ProgressMonitor progress;
+	private ProgressMonitor progressMonitor;
 
 	private BooleanProperty isPaused = new SimpleBooleanProperty();
 
-	private int percent;
+	private double percent;
 
 	public void initialiseAll(File inputFile) {
 		file = inputFile;
@@ -63,31 +72,29 @@ public class ZipItemController {
 		}
 
 		lblOriginal.setText(file.getName());
-
-		// originally set status text to ready
-		lblStatus.setText("Ready");
 	}
 
 	public void beginProcess(ProgressMonitor progress, String zipName, BooleanProperty isMasterPaused) {
-		this.progress = progress;
+		this.progressMonitor = progress;
 		lblZip.setText(zipName);
+		lblStatus.setText(PROCESSING);
 		hboResult.setVisible(true);
 		hboProcess.setVisible(true);
 		btnStop.setDisable(false);
 		btnPauseResume.disableProperty().bind(isMasterPaused);
-		setRootPanelClass("working-item");
+		setRootPanelClass("processing-item");
 	}
 
 	private void setRootPanelClass(String className) {
-		ObservableList<String> styleClassList = acpRoot.getStyleClass();
-		styleClassList.clear();
-		styleClassList.add(className);
+		ObservableList<String> rootStyleClassList = acpRoot.getStyleClass();
+		rootStyleClassList.clear();
+		rootStyleClassList.add(className);
 	}
 
 	public void updateProgress(boolean isObfuscated, boolean isOuter) {
 		// only show progress if progress isn't paused and isn't cancelled
-		if (!progress.isPause() && !progress.isCancelAllTasks()) {
-			percent = progress.getPercentDone();
+		if (!progressMonitor.isPause() && !progressMonitor.isCancelAllTasks()) {
+			percent = progressMonitor.getPercentDone() / 100.0;
 
 			// each layer of zip takes roughly 50% of the overall process
 			if (isObfuscated) {
@@ -95,21 +102,17 @@ public class ZipItemController {
 
 				// inner layer is finished
 				if (isOuter) {
-					percent = 50 + percent;
+					percent = 0.5 + percent;
 				}
 			}
 
-			showCurrentProgress();
+			pgiProgress.setProgress(percent);
 		}
 	}
 
-	private void showCurrentProgress() {
-		lblStatus.setText("Working (" + percent + "%)");
-	}
-
 	public void finishProcess() {
-		lblStatus.setText("Finished");
-		hboProcess.setVisible(false);
+		pgiProgress.setProgress(1);
+		hboActions.setVisible(false);
 		setRootPanelClass("finished-item");
 	}
 
@@ -130,10 +133,7 @@ public class ZipItemController {
 							imvPauseResume.setImage(
 									newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
 							btnPauseResume.setText(newValue ? Configurations.RESUME : Configurations.PAUSE);
-
-							if (newValue) {
-								lblStatus.setText("Paused (" + percent + "%)");
-							}
+							lblStatus.setText(newValue ? "[Paused]" : PROCESSING);
 						} catch (Exception e) {
 							showError(e, "Error handling pause", false);
 						}
@@ -150,12 +150,7 @@ public class ZipItemController {
 			boolean pause = isPaused.get();
 			String pauseResume = pause ? "Pausing" : "Resuming";
 			writeInfoLog(pauseResume + " process of file/folder [" + file.getName() + "]");
-			progress.setPause(pause);
-
-			// set status to show only percentage done if user resumes
-			if (!pause) {
-				showCurrentProgress();
-			}
+			progressMonitor.setPause(pause);
 		} catch (Exception e) {
 			showError(e, "Could not pause the process [" + lblOriginal.getText() + "]", false);
 		}
@@ -166,8 +161,8 @@ public class ZipItemController {
 		try {
 			if (CommonUtility.showConfirmation("Are you sure you want to stop this process?")) {
 				writeInfoLog(" Stopping process of file/folder [" + file.getName() + "]");
-				progress.setPause(false);
-				progress.cancelAllTasks();
+				progressMonitor.setPause(false);
+				progressMonitor.cancelAllTasks();
 				isPaused.set(false);
 				lblStatus.setText("Stopped");
 				btnPauseResume.setVisible(false);

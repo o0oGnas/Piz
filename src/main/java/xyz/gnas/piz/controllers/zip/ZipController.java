@@ -1220,7 +1220,7 @@ public class ZipController {
 				try {
 					// wait until all processes are done
 					while (finishCount < fileZipItemMap.size()) {
-						Thread.sleep(1000);
+						Thread.sleep(500);
 					}
 
 					finish();

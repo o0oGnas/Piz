@@ -85,7 +85,7 @@ public class ResourceManager {
 	}
 
 	public static List<String> getCSSList() {
-		if (cssList == null) {
+			if (cssList == null) {
 			cssList = new LinkedList<String>();
 			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "app.css").toExternalForm());
 			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "theme.css").toExternalForm());
