@@ -10,6 +10,7 @@
 	+ org.controlsfx.controlsFX 9.0.0
 	+ no.tornado.tornadofx-controls 1.0.6
 	+ ch.qos.logback.logback-classic 1.3.0-alpha4
+	+ org.greenrobot.eventbus 3.1.1
 	+ com.fasterxml.jackson.core.jackson-databind 2.9.7
 	+ org.apache.commons.commons-lang 3 3.8.1 
 	+ commons-io.commons-io 2.6
