@@ -23,7 +23,7 @@ import javafx.scene.layout.Priority;
  * @Description Contains common methods used in the application
  * @Date Oct 9, 2018
  */
-public final class CommonUtility {
+public final class Utility {
 
 	/**
 	 * @Description Show error dialog with exception stack trace in expandable
@@ -49,7 +49,7 @@ public final class CommonUtility {
 		alert.getDialogPane().setExpandableContent(expContent);
 		alert.showAndWait();
 
-		writeErrorLog(callingClass, "Message: " + message + " - Stack trace: " + stackTrace);
+		writeErrorLog(callingClass, message, e);
 
 		if (exit) {
 			System.exit(1);
@@ -72,10 +72,10 @@ public final class CommonUtility {
 		return expContent;
 	}
 
-	public static void writeErrorLog(Class callingClass, String log) {
+	public static void writeErrorLog(Class callingClass, String message, Exception e) {
 		try {
 			Logger logger = LoggerFactory.getLogger(callingClass);
-			logger.error(log);
+			logger.error(message, e);
 		} catch (Exception ex) {
 			System.out.println("Error writing error log");
 		}

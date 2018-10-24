@@ -26,7 +26,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.events.ChangeTabEvent;
 import main.java.xyz.gnas.piz.events.SaveReferenceEvent;
@@ -112,11 +112,11 @@ public class ReferenceController {
 	}
 
 	private void showError(Exception e, String message, boolean exit) {
-		CommonUtility.showError(getClass(), e, message, exit);
+		Utility.showError(getClass(), e, message, exit);
 	}
 
 	private void writeInfoLog(String log) {
-		CommonUtility.writeInfoLog(getClass(), log);
+		Utility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -144,7 +144,7 @@ public class ReferenceController {
 						try {
 							// only show alert if the tab is active and the change was automatic
 							if (!isManualUpdate && isActive) {
-								CommonUtility.showAlert("Update detected",
+								Utility.showAlert("Update detected",
 										"Reference file was updated, the list will be automatically refreshed");
 							}
 
@@ -171,8 +171,8 @@ public class ReferenceController {
 			}
 		}
 
-		dtpFrom.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMin));
-		dtpTo.setDateTimeValue(CommonUtility.convertCalendarToLocalDateTime(cMax));
+		dtpFrom.setDateTimeValue(Utility.convertCalendarToLocalDateTime(cMin));
+		dtpTo.setDateTimeValue(Utility.convertCalendarToLocalDateTime(cMax));
 
 	}
 
@@ -257,8 +257,8 @@ public class ReferenceController {
 	private void filter(ActionEvent event) {
 		try {
 			writeInfoLog("Filtering references");
-			Calendar cFrom = CommonUtility.convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
-			Calendar cTo = CommonUtility.convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
+			Calendar cFrom = Utility.convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
+			Calendar cTo = Utility.convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
 			ObservableList<ZipReference> filteredList = FXCollections.observableArrayList();
 
 			for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
@@ -403,7 +403,7 @@ public class ReferenceController {
 	@FXML
 	private void delete(ActionEvent event) {
 		try {
-			if (CommonUtility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
+			if (Utility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
 				isManualUpdate = true;
 				ApplicationModel.getInstance().getReferenceList()
 						.removeAll(tbvTable.getSelectionModel().getSelectedItems());

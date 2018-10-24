@@ -3,13 +3,15 @@
 <configuration scan="true" debug="true">
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>ERROR</level>
+			<level>WARNING</level>
 		</filter>
 		<file>piz.log</file>
 		<append>true</append>
+		<prudent>true</prudent>
 		<encoder>
-			<pattern>%d{yyyy-MM-dd HH:mm:ss} | %-5p | [%thread] %logger{5}:%L -
-				%msg%n</pattern>
+			<pattern>%d{dd-MMM-yyyy HH:mm:ss} | %p | [%t] %logger:%L -
+				%m%n
+			</pattern>
 		</encoder>
 	</appender>
 
@@ -20,8 +22,9 @@
 		</filter>
 
 		<encoder>
-			<pattern>%d{yyyy-MM-dd HH:mm:ss} | %-5p | [%thread] %logger{5}:%L -
-				%msg%n</pattern>
+			<pattern>%d{dd-MMM-yyyy HH:mm:ss} | %p | [%t] %logger:%L -
+				%m%n
+			</pattern>
 		</encoder>
 	</appender>
 

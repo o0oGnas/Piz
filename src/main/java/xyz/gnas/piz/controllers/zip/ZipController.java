@@ -50,7 +50,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
-import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import main.java.xyz.gnas.piz.events.ExitEvent;
@@ -199,7 +199,7 @@ public class ZipController {
 		try {
 			// show confirmation is there are running processes
 			if (isRunning.get()) {
-				if (CommonUtility.showConfirmation("There are running processes, are you sure you want to exit?")) {
+				if (Utility.showConfirmation("There are running processes, are you sure you want to exit?")) {
 					stopAllProcesses();
 				} else {
 					event.getWindowEvent().consume();
@@ -211,11 +211,11 @@ public class ZipController {
 	}
 
 	private void showError(Exception e, String message, boolean exit) {
-		CommonUtility.showError(getClass(), e, message, exit);
+		Utility.showError(getClass(), e, message, exit);
 	}
 
 	private void writeInfoLog(String log) {
-		CommonUtility.writeInfoLog(getClass(), log);
+		Utility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -677,17 +677,17 @@ public class ZipController {
 
 	private boolean checkInput() {
 		if (inputFolder == null) {
-			CommonUtility.showAlert("Invalid input", "Please choose a folder!");
+			Utility.showAlert("Invalid input", "Please choose a folder!");
 			return false;
 		}
 
 		if (ccbFileFolder.getCheckModel().getCheckedItems().isEmpty()) {
-			CommonUtility.showAlert("Invalid input", "Please choose to perform zipping on files or folders or both!");
+			Utility.showAlert("Invalid input", "Please choose to perform zipping on files or folders or both!");
 			return false;
 		}
 
 		if (chkEncrypt.isSelected() && (txtPassword.getText() == null || txtPassword.getText().isEmpty())) {
-			CommonUtility.showAlert("Invalid input", "Please enter a password!");
+			Utility.showAlert("Invalid input", "Please enter a password!");
 			return false;
 		}
 
@@ -695,7 +695,7 @@ public class ZipController {
 		// reference
 		if (chkObfuscateFileName.isSelected() && chkAddReferences.isSelected()
 				&& (txtReferenceTag.getText() == null || txtReferenceTag.getText().isEmpty())) {
-			CommonUtility.showAlert("Invalid input", "Please enter a reference tag!");
+			Utility.showAlert("Invalid input", "Please enter a reference tag!");
 			return false;
 		}
 
@@ -1317,7 +1317,7 @@ public class ZipController {
 	@FXML
 	private void stop(ActionEvent event) {
 		try {
-			if (CommonUtility.showConfirmation("Are you sure you want to stop all processes?")) {
+			if (Utility.showConfirmation("Are you sure you want to stop all processes?")) {
 				stopAllProcesses();
 				isPaused.set(false);
 			}

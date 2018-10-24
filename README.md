@@ -4,6 +4,9 @@
 	+ Optional encryption
 	+ Optional file name obfuscation + optional reference generation for obfuscated file name
 	+ Manage reference file
+- Requires OpenJDK 11 or later to run
+- Uses jbootx theme - https://github.com/dicolar/jbootx
+- Available as jar executable at https://github.com/o0oGnas/Piz/releases
 - Dependencies:
 	+ org.openjfx.javafx-fxml 11
 	+ org.openjfx.javafx-media 11
@@ -15,6 +18,3 @@
 	+ org.apache.commons.commons-lang 3 3.8.1 
 	+ commons-io.commons-io 2.6
 	+ net.lingala.zip4j.zip4j 1.3.2
-- Requires OpenJDK 11 or later to run
-- Uses jbootx theme - https://github.com/dicolar/jbootx
-- Available as jar executable at https://github.com/o0oGnas/Piz/releases

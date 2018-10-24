@@ -22,7 +22,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import main.java.xyz.gnas.piz.controllers.reference.ReferenceController;
@@ -59,11 +59,11 @@ public class AppController {
 	}
 
 	private void showError(Exception e, String message, boolean exit) {
-		CommonUtility.showError(getClass(), e, message, exit);
+		Utility.showError(getClass(), e, message, exit);
 	}
 
 	private void writeInfoLog(String log) {
-		CommonUtility.writeInfoLog(getClass(), log);
+		Utility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -104,7 +104,7 @@ public class AppController {
 			try {
 				onSaveReferenceEvent(null);
 			} catch (Exception e) {
-				CommonUtility.showError(getClass(), e, "Error when saving references to file", false);
+				Utility.showError(getClass(), e, "Error when saving references to file", false);
 			}
 		});
 	}

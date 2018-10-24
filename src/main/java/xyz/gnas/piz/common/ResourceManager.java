@@ -4,8 +4,6 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.sound.sampled.AudioInputStream;
-
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import main.java.xyz.gnas.piz.FXMain;
@@ -27,7 +25,7 @@ public class ResourceManager {
 	private static Image resumeIcon;
 	private static Image pauseIcon;
 
-	private static Media notificationSound; 
+	private static Media notificationSound;
 
 	private static List<String> cssList;
 
@@ -78,14 +76,15 @@ public class ResourceManager {
 
 	public static Media getNotificationSound() {
 		if (notificationSound == null) {
-			notificationSound = new Media(FXMain.class.getClassLoader().getResource("notification.wav").toExternalForm());
+			notificationSound = new Media(
+					FXMain.class.getClassLoader().getResource("notification.wav").toExternalForm());
 		}
 
 		return notificationSound;
 	}
 
 	public static List<String> getCSSList() {
-			if (cssList == null) {
+		if (cssList == null) {
 			cssList = new LinkedList<String>();
 			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "app.css").toExternalForm());
 			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "theme.css").toExternalForm());

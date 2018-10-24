@@ -14,7 +14,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import net.lingala.zip4j.progress.ProgressMonitor;
@@ -117,11 +117,11 @@ public class ZipItemController {
 	}
 
 	private void showError(Exception e, String message, boolean exit) {
-		CommonUtility.showError(getClass(), e, message, exit);
+		Utility.showError(getClass(), e, message, exit);
 	}
 
 	private void writeInfoLog(String log) {
-		CommonUtility.writeInfoLog(getClass(), log);
+		Utility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -159,7 +159,7 @@ public class ZipItemController {
 	@FXML
 	private void stop(ActionEvent event) {
 		try {
-			if (CommonUtility.showConfirmation("Are you sure you want to stop this process?")) {
+			if (Utility.showConfirmation("Are you sure you want to stop this process?")) {
 				writeInfoLog(" Stopping process of file/folder [" + file.getName() + "]");
 				progressMonitor.setPause(false);
 				progressMonitor.cancelAllTasks();

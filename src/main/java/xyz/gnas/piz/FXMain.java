@@ -8,7 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.ResourceManager;
 import main.java.xyz.gnas.piz.events.ExitEvent;
 
@@ -29,7 +29,7 @@ public class FXMain extends Application {
 			stage.getIcons().add(ResourceManager.getAppIcon());
 			stage.show();
 		} catch (Exception e) {
-			CommonUtility.showError(getClass(), e, "Could not start the application", true);
+			Utility.showError(getClass(), e, "Could not start the application", true);
 		}
 	}
 

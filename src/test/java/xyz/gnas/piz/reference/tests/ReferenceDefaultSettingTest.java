@@ -18,7 +18,7 @@ import org.testfx.framework.junit5.Start;
 
 import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
-import main.java.xyz.gnas.piz.common.CommonUtility;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import test.java.xyz.gnas.piz.reference.ReferenceTestUtility;
 import tornadofx.control.DateTimePicker;
@@ -48,7 +48,7 @@ public class ReferenceDefaultSettingTest {
 
 	private void checkDate(DateTimePicker dtp, Calendar date, String assertion) {
 		assertThat(dtp).matches(
-				p -> CommonUtility.convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(date) == 0,
+				p -> Utility.convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(date) == 0,
 				assertion);
 	}
 
