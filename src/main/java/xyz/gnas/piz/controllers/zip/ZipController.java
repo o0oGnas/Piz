@@ -722,7 +722,8 @@ public class ZipController {
 
 	private void updateAbbreviationList() {
 		for (File file : fileZipItemMap.keySet()) {
-			String fileName = file.getName();
+			// remove trailing spaces and replace multiple spaces by one space
+			String fileName = file.getName().trim().replaceAll(" +", " ");
 			String zipFileName = chkObfuscateFileName.isSelected()
 					? getAbbreviatedFileName(fileName, file.isDirectory())
 					: FilenameUtils.removeExtension(fileName);

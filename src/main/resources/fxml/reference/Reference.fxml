@@ -198,6 +198,9 @@
 				<TableView fx:id="tbvTable" editable="true"
 					onKeyReleased="#tableKeyReleased" onSort="#sortTable"
 					VBox.vgrow="ALWAYS">
+					<placeholder>
+						<Label text="" />
+					</placeholder>
 					<columns>
 						<TableColumn fx:id="tbcDate" editable="false"
 							maxWidth="120.0" minWidth="120.0" prefWidth="120.0"

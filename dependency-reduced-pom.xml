@@ -53,6 +53,12 @@
               <minimizeJar>true</minimizeJar>
               <filters>
                 <filter>
+                  <artifact>xyz.gnas.piz</artifact>
+                  <excludes>
+                    <exclude>test/**</exclude>
+                  </excludes>
+                </filter>
+                <filter>
                   <artifact>org.testfx</artifact>
                   <excludes>
                     <exclude>**</exclude>
