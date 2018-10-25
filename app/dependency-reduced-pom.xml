@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>piz</artifactId>
+    <groupId>xyz.gnas.piz</groupId>
+    <version>1.4.4</version>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>xyz.gnas.piz</groupId>
-  <artifactId>piz</artifactId>
-  <version>1.4.4</version>
+  <artifactId>app</artifactId>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -26,7 +29,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>main.java.xyz.gnas.piz.Main</mainClass>
+          <mainClass>xyz.gnas.piz.app.Main</mainClass>
         </configuration>
       </plugin>
       <plugin>
@@ -51,7 +54,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>main.java.xyz.gnas.piz.Main</mainClass>
+              <mainClass>xyz.gnas.piz.app.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -66,12 +69,12 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <minimizeJar>false</minimizeJar>
+              <minimizeJar>true</minimizeJar>
               <filters>
                 <filter>
                   <artifact>xyz.gnas.piz</artifact>
                   <excludes>
-                    <exclude>test/**</exclude>
+                    <exclude>**/test/**</exclude>
                   </excludes>
                 </filter>
                 <filter>
@@ -117,7 +120,7 @@
           <reuseForks>false</reuseForks>
           <threadCount>1</threadCount>
           <printSummary>true</printSummary>
-          <testSourceDirectory>${basedir}/src/main/java/xyz/gnas/piz/test</testSourceDirectory>
+          <testSourceDirectory>${basedir}/src/test/java/xyz/gnas/piz/app/test</testSourceDirectory>
           <testClassesDirectory>${project.build.directory}/classes/</testClassesDirectory>
           <workingDirectory>${project.build.directory}/test-environment</workingDirectory>
           <systemPropertyVariables>
