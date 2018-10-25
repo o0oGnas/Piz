@@ -24,7 +24,6 @@ import javafx.scene.layout.Priority;
  * @Date Oct 9, 2018
  */
 public final class Utility {
-
 	/**
 	 * @Description Show error dialog with exception stack trace in expandable
 	 *              dialog
@@ -33,7 +32,7 @@ public final class Utility {
 	 * @param message A useful message for the user
 	 * @param exit    Flag to whether exit the application after showing the error
 	 */
-	public static void showError(Class callingClass, Exception e, String message, boolean exit) {
+	public static void showError(Class callingClass, Throwable e, String message, boolean exit) {
 		// Get stack trace as string
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);
@@ -72,7 +71,7 @@ public final class Utility {
 		return expContent;
 	}
 
-	public static void writeErrorLog(Class callingClass, String message, Exception e) {
+	public static void writeErrorLog(Class callingClass, String message, Throwable e) {
 		try {
 			Logger logger = LoggerFactory.getLogger(callingClass);
 			logger.error(message, e);

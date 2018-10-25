@@ -8,14 +8,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.ResourceManager;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.events.ExitEvent;
 
 public class FXMain extends Application {
 	@Override
 	public void start(Stage stage) {
 		try {
+			Thread.setDefaultUncaughtExceptionHandler((Thread t, Throwable e) -> {
+				Utility.writeErrorLog(getClass(), "Uncaught exception", e);
+			});
+
 			stage.setOnCloseRequest((WindowEvent arg0) -> {
 				// raise exit event
 				EventBus.getDefault().post(new ExitEvent(arg0));

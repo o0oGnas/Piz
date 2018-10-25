@@ -50,10 +50,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
-import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
+import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.events.ExitEvent;
+import main.java.xyz.gnas.piz.events.zip.BeginProcessEvent;
+import main.java.xyz.gnas.piz.events.zip.FinishProcessEvent;
+import main.java.xyz.gnas.piz.events.zip.InitialiseItemEvent;
+import main.java.xyz.gnas.piz.events.zip.UpdateProgressEvent;
 import main.java.xyz.gnas.piz.models.ApplicationModel;
 import main.java.xyz.gnas.piz.models.UserSetting;
 import main.java.xyz.gnas.piz.models.ZipReference;
@@ -143,14 +147,9 @@ public class ZipController {
 	private UserSetting userSetting;
 
 	/**
-	 * Comparator object to handle logic of sorting of files and folders
+	 * Set of files to process
 	 */
-	private Comparator<File> fileComparator;
-
-	/**
-	 * Map a file with its ZipItem object
-	 */
-	private Map<File, ZipItemController> fileZipItemMap;
+	private List<File> fileList;
 
 	/**
 	 * Keep track of the different abbreviations and files that will be abbreviated
@@ -237,18 +236,7 @@ public class ZipController {
 	}
 
 	private void initialiseFileZipItemMap() {
-		fileComparator = new Comparator<File>() {
-			@Override
-			public int compare(File o1, File o2) {
-				if (o1.isDirectory() == o2.isDirectory()) {
-					return o1.getName().compareTo(o2.getName());
-				} else {
-					return o1.isDirectory() ? -1 : 1;
-				}
-			}
-		};
-
-		fileZipItemMap = new TreeMap<File, ZipItemController>(fileComparator);
+		fileList = new LinkedList<File>();
 	}
 
 	private void initialiseCheckBoxes() {
@@ -430,14 +418,12 @@ public class ZipController {
 	}
 
 	private void correctProcessCount() {
-		String text = txtProcessCount.getText();
-
 		// if text is empty, set it to MIN_PROCESSES
-		if (text == null || text.isEmpty()) {
+		if (txtProcessCount.getText() == null || txtProcessCount.getText().isEmpty()) {
 			txtProcessCount.setText(Configurations.MIN_PROCESSES + "");
 		}
 
-		int intProcessCount = Integer.parseInt(text);
+		int intProcessCount = Integer.parseInt(txtProcessCount.getText());
 
 		// keep the number of processes within range limit
 		if (intProcessCount < Configurations.MIN_PROCESSES) {
@@ -483,7 +469,7 @@ public class ZipController {
 		ObservableList<Node> childrenList = vboList.getChildren();
 		childrenList.clear();
 		vboList.setDisable(false);
-		fileZipItemMap.clear();
+		fileList.clear();
 		Label label = new Label();
 		label.setPadding(new Insets(5, 5, 5, 5));
 
@@ -545,26 +531,34 @@ public class ZipController {
 	 */
 	private List<Node> getItemList() throws IOException {
 		List<Node> itemList = new LinkedList<Node>();
-		List<File> fileList = Arrays.asList(inputFolder.listFiles());
-		fileList.sort(fileComparator);
+		List<File> inputFileList = Arrays.asList(inputFolder.listFiles());
 
-		for (File file : fileList) {
+		inputFileList.sort((File o1, File o2) -> {
+			if (o1.isDirectory() == o2.isDirectory()) {
+				return o1.getName().compareTo(o2.getName());
+			} else {
+				return o1.isDirectory() ? -1 : 1;
+			}
+		});
+
+		addAndCreateItemList(itemList, inputFileList);
+		return itemList;
+	}
+
+	private void addAndCreateItemList(List<Node> itemList, List<File> inputFileList) throws IOException {
+		for (File file : inputFileList) {
 			boolean isDirectory = file.isDirectory();
 			ObservableList<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
 			boolean checkFolder = isDirectory && fileFolderSelection.contains(Configurations.FOLDERS);
 			boolean checkFile = !isDirectory && fileFolderSelection.contains(Configurations.FILES);
 
 			if (checkFolder || checkFile) {
+				fileList.add(file);
 				FXMLLoader loader = new FXMLLoader(ResourceManager.getZipItemFXML());
-				Node zipItem = loader.load();
-				ZipItemController zipItemController = loader.getController();
-				zipItemController.initialiseAll(file);
-				fileZipItemMap.put(file, zipItemController);
-				itemList.add(zipItem);
+				itemList.add(loader.load());
+				EventBus.getDefault().post(new InitialiseItemEvent(file, chkObfuscateFileName.isSelected()));
 			}
 		}
-
-		return itemList;
 	}
 
 	@FXML
@@ -714,7 +708,7 @@ public class ZipController {
 	}
 
 	private void updateAbbreviationList() {
-		for (File file : fileZipItemMap.keySet()) {
+		for (File file : fileList) {
 			// remove trailing spaces and replace multiple spaces by one space
 			String fileName = file.getName().trim().replaceAll(" +", " ");
 			String zipFileName = chkObfuscateFileName.isSelected()
@@ -948,7 +942,7 @@ public class ZipController {
 			@Override
 			protected Integer call() {
 				try {
-					for (File file : fileZipItemMap.keySet()) {
+					for (File file : fileList) {
 						// wait until the number of concurrent processes are below the limit or user is
 						// pausing all processes
 						while (runningCount == userSetting.getProcessCount() || isPaused.get()) {
@@ -1104,21 +1098,20 @@ public class ZipController {
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
 		showProcessOnZipItem(originalFile, progressMonitor, zipName);
 		addProgress(progressMonitor);
-		ZipItemController zipItem = fileZipItemMap.get(originalFile);
 
 		// run while zip is not cancelled and is still in progress (paused is considered
 		// in progress)
 		while (!isStopped && progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
 			// only update progress if process is not being paused
 			if (!progressMonitor.isPause()) {
-				showProgress(progressMonitor, zipItem, isOuter);
+				showProgress(originalFile, isOuter);
 			}
 
 			// update progress every 0.5 second
 			Thread.sleep(500);
 		}
 
-		return getZipResult(progressMonitor, zipItem, isOuter);
+		return getZipResult(originalFile, progressMonitor, isOuter);
 	}
 
 	private ZipFile getZipFile(String filePath, String zipPath, boolean encrypt) throws ZipException {
@@ -1148,10 +1141,10 @@ public class ZipController {
 		return zip;
 	}
 
-	private void showProcessOnZipItem(File originalFile, ProgressMonitor progressMonitor, String zipName) {
+	private void showProcessOnZipItem(File file, ProgressMonitor progressMonitor, String zipName) {
 		Platform.runLater(() -> {
 			try {
-				fileZipItemMap.get(originalFile).beginProcess(progressMonitor, zipName, isPaused);
+				EventBus.getDefault().post(new BeginProcessEvent(file, progressMonitor, zipName, isPaused));
 			} catch (Exception e) {
 				showError(e, "Error when showing progress on file", false);
 			}
@@ -1162,17 +1155,17 @@ public class ZipController {
 		progressList.add(progress);
 	}
 
-	private void showProgress(ProgressMonitor progressMonitor, ZipItemController zipItem, boolean isOuter) {
+	private void showProgress(File file, boolean isOuter) {
 		Platform.runLater(() -> {
 			try {
-				zipItem.updateProgress(chkObfuscateFileName.isSelected(), isOuter);
+				EventBus.getDefault().post(new UpdateProgressEvent(file, isOuter));
 			} catch (Exception e) {
 				showError(e, "Error when updating progress", false);
 			}
 		});
 	}
 
-	private boolean getZipResult(ProgressMonitor progressMonitor, ZipItemController zipItem, boolean isOuter) {
+	private boolean getZipResult(File file, ProgressMonitor progressMonitor, boolean isOuter) {
 		if (isStopped) {
 			// canceling tasks while paused doesn't release processing thread
 			// (possibly a bug of zip4j)
@@ -1184,17 +1177,17 @@ public class ZipController {
 		} else {
 			// only show process is done if it's the outer layer
 			if (isOuter) {
-				showDoneProcess(zipItem);
+				showDoneProcess(file);
 			}
 
 			return true;
 		}
 	}
 
-	private void showDoneProcess(ZipItemController zipItem) {
+	private void showDoneProcess(File file) {
 		Platform.runLater(() -> {
 			try {
-				zipItem.finishProcess();
+				EventBus.getDefault().post(new FinishProcessEvent(file));
 			} catch (Exception e) {
 				showError(e, "Error when showing done process", false);
 			}
@@ -1212,7 +1205,7 @@ public class ZipController {
 			protected Integer call() {
 				try {
 					// wait until all processes are done
-					while (finishCount < fileZipItemMap.size()) {
+					while (finishCount < fileList.size()) {
 						Thread.sleep(500);
 					}
 

@@ -2,6 +2,9 @@ package main.java.xyz.gnas.piz.controllers.zip;
 
 import java.io.File;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -14,9 +17,13 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import main.java.xyz.gnas.piz.common.Utility;
 import main.java.xyz.gnas.piz.common.Configurations;
 import main.java.xyz.gnas.piz.common.ResourceManager;
+import main.java.xyz.gnas.piz.common.Utility;
+import main.java.xyz.gnas.piz.events.zip.BeginProcessEvent;
+import main.java.xyz.gnas.piz.events.zip.FinishProcessEvent;
+import main.java.xyz.gnas.piz.events.zip.InitialiseItemEvent;
+import main.java.xyz.gnas.piz.events.zip.UpdateProgressEvent;
 import net.lingala.zip4j.progress.ProgressMonitor;
 
 public class ZipItemController {
@@ -61,29 +68,9 @@ public class ZipItemController {
 
 	private BooleanProperty isPaused = new SimpleBooleanProperty();
 
+	private boolean isObfuscated;
+
 	private double percent;
-
-	public void initialiseAll(File inputFile) {
-		file = inputFile;
-
-		// folder is shown as blue
-		if (file.isDirectory()) {
-			lblOriginal.setStyle("-fx-text-fill: maroon");
-		}
-
-		lblOriginal.setText(file.getName());
-	}
-
-	public void beginProcess(ProgressMonitor progress, String zipName, BooleanProperty isMasterPaused) {
-		this.progressMonitor = progress;
-		lblZip.setText(zipName);
-		lblStatus.setText(PROCESSING);
-		hboResult.setVisible(true);
-		hboProcess.setVisible(true);
-		btnStop.setDisable(false);
-		btnPauseResume.disableProperty().bind(isMasterPaused);
-		setRootPanelClass("processing-item");
-	}
 
 	private void setRootPanelClass(String className) {
 		ObservableList<String> rootStyleClassList = acpRoot.getStyleClass();
@@ -91,29 +78,81 @@ public class ZipItemController {
 		rootStyleClassList.add(className);
 	}
 
-	public void updateProgress(boolean isObfuscated, boolean isOuter) {
-		// only show progress if progress isn't paused and isn't cancelled
-		if (!progressMonitor.isPause() && !progressMonitor.isCancelAllTasks()) {
-			percent = progressMonitor.getPercentDone() / 100.0;
+	@Subscribe
+	public void onInitialiseZipItemEvent(InitialiseItemEvent event) {
+		try {
+			// prevent reassigning because the event is never unregistered
+			if (file == null) {
+				file = event.getFile();
+				isObfuscated = event.isObfuscated();
 
-			// each layer of zip takes roughly 50% of the overall process
-			if (isObfuscated) {
-				percent /= 2;
-
-				// inner layer is finished
-				if (isOuter) {
-					percent = 0.5 + percent;
+				// folder is shown as blue
+				if (file.isDirectory()) {
+					lblOriginal.setStyle("-fx-text-fill: maroon");
 				}
-			}
 
-			pgiProgress.setProgress(percent);
+				lblOriginal.setText(file.getName());
+			}
+		} catch (Exception e) {
+			showError(e, "Error when initialising zip item", true);
 		}
 	}
 
-	public void finishProcess() {
-		pgiProgress.setProgress(1);
-		hboActions.setVisible(false);
-		setRootPanelClass("finished-item");
+	@Subscribe
+	public void onBeginProcessEvent(BeginProcessEvent event) {
+		try {
+			if (event.getFile() == file) {
+				progressMonitor = event.getProgressMonitor();
+				lblZip.setText(event.getZipName());
+				lblStatus.setText(PROCESSING);
+				hboResult.setVisible(true);
+				hboProcess.setVisible(true);
+				btnStop.setDisable(false);
+				btnPauseResume.disableProperty().bind(event.getIsMasterPaused());
+				setRootPanelClass("processing-item");
+			}
+		} catch (Exception e) {
+			showError(e, "Error when starting zip process", false);
+		}
+	}
+
+	@Subscribe
+	public void onUpdateProgressEvent(UpdateProgressEvent event) {
+		try {
+			if (event.getFile() == file) {
+				// only show progress if progress isn't paused and isn't cancelled
+				if (!progressMonitor.isPause() && !progressMonitor.isCancelAllTasks()) {
+					percent = progressMonitor.getPercentDone() / 100.0;
+
+					// each layer of zip takes roughly 50% of the overall process
+					if (isObfuscated) {
+						percent /= 2;
+
+						// inner layer is finished
+						if (event.isOuter()) {
+							percent = 0.5 + percent;
+						}
+					}
+
+					pgiProgress.setProgress(percent);
+				}
+			}
+		} catch (Exception e) {
+			showError(e, "Error when updating zip progress", false);
+		}
+	}
+
+	@Subscribe
+	public void onFinishProcessEvent(FinishProcessEvent event) {
+		try {
+			if (event.getFile() == file) {
+				pgiProgress.setProgress(1);
+				hboActions.setVisible(false);
+				setRootPanelClass("finished-item");
+			}
+		} catch (Exception e) {
+			showError(e, "Error when finishing zip process", false);
+		}
 	}
 
 	private void showError(Exception e, String message, boolean exit) {
@@ -127,6 +166,8 @@ public class ZipItemController {
 	@FXML
 	private void initialize() {
 		try {
+			EventBus.getDefault().register(this);
+
 			isPaused.addListener(
 					(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
 						try {
