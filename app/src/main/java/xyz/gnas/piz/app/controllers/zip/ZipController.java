@@ -9,17 +9,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
-import org.apache.commons.io.FilenameUtils;
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.IndexedCheckModel;
 import org.greenrobot.eventbus.EventBus;
@@ -66,6 +62,8 @@ import xyz.gnas.piz.app.events.zip.UpdateProgressEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
 import xyz.gnas.piz.app.models.UserSetting;
 import xyz.gnas.piz.app.models.ZipReference;
+import xyz.gnas.piz.core.logic.Zip;
+import xyz.gnas.piz.core.models.Abbreviation;
 
 public class ZipController {
 	@FXML
@@ -155,7 +153,7 @@ public class ZipController {
 	 * Keep track of the different abbreviations and files that will be abbreviated
 	 * to them, so output zip files have unique names
 	 */
-	private SortedMap<Abbreviation, Abbreviation> abbreviationList = new TreeMap<Abbreviation, Abbreviation>();
+	private SortedMap<Abbreviation, Abbreviation> abbreviationList;
 
 	/**
 	 * keep track of all progresses to stop them all if user chooses to stop or
@@ -660,7 +658,6 @@ public class ZipController {
 		try {
 			if (checkInput()) {
 				prepareToStart();
-				updateAbbreviationList();
 				runProcessMasterThread();
 				monitorAndUpdateProgress();
 			}
@@ -697,6 +694,7 @@ public class ZipController {
 	}
 
 	private void prepareToStart() throws FileNotFoundException, IOException {
+		writeInfoLog("Preparing");
 		isStopped = false;
 		saveUserSetting();
 		btnStart.setDisable(true);
@@ -704,225 +702,7 @@ public class ZipController {
 		isRunning.set(true);
 		runningCount = 0;
 		finishCount = 0;
-		abbreviationList.clear();
-	}
-
-	private void updateAbbreviationList() {
-		for (File file : fileList) {
-			// remove trailing spaces and replace multiple spaces by one space
-			String fileName = file.getName().trim().replaceAll(" +", " ");
-			String zipFileName = chkObfuscateFileName.isSelected()
-					? getAbbreviatedFileName(fileName, file.isDirectory())
-					: FilenameUtils.removeExtension(fileName);
-			Abbreviation abbreviation = new Abbreviation(zipFileName);
-
-			if (abbreviationList.containsKey(abbreviation)) {
-				abbreviation = abbreviationList.get(abbreviation);
-			}
-
-			abbreviation.fileAbbreviationMap.put(file, abbreviation.abbreviation);
-			abbreviationList.put(abbreviation, abbreviation);
-		}
-
-		if (chkObfuscateFileName.isSelected()) {
-			generateObfuscatedAbbreviationList();
-		}
-	}
-
-	private void generateObfuscatedAbbreviationList() {
-		writeInfoLog("Generating list of obfuscated names");
-
-		for (Abbreviation abbreviation : abbreviationList.keySet()) {
-			for (File file : abbreviation.fileAbbreviationMap.keySet()) {
-				String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
-
-				for (String word : split) {
-					int length = word.length();
-
-					if (abbreviation.longestWordLength < length) {
-						abbreviation.longestWordLength = length;
-					}
-				}
-			}
-		}
-
-		uniquifyAbbreviationList();
-		// It's not possible to guarantee unique names even after trying to uniquify
-		mergeDuplicateAbbreviations();
-	}
-
-	/**
-	 * @description Create unique abbreviations when there are multiple
-	 *              files/folders with the same abbreviation under the most simple
-	 *              case
-	 * @date Oct 9, 2018
-	 */
-	private void uniquifyAbbreviationList() {
-		for (Abbreviation abbreviation : abbreviationList.keySet()) {
-			Map<File, String> map = abbreviation.fileAbbreviationMap;
-
-			if (map.size() > 1) {
-				// first try to add file extension to remove duplicate
-				Map<File, String> uniqueMap = uniquifyByExtension(abbreviation);
-
-				// map that contains original files and their rebuilt names used for
-				// abbreviation
-				Map<File, String> fileRebuiltNameMap = new HashMap<File, String>();
-
-				for (File file : map.keySet()) {
-					fileRebuiltNameMap.put(file, file.getName());
-				}
-
-				int characterCount = 1;
-
-				// if there are still duplicates, add a character recursively until there are no
-				// duplicates
-				while (uniqueMap.values().stream().distinct().count() < uniqueMap.keySet().size()
-						&& characterCount < abbreviation.longestWordLength) {
-					uniqueMap = uniquifyByAddingCharacters(uniqueMap, characterCount, fileRebuiltNameMap);
-					++characterCount;
-				}
-
-				abbreviation.fileAbbreviationMap = uniqueMap;
-			}
-		}
-	}
-
-	private Map<File, String> uniquifyByExtension(Abbreviation abbreviation) {
-		Map<File, String> mapWithExtension = new HashMap<File, String>();
-		Map<File, String> map = abbreviation.fileAbbreviationMap;
-
-		for (File file : map.keySet()) {
-			String fileName = map.get(file);
-
-			if (file.isDirectory()) {
-				mapWithExtension.put(file, fileName);
-			} else {
-				String name = file.getName();
-				String abbreviatedName = getAbbreviatedFileName(name, false);
-				mapWithExtension.put(file, abbreviatedName + "_" + FilenameUtils.getExtension(name));
-			}
-		}
-
-		return mapWithExtension;
-	}
-
-	private Map<File, String> uniquifyByAddingCharacters(Map<File, String> map, int characterCount,
-			Map<File, String> fileRebuiltNameMap) {
-		// temporary new abbreviation list
-		Map<Abbreviation, Abbreviation> newAbbreviationList = getNewAbbreviationList(map);
-		updateNewAbbreviationList(newAbbreviationList, characterCount, fileRebuiltNameMap);
-		Map<File, String> result = new HashMap<File, String>();
-
-		for (Abbreviation abbreviation : newAbbreviationList.keySet()) {
-			Map<File, String> fileAbbreviationMap = abbreviation.fileAbbreviationMap;
-
-			for (File file : fileAbbreviationMap.keySet()) {
-				String newAbbreviatedName = map.get(file);
-
-				// get abbreviation of each file in abbreviation with duplicates using their
-				// rebuilt name
-				if (fileAbbreviationMap.size() > 1) {
-					newAbbreviatedName = getAbbreviatedFileName(fileRebuiltNameMap.get(file), file.isDirectory());
-				}
-
-				result.put(file, newAbbreviatedName);
-			}
-		}
-
-		return result;
-	}
-
-	private Map<Abbreviation, Abbreviation> getNewAbbreviationList(Map<File, String> map) {
-		Map<Abbreviation, Abbreviation> newAbbreviationList = new HashMap<Abbreviation, Abbreviation>();
-
-		for (String value : map.values()) {
-			Abbreviation abbreviation = new Abbreviation(value);
-
-			if (newAbbreviationList.containsKey(abbreviation)) {
-				abbreviation = newAbbreviationList.get(abbreviation);
-			}
-
-			for (File file : map.keySet()) {
-				if (map.get(file).equalsIgnoreCase(value)) {
-					abbreviation.fileAbbreviationMap.put(file, value);
-				}
-			}
-
-			newAbbreviationList.put(abbreviation, abbreviation);
-		}
-
-		return newAbbreviationList;
-	}
-
-	private void updateNewAbbreviationList(Map<Abbreviation, Abbreviation> newAbbreviationList, int characterCount,
-			Map<File, String> fileRebuiltNameMap) {
-		for (Abbreviation abbreviation : newAbbreviationList.keySet()) {
-			Map<File, String> map = abbreviation.fileAbbreviationMap;
-
-			// rebuild the original file names of abbreviation with multiple files
-			if (map.size() > 1) {
-				for (File file : map.keySet()) {
-					String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
-					StringBuilder sb = new StringBuilder();
-
-					for (String word : split) {
-						// separate each consecutive character by a space
-						for (int i = 0; i <= characterCount && i < word.length(); ++i) {
-							if (i > 0) {
-								sb.append(" ");
-							}
-
-							sb.append(word.charAt(i));
-						}
-					}
-
-					fileRebuiltNameMap.put(file, sb.toString().toUpperCase());
-				}
-			}
-		}
-	}
-
-	private void mergeDuplicateAbbreviations() {
-		SortedMap<Abbreviation, Abbreviation> newAbreviationList = new TreeMap<Abbreviation, Abbreviation>();
-
-		for (Abbreviation abbreviation : abbreviationList.keySet()) {
-			Map<File, String> map = abbreviation.fileAbbreviationMap;
-
-			for (File file : map.keySet()) {
-				// create a new Abbreviation object for each newly generated abbreviation
-				Abbreviation newAbbreviation = new Abbreviation(map.get(file));
-
-				if (newAbreviationList.containsKey(newAbbreviation)) {
-					newAbbreviation = newAbreviationList.get(newAbbreviation);
-				}
-
-				newAbbreviation.fileAbbreviationMap.put(file, newAbbreviation.abbreviation);
-				newAbreviationList.put(newAbbreviation, newAbbreviation);
-			}
-		}
-
-		abbreviationList = newAbreviationList;
-	}
-
-	/**
-	 * @description Most simple case of abbreviation
-	 * @date Oct 9, 2018
-	 * @param fileName name of the orinal file
-	 * @return
-	 */
-	private String getAbbreviatedFileName(String fileName, boolean isFolder) {
-		String delimiter = " ";
-		String[] split = isFolder ? fileName.split(delimiter)
-				: FilenameUtils.removeExtension(fileName).split(delimiter);
-		StringBuilder sb = new StringBuilder();
-
-		// get the first character of each word in upper case and append to result
-		for (String word : split) {
-			sb.append(word.substring(0, 1));
-		}
-
-		return sb.toString().toUpperCase();
+		abbreviationList = Zip.getAbbreviationList(fileList, chkObfuscateFileName.isSelected());
 	}
 
 	private void enableDisablePauseStop(boolean disable) {
@@ -1000,7 +780,7 @@ public class ZipController {
 		Abbreviation abbreviation = null;
 
 		for (Abbreviation currentAbbreviation : abbreviationList.keySet()) {
-			if (currentAbbreviation.fileAbbreviationMap.containsKey(file)) {
+			if (currentAbbreviation.getFileAbbreviationMap().containsKey(file)) {
 				abbreviation = currentAbbreviation;
 				break;
 			}
@@ -1009,7 +789,8 @@ public class ZipController {
 		if (chkObfuscateFileName.isSelected()) {
 			obfuscateFileNameAndZip(abbreviation, file);
 		} else {
-			prepareToZip(file, file, abbreviation.abbreviation, file.getParent() + "\\", chkEncrypt.isSelected(), true);
+			prepareToZip(file, file, abbreviation.getAbbreviation(), file.getParent() + "\\", chkEncrypt.isSelected(),
+					true);
 			increaseFinishCount();
 		}
 	}
@@ -1017,8 +798,8 @@ public class ZipController {
 	private void obfuscateFileNameAndZip(Abbreviation abbreviation, File file)
 			throws ZipException, InterruptedException, IOException {
 		String parentPath = outputFolder.getAbsolutePath() + "\\";
-		String zipName = abbreviation.abbreviation;
-		Map<File, String> map = abbreviation.fileAbbreviationMap;
+		String zipName = abbreviation.getAbbreviation();
+		Map<File, String> map = abbreviation.getFileAbbreviationMap();
 
 		if (map.size() > 1) {
 			ArrayList<File> temp = new ArrayList<File>(map.keySet());
@@ -1316,44 +1097,6 @@ public class ZipController {
 			}
 		} catch (Exception e) {
 			showError(e, "Could not stop all", false);
-		}
-	}
-
-	/**
-	 * @author Gnas
-	 * @date Oct 9, 2018
-	 * @description Class to make handling abbreviation easier, especially when
-	 *              multiple files/folder have the same abbreviation in the most
-	 *              simple case
-	 */
-	private class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbreviation> {
-		/**
-		 * This is the original result of the most simple case of abbreviation
-		 */
-		private String abbreviation;
-
-		/**
-		 * Length of the longest word, used for uniquifying algorithm
-		 */
-		private int longestWordLength = 0;
-
-		/**
-		 * Map the original file and its abbreviation
-		 */
-		private Map<File, String> fileAbbreviationMap = new HashMap<File, String>();
-
-		public Abbreviation(String abbreviation) {
-			this.abbreviation = abbreviation;
-		}
-
-		@Override
-		public int compare(Abbreviation o1, Abbreviation o2) {
-			return o1.abbreviation.compareTo(o2.abbreviation);
-		}
-
-		@Override
-		public int compareTo(Abbreviation o) {
-			return abbreviation.compareTo(o.abbreviation);
 		}
 	}
 }

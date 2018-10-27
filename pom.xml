@@ -10,7 +10,8 @@
 
 	<modules>
 		<module>app</module>
-		<module>jlink</module>
+		<module>core</module>
+		<module>jlinker</module>
 	</modules>	
 
 	<build>
