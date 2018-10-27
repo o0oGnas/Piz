@@ -6,7 +6,6 @@ import java.util.Calendar;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -134,27 +133,28 @@ public class ReferenceController {
 	}
 
 	private void addListenerToList() {
-		ApplicationModel.getInstance().getReferenceListPropery()
-				.addListener((ObservableValue<? extends ObservableList<ZipReference>> arg0,
-						ObservableList<ZipReference> arg1, ObservableList<ZipReference> arg2) -> {
-					tbvTable.setItems(arg2);
-					initialiseDateTimePickers();
+		ApplicationModel.getInstance().getReferenceListPropery().addListener(l -> {
+			ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
+			tbvTable.setItems(referenceList);
+			initialiseDateTimePickers();
 
-					arg2.addListener((ListChangeListener<ZipReference>) listener -> {
-						try {
-							// only show alert if the tab is active and the change was automatic
-							if (!isManualUpdate && isActive) {
-								Utility.showAlert("Update detected",
-										"Reference file was updated, the list will be automatically refreshed");
-							}
-
-							isManualUpdate = false;
-							tbvTable.setItems(arg2);
-						} catch (Exception e) {
-							showError(e, "Error when handling update to reference list", false);
+			if (referenceList != null) {
+				referenceList.addListener((ListChangeListener<ZipReference>) listener -> {
+					try {
+						// only show alert if the tab is active and the change was automatic
+						if (!isManualUpdate && isActive) {
+							Utility.showAlert("Update detected",
+									"Reference file was updated, the list will be automatically refreshed");
 						}
-					});
+
+						isManualUpdate = false;
+						tbvTable.setItems(referenceList);
+					} catch (Exception e) {
+						showError(e, "Error when handling update to reference list", false);
+					}
 				});
+			}
+		});
 	}
 
 	private void initialiseDateTimePickers() {
@@ -189,8 +189,7 @@ public class ReferenceController {
 	private void initialiseTable() {
 		tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-		tbvTable.itemsProperty().addListener((ObservableValue<? extends ObservableList<ZipReference>> arg0,
-				ObservableList<ZipReference> arg1, ObservableList<ZipReference> arg2) -> {
+		tbvTable.itemsProperty().addListener(l -> {
 			tbvTable.refresh();
 			lblReferenceCount.setText(tbvTable.getItems().size() + " references");
 		});

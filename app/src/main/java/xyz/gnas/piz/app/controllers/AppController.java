@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
@@ -77,10 +76,9 @@ public class AppController {
 			// reference tab
 			initialiseTab(tabReference, ResourceManager.getReferenceFXML());
 
-			tpTabs.getSelectionModel().selectedItemProperty()
-					.addListener((ObservableValue<? extends Tab> arg0, Tab arg1, Tab arg2) -> {
-						EventBus.getDefault().post(new ChangeTabEvent(arg2));
-					});
+			tpTabs.getSelectionModel().selectedItemProperty().addListener(l -> {
+				EventBus.getDefault().post(new ChangeTabEvent(tpTabs.getSelectionModel().getSelectedItem()));
+			});
 
 			initialiseReferenceList();
 		} catch (Exception e) {

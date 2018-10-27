@@ -7,7 +7,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -168,17 +167,16 @@ public class ZipItemController {
 		try {
 			EventBus.getDefault().register(this);
 
-			isPaused.addListener(
-					(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
-						try {
-							imvPauseResume.setImage(
-									newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-							btnPauseResume.setText(newValue ? Configurations.RESUME : Configurations.PAUSE);
-							lblStatus.setText(newValue ? "[Paused]" : PROCESSING);
-						} catch (Exception e) {
-							showError(e, "Error handling pause", false);
-						}
-					});
+			isPaused.addListener(l -> {
+				try {
+					boolean pause = isPaused.get();
+					imvPauseResume.setImage(pause ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+					btnPauseResume.setText(pause ? Configurations.RESUME : Configurations.PAUSE);
+					lblStatus.setText(pause ? "[Paused]" : PROCESSING);
+				} catch (Exception e) {
+					showError(e, "Error handling pause", false);
+				}
+			});
 		} catch (Exception e) {
 			showError(e, "Could not initialise zip item", true);
 		}

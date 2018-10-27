@@ -14,12 +14,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/10.0.1"
-	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="xyz.gnas.piz.app.controllers.zip.ZipController">
+<AnchorPane xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xyz.gnas.piz.app.controllers.zip.ZipController">
 	<children>
-		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+		<VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
 				<VBox fx:id="vboInputsAndActions">
 					<children>
@@ -27,53 +24,45 @@
 							<children>
 								<HBox VBox.vgrow="NEVER">
 									<children>
-										<HBox alignment="CENTER_LEFT" styleClass="control-box"
-											HBox.hgrow="ALWAYS">
+										<HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
 											<children>
-												<Button alignment="TOP_LEFT" mnemonicParsing="false"
-													onAction="#selectInputFolder" prefHeight="25.0"
-													prefWidth="130.0" styleClass="sm" text="Input folder"
-													HBox.hgrow="NEVER">
+												<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" prefWidth="130.0" styleClass="sm" text="Input folder" HBox.hgrow="NEVER">
 
 													<graphic>
-														<ImageView fitHeight="16.0" fitWidth="16.0"
-															pickOnBounds="true" preserveRatio="true">
+														<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 															<image>
 																<Image url="@../../icons/input_folder.png" />
 															</image>
 														</ImageView>
 													</graphic>
 												</Button>
-												<Label fx:id="lblInputFolder"
-													maxWidth="1.7976931348623157E308" prefHeight="25.0"
-													HBox.hgrow="ALWAYS">
+												<Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
 													<HBox.margin>
 														<Insets left="10.0" />
 													</HBox.margin>
 												</Label>
+                                    <ImageView fx:id="imvRefresh" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#refreshInputFolder" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../../icons/refresh.png" />
+                                       </image>
+                                    </ImageView>
 											</children>
 										</HBox>
-										<HBox alignment="CENTER_LEFT" styleClass="control-box"
-											HBox.hgrow="ALWAYS">
+										<HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
 											<children>
-												<Button alignment="TOP_LEFT" mnemonicParsing="false"
-													onAction="#selectOutputFolder" prefWidth="130.0"
-													styleClass="sm" text="Output folder">
+												<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#selectOutputFolder" prefWidth="130.0" styleClass="sm" text="Output folder">
 													<HBox.margin>
 														<Insets />
 													</HBox.margin>
 													<graphic>
-														<ImageView fitHeight="16.0" fitWidth="16.0"
-															pickOnBounds="true" preserveRatio="true">
+														<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 															<image>
 																<Image url="@../../icons/output_folder.png" />
 															</image>
 														</ImageView>
 													</graphic>
 												</Button>
-												<Label fx:id="lblOutputFolder"
-													maxWidth="1.7976931348623157E308" prefHeight="25.0"
-													HBox.hgrow="ALWAYS">
+												<Label fx:id="lblOutputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
 													<HBox.margin>
 														<Insets left="10.0" />
 													</HBox.margin>
@@ -93,8 +82,7 @@
 										<HBox alignment="CENTER_LEFT" styleClass="control-box">
 											<children>
 												<Label text="Perform zip on" />
-												<CheckComboBox fx:id="ccbFileFolder"
-													prefWidth="110.0">
+												<CheckComboBox fx:id="ccbFileFolder" prefWidth="110.0">
 													<HBox.margin>
 														<Insets left="10.0" />
 													</HBox.margin>
@@ -103,9 +91,7 @@
 										</HBox>
 										<HBox alignment="CENTER_LEFT" styleClass="control-box">
 											<children>
-												<TextField fx:id="txtProcessCount"
-													alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0"
-													text="5">
+												<TextField fx:id="txtProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0" text="5">
 													<HBox.margin>
 														<Insets />
 													</HBox.margin>
@@ -122,17 +108,14 @@
 										</HBox>
 										<HBox alignment="CENTER_LEFT" styleClass="control-box">
 											<children>
-												<CheckBox fx:id="chkEncrypt"
-													mnemonicParsing="false" selected="true" text="Encrypt">
+												<CheckBox fx:id="chkEncrypt" mnemonicParsing="false" selected="true" text="Encrypt">
 													<HBox.margin>
 														<Insets />
 													</HBox.margin>
 												</CheckBox>
-												<HBox fx:id="hboPassword" alignment="CENTER_LEFT"
-													styleClass="control-box">
+												<HBox fx:id="hboPassword" alignment="CENTER_LEFT" styleClass="control-box">
 													<padding>
-														<Insets bottom="5.0" left="5.0" right="5.0"
-															top="5.0" />
+														<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
 													</padding>
 													<children>
 														<Label text="Password">
@@ -140,22 +123,17 @@
 																<Insets right="10.0" />
 															</HBox.margin>
 														</Label>
-														<TextField fx:id="txtPassword"
-															promptText="Password" visible="false">
+														<TextField fx:id="txtPassword" promptText="Password" visible="false">
 															<HBox.margin>
 																<Insets />
 															</HBox.margin>
 														</TextField>
-														<PasswordField fx:id="pwfPassword"
-															promptText="Password">
+														<PasswordField fx:id="pwfPassword" promptText="Password">
 															<HBox.margin>
 																<Insets />
 															</HBox.margin>
 														</PasswordField>
-														<ImageView fx:id="imvMaskUnmask"
-															fitHeight="16.0" fitWidth="16.0"
-															onMouseClicked="#maskUnmask" pickOnBounds="true"
-															preserveRatio="true">
+														<ImageView fx:id="imvMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
 															<image>
 																<Image url="@../../icons/masked.png" />
 															</image>
@@ -175,37 +153,30 @@
 										</HBox>
 									</children>
 								</HBox>
-								<HBox alignment="CENTER_LEFT">
+								<HBox fx:id="hboObfuscate" alignment="CENTER_LEFT">
 									<children>
-										<CheckBox fx:id="chkObfuscateFileName"
-											mnemonicParsing="false" selected="true"
-											text="Obfuscate file name">
+										<CheckBox fx:id="chkObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name">
 											<HBox.margin>
 												<Insets />
 											</HBox.margin>
 										</CheckBox>
-										<HBox fx:id="hboReference" alignment="CENTER_LEFT"
-											styleClass="control-box">
+										<HBox fx:id="hboReference" alignment="CENTER_LEFT" styleClass="control-box">
 											<padding>
 												<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
 											</padding>
 											<children>
-												<CheckBox fx:id="chkAddReferences"
-													mnemonicParsing="false" text="Add references">
+												<CheckBox fx:id="chkAddReferences" mnemonicParsing="false" text="Add references">
 													<HBox.margin>
 														<Insets />
 													</HBox.margin>
 												</CheckBox>
-												<HBox fx:id="hboTag" alignment="CENTER_LEFT"
-													styleClass="control-box">
+												<HBox fx:id="hboTag" alignment="CENTER_LEFT" styleClass="control-box">
 													<padding>
-														<Insets bottom="5.0" left="5.0" right="5.0"
-															top="5.0" />
+														<Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
 													</padding>
 													<children>
 														<Label text="Tag" />
-														<TextField fx:id="txtReferenceTag"
-															promptText="Reference tag">
+														<TextField fx:id="txtTag" promptText="Tag">
 															<HBox.margin>
 																<Insets left="10.0" />
 															</HBox.margin>
@@ -229,43 +200,33 @@
 						</VBox>
 						<HBox fx:id="hboActions" alignment="CENTER_LEFT">
 							<children>
-								<Button fx:id="btnStart" alignment="TOP_LEFT"
-									mnemonicParsing="false" onAction="#start" prefWidth="100.0"
-									styleClass="sm" text="Start">
+								<Button fx:id="btnStart" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#start" prefWidth="100.0" styleClass="sm" text="Start">
 									<graphic>
-										<ImageView fitHeight="16.0" fitWidth="16.0"
-											pickOnBounds="true" preserveRatio="true">
+										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 											<image>
 												<Image url="@../../icons/start.png" />
 											</image>
 										</ImageView>
 									</graphic>
 								</Button>
-								<Button fx:id="btnPauseResume" alignment="TOP_LEFT"
-									disable="true" mnemonicParsing="false"
-									onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm"
-									text="Pause">
+								<Button fx:id="btnPauseResume" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm" text="Pause">
 									<HBox.margin>
 										<Insets left="10.0" />
 									</HBox.margin>
 									<graphic>
-										<ImageView fx:id="imvPauseResume" fitHeight="16.0"
-											fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+										<ImageView fx:id="imvPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 											<image>
 												<Image url="@../../icons/pause.png" />
 											</image>
 										</ImageView>
 									</graphic>
 								</Button>
-								<Button fx:id="btnStop" alignment="TOP_LEFT"
-									disable="true" mnemonicParsing="false" onAction="#stop"
-									prefWidth="100.0" styleClass="sm" text="Stop">
+								<Button fx:id="btnStop" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" styleClass="sm" text="Stop">
 									<HBox.margin>
 										<Insets left="10.0" />
 									</HBox.margin>
 									<graphic>
-										<ImageView fitHeight="16.0" fitWidth="16.0"
-											pickOnBounds="true" preserveRatio="true">
+										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
 											<image>
 												<Image url="@../../icons/stop.png" />
 											</image>
@@ -279,8 +240,7 @@
 						</HBox>
 					</children>
 				</VBox>
-				<ScrollPane fitToWidth="true"
-					style="-fx-background: white;" VBox.vgrow="ALWAYS">
+				<ScrollPane fitToWidth="true" style="-fx-background: white;" VBox.vgrow="ALWAYS">
 					<VBox.margin>
 						<Insets top="10.0" />
 					</VBox.margin>

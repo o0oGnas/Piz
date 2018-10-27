@@ -18,14 +18,15 @@ import java.util.SortedMap;
 
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.IndexedCheckModel;
+import org.controlsfx.control.textfield.TextFields;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -73,6 +74,15 @@ public class ZipController {
 	private Label lblOutputFolder;
 
 	@FXML
+	private ImageView imvRefresh;
+
+	@FXML
+	private ImageView imvMaskUnmask;
+
+	@FXML
+	private ImageView imvPauseResume;
+
+	@FXML
 	private CheckComboBox<String> ccbFileFolder;
 
 	@FXML
@@ -91,7 +101,7 @@ public class ZipController {
 	private TextField txtPassword;
 
 	@FXML
-	private TextField txtReferenceTag;
+	private TextField txtTag;
 
 	@FXML
 	private PasswordField pwfPassword;
@@ -107,6 +117,9 @@ public class ZipController {
 
 	@FXML
 	private HBox hboPassword;
+
+	@FXML
+	private HBox hboObfuscate;
 
 	@FXML
 	private HBox hboReference;
@@ -126,16 +139,10 @@ public class ZipController {
 	@FXML
 	private Button btnStop;
 
-	@FXML
-	private ImageView imvMaskUnmask;
-
-	@FXML
-	private ImageView imvPauseResume;
-
 	/**
 	 * Source folder containing original files and folders
 	 */
-	private File inputFolder;
+	private ObjectProperty<File> inputFolder = new SimpleObjectProperty<File>();
 
 	/**
 	 * Destination folder that will contain zip files
@@ -147,7 +154,7 @@ public class ZipController {
 	/**
 	 * Set of files to process
 	 */
-	private List<File> fileList;
+	private List<File> fileList = new LinkedList<File>();;
 
 	/**
 	 * Keep track of the different abbreviations and files that will be abbreviated
@@ -219,63 +226,12 @@ public class ZipController {
 	private void initialize() {
 		try {
 			EventBus.getDefault().register(this);
-			initialiseFileZipItemMap();
-			initialiseCheckBoxes();
 			initialiseUserSetting();
-			initialiseFileFolderCheckComboBox();
-			initialiseInputOutputFolders();
-			initialisePasswordField();
-			initialiseProcessCountTextField();
-			initialiseRunningListener();
-			initialisePausedListener();
+			initialiseListeners();
+			initialiseControls();
 		} catch (Exception e) {
 			showError(e, "Could not initialise zip tab", true);
 		}
-	}
-
-	private void initialiseFileZipItemMap() {
-		fileList = new LinkedList<File>();
-	}
-
-	private void initialiseCheckBoxes() {
-		initialiseEncryptCheckBox();
-		initialiseObfuscateCheckBox();
-		initialiseAddReferenceCheckBox();
-	}
-
-	private void initialiseEncryptCheckBox() {
-		chkEncrypt.selectedProperty()
-				.addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
-					try {
-						hboPassword.setDisable(!newValue);
-					} catch (Exception e) {
-						showError(e, "Error handling checking encryption check box", false);
-					}
-				});
-	}
-
-	private void initialiseObfuscateCheckBox() {
-		chkObfuscateFileName.selectedProperty()
-				.addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) -> {
-					try {
-						hboReference.setDisable(!newValue);
-					} catch (Exception e) {
-						showError(e, "Error handling checking obfuscation check box", false);
-					}
-				});
-	}
-
-	private void initialiseAddReferenceCheckBox() {
-		chkAddReferences.selectedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				try {
-					hboTag.setDisable(!newValue);
-				} catch (Exception e) {
-					showError(e, "Error handling checking add reference check box", false);
-				}
-			}
-		});
 	}
 
 	private void initialiseUserSetting() throws IOException {
@@ -289,24 +245,63 @@ public class ZipController {
 				try {
 					userSetting = (UserSetting) ois.readObject();
 				} catch (ClassNotFoundException e) {
-					showError(e, "Error reading user setting file", false);
+					showError(e, "Error reading user setting", false);
+					setDefaultUserSetting();
 				}
 			}
 		} else {
-			userSetting = new UserSetting(null, null, null, null, true, true, true,
-					Integer.parseInt(txtProcessCount.getText()));
+			setDefaultUserSetting();
 		}
-
-		initialiseInputFields();
 	}
 
-	private void initialiseInputFields() {
-		txtPassword.setText(userSetting.getPassword());
-		txtReferenceTag.setText(userSetting.getReferenceTag());
-		txtProcessCount.setText(userSetting.getProcessCount() + "");
-		chkEncrypt.setSelected(userSetting.isEncrypt());
-		chkObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
-		chkAddReferences.setSelected(userSetting.isAddReference());
+	private void setDefaultUserSetting() {
+		userSetting = new UserSetting(null, null, null, null, true, true, true,
+				Integer.parseInt(txtProcessCount.getText()));
+	}
+
+	private void initialiseListeners() {
+		initialiseInputFolderListener();
+		initialiseRunningListener();
+		initialisePausedListener();
+	}
+
+	private void initialiseInputFolderListener() {
+		inputFolder.addListener(l -> {
+			try {
+				// disable refresh if no input folder is selected
+				imvRefresh.setDisable(inputFolder.get() == null);
+			} catch (Exception e) {
+				showError(e, "Error handling check box", false);
+			}
+		});
+	}
+
+	private void initialiseRunningListener() {
+		// disable all inputs if processes are running
+		vboInputFields.mouseTransparentProperty().bind(isRunning);
+		vboInputFields.focusTraversableProperty().bind(isRunning.not());
+	}
+
+	private void initialisePausedListener() {
+		isPaused.addListener(l -> {
+			try {
+				boolean pause = isPaused.get();
+				btnPauseResume.setText(pause ? Configurations.RESUME : Configurations.PAUSE);
+				imvPauseResume.setImage(pause ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+			} catch (Exception e) {
+				showError(e, "Error handling pause/resume", false);
+			}
+		});
+	}
+
+	private void initialiseControls() throws IOException {
+		initialiseFileFolderCheckComboBox();
+		initialiseTagTextField();
+		initialiseCheckBoxes();
+		initialisePasswordFields();
+		initialiseProcessCountTextField();
+		initialiseInputFields();
+		initialiseInputOutputFolders();
 	}
 
 	private void initialiseFileFolderCheckComboBox() {
@@ -325,19 +320,137 @@ public class ZipController {
 		}
 
 		// handle event when user changes selection
-		checkedModel.getCheckedItems().addListener((ListChangeListener<String>) listener -> {
+		checkedModel.getCheckedItems().addListener((ListChangeListener<String>) l -> {
 			try {
-				updateFolderAndFileLists();
+				loadFolderAndFileLists();
 			} catch (Exception e) {
 				showError(e, "Error filtering file/folder", false);
 			}
 		});
 	}
 
+	private void initialiseCheckBoxes() {
+		initialiseCheckBox(chkEncrypt, hboPassword, hboObfuscate);
+		initialiseCheckBox(chkObfuscateFileName, hboReference);
+		initialiseCheckBox(chkAddReferences, hboTag);
+	}
+
+	private void initialiseCheckBox(CheckBox chk, HBox... hboList) {
+		chk.selectedProperty().addListener(l -> {
+			try {
+				for (HBox hbo : hboList) {
+					hbo.setDisable(!chk.isSelected());
+				}
+			} catch (Exception e) {
+				showError(e, "Error handling check box", false);
+			}
+		});
+	}
+
+	private void initialisePasswordFields() {
+		txtPassword.setManaged(false);
+
+		// bind text field to mask
+		txtPassword.managedProperty().bind(isMasked.not());
+		txtPassword.visibleProperty().bind(isMasked.not());
+
+		// bind password field to mask
+		pwfPassword.managedProperty().bind(isMasked);
+		pwfPassword.visibleProperty().bind(isMasked);
+
+		// bind value of text field and password field
+		pwfPassword.textProperty().bindBidirectional(txtPassword.textProperty());
+
+		isMasked.addListener(l -> {
+			try {
+				imvMaskUnmask
+						.setImage(isMasked.get() ? ResourceManager.getMaskedIcon() : ResourceManager.getUnmaskedIcon());
+			} catch (Exception e) {
+				showError(e, "Error handling masking/unmasking", false);
+			}
+		});
+	}
+
+	private void initialiseProcessCountTextField() {
+		txtProcessCount.textProperty().addListener(listner -> {
+			try {
+				String text = txtProcessCount.getText();
+
+				if (!text.matches("\\d+")) {
+					txtProcessCount.setText(text.replaceAll("[^\\d]", ""));
+				}
+			} catch (Exception e) {
+				showError(e, "Error handling process count text", false);
+			}
+		});
+
+		txtProcessCount.focusedProperty().addListener(l -> {
+			try {
+				// when user removes focus from process count text field
+				if (!txtProcessCount.isFocused()) {
+					correctProcessCount();
+				}
+			} catch (Exception e) {
+				showError(e, "Error correcting process count text", false);
+			}
+		});
+	}
+
+	private void correctProcessCount() {
+		// if text is empty, set it to MIN_PROCESSES
+		if (txtProcessCount.getText() == null || txtProcessCount.getText().isEmpty()) {
+			txtProcessCount.setText(Configurations.MIN_PROCESSES + "");
+		}
+
+		int intProcessCount = Integer.parseInt(txtProcessCount.getText());
+
+		// keep the number of processes within range limit
+		if (intProcessCount < Configurations.MIN_PROCESSES) {
+			intProcessCount = Configurations.MIN_PROCESSES;
+		} else if (intProcessCount > Configurations.MAX_PROCESSES) {
+			intProcessCount = Configurations.MAX_PROCESSES;
+		}
+
+		// this also helps removing leading zeroes
+		txtProcessCount.setText(intProcessCount + "");
+	}
+
+	private void initialiseTagTextField() {
+		ApplicationModel.getInstance().getReferenceListPropery().addListener(protertyListener -> {
+			updateTagAutocomplete();
+			ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
+
+			if (referenceList != null) {
+				referenceList.addListener((ListChangeListener<ZipReference>) listListener -> {
+					updateTagAutocomplete();
+				});
+			}
+		});
+	}
+
+	private void updateTagAutocomplete() {
+		List<String> autocomplete = new LinkedList<String>();
+
+		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+			autocomplete.add(reference.getTag());
+		}
+
+		TextFields.bindAutoCompletion(txtTag, autocomplete);
+	}
+
+	private void initialiseInputFields() {
+		txtPassword.setText(userSetting.getPassword());
+		txtTag.setText(userSetting.getReferenceTag());
+		txtProcessCount.setText(userSetting.getProcessCount() + "");
+		chkEncrypt.setSelected(userSetting.isEncrypt());
+		chkObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
+		chkAddReferences.setSelected(userSetting.isAddReference());
+	}
+
 	private void initialiseInputOutputFolders() throws IOException {
-		inputFolder = initialiseFolder(userSetting.getInputFolder(), lblInputFolder);
+		inputFolder.set(initialiseFolder(userSetting.getInputFolder(), lblInputFolder));
 		outputFolder = initialiseFolder(userSetting.getOutputFolder(), lblOutputFolder);
-		updateFolderAndFileLists();
+		loadFolderAndFileLists();
 	}
 
 	/**
@@ -362,99 +475,6 @@ public class ZipController {
 		return null;
 	}
 
-	private void initialisePasswordField() {
-		txtPassword.setManaged(false);
-
-		// bind text field to mask
-		txtPassword.managedProperty().bind(isMasked.not());
-		txtPassword.visibleProperty().bind(isMasked.not());
-
-		// bind password field to mask
-		pwfPassword.managedProperty().bind(isMasked);
-		pwfPassword.visibleProperty().bind(isMasked);
-
-		// bind value of text field and password field
-		pwfPassword.textProperty().bindBidirectional(txtPassword.textProperty());
-
-		isMasked.addListener(listener -> {
-			try {
-				imvMaskUnmask
-						.setImage(isMasked.get() ? ResourceManager.getMaskedIcon() : ResourceManager.getUnmaskedIcon());
-			} catch (Exception e) {
-				showError(e, "Error handling masking/unmasking", false);
-			}
-		});
-	}
-
-	private void initialiseProcessCountTextField() {
-		txtProcessCount.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				try {
-					if (!newValue.matches("\\d+")) {
-						txtProcessCount.setText(newValue.replaceAll("[^\\d]", ""));
-					}
-				} catch (Exception e) {
-					showError(e, "Error handling process count text", false);
-				}
-			}
-		});
-
-		txtProcessCount.focusedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				try {
-					// when user removes focus from process count text field
-					if (!newValue) {
-						correctProcessCount();
-					}
-				} catch (Exception e) {
-					showError(e, "Error correcting process count text", false);
-				}
-			}
-		});
-	}
-
-	private void correctProcessCount() {
-		// if text is empty, set it to MIN_PROCESSES
-		if (txtProcessCount.getText() == null || txtProcessCount.getText().isEmpty()) {
-			txtProcessCount.setText(Configurations.MIN_PROCESSES + "");
-		}
-
-		int intProcessCount = Integer.parseInt(txtProcessCount.getText());
-
-		// keep the number of processes within range limit
-		if (intProcessCount < Configurations.MIN_PROCESSES) {
-			intProcessCount = Configurations.MIN_PROCESSES;
-		} else if (intProcessCount > Configurations.MAX_PROCESSES) {
-			intProcessCount = Configurations.MAX_PROCESSES;
-		}
-
-		// this also helps removing leading zeroes
-		txtProcessCount.setText(intProcessCount + "");
-	}
-
-	private void initialiseRunningListener() {
-		// disable all inputs if processes are running
-		vboInputFields.mouseTransparentProperty().bind(isRunning);
-		vboInputFields.focusTraversableProperty().bind(isRunning.not());
-	}
-
-	private void initialisePausedListener() {
-		isPaused.addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-				try {
-					btnPauseResume.setText(newValue ? Configurations.RESUME : Configurations.PAUSE);
-					imvPauseResume
-							.setImage(newValue ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
-				} catch (Exception e) {
-					showError(e, "Error handling pause/resume", false);
-				}
-			}
-		});
-	}
-
 	private void stopAllProcesses() {
 		writeInfoLog("Stopping all proceses");
 		// disable all actions until all processes are stopped properly
@@ -463,7 +483,7 @@ public class ZipController {
 		isStopped = true;
 	}
 
-	private void updateFolderAndFileLists() throws IOException {
+	private void loadFolderAndFileLists() throws IOException {
 		ObservableList<Node> childrenList = vboList.getChildren();
 		childrenList.clear();
 		vboList.setDisable(false);
@@ -471,21 +491,25 @@ public class ZipController {
 		Label label = new Label();
 		label.setPadding(new Insets(5, 5, 5, 5));
 
-		if (inputFolder != null && inputFolder.listFiles().length > 0) {
+		if (inputFolder.get() != null && inputFolder.get().listFiles().length > 0) {
 			label.setText("Generating file and folder list ...");
 
 			// disable all controls
 			vboInputsAndActions.setDisable(true);
 			generateFileAndFolderList(label);
 		} else {
-			label.setText(Configurations.EMPTY_LIST_MESSAGE);
-
-			// disable action buttons if there are no files or folders
-			hboActions.setDisable(true);
+			handleEmptyList(label);
 		}
 
 		childrenList.add(label);
 		vboList.autosize();
+	}
+
+	private void handleEmptyList(Label label) {
+		label.setText(Configurations.EMPTY_LIST_MESSAGE);
+
+		// disable action buttons if there are no files or folders
+		hboActions.setDisable(true);
 	}
 
 	private void generateFileAndFolderList(Label label) {
@@ -502,11 +526,12 @@ public class ZipController {
 						if (itemList.size() > 0) {
 							childrenList.remove(label);
 							childrenList.addAll(itemList);
-							vboInputsAndActions.setDisable(false);
 							hboActions.setDisable(false);
 						} else {
-							label.setText(Configurations.EMPTY_LIST_MESSAGE);
+							handleEmptyList(label);
 						}
+
+						vboInputsAndActions.setDisable(false);
 					});
 				} catch (Exception e) {
 					Platform.runLater(() -> {
@@ -529,7 +554,7 @@ public class ZipController {
 	 */
 	private List<Node> getItemList() throws IOException {
 		List<Node> itemList = new LinkedList<Node>();
-		List<File> inputFileList = Arrays.asList(inputFolder.listFiles());
+		List<File> inputFileList = Arrays.asList(inputFolder.get().listFiles());
 
 		inputFileList.sort((File o1, File o2) -> {
 			if (o1.isDirectory() == o2.isDirectory()) {
@@ -567,18 +592,18 @@ public class ZipController {
 			// keep old folder if user cancels folder selection
 			if (folder != null) {
 				writeInfoLog("Selected input folder " + folder.getAbsolutePath());
-				inputFolder = folder;
-				String path = inputFolder.getAbsolutePath();
+				inputFolder.set(folder);
+				String path = inputFolder.get().getAbsolutePath();
 				lblInputFolder.setText(path);
 
 				// set output folder to the same as input folder if it is not yet selected
 				if (outputFolder == null) {
-					outputFolder = inputFolder;
+					outputFolder = inputFolder.get();
 					lblOutputFolder.setText(path);
 				}
 
 				saveUserSetting();
-				updateFolderAndFileLists();
+				loadFolderAndFileLists();
 			}
 		} catch (Exception e) {
 			showError(e, "Could not select input folder", false);
@@ -603,8 +628,10 @@ public class ZipController {
 	}
 
 	private void saveUserSetting() throws FileNotFoundException, IOException {
-		if (inputFolder != null) {
-			userSetting.setInputFolder(inputFolder.getAbsolutePath());
+		File input = inputFolder.get();
+
+		if (input != null) {
+			userSetting.setInputFolder(input.getAbsolutePath());
 		}
 
 		if (outputFolder != null) {
@@ -612,10 +639,9 @@ public class ZipController {
 		}
 
 		userSetting.setPassword(txtPassword.getText());
-		userSetting.setReferenceTag(txtReferenceTag.getText());
-		ObservableList<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
+		userSetting.setReferenceTag(txtTag.getText());
 		userSetting.setFileFolder(
-				Arrays.copyOf(fileFolderSelection.toArray(), fileFolderSelection.size(), String[].class));
+				Arrays.stream(ccbFileFolder.getCheckModel().getCheckedItems().toArray()).toArray(String[]::new));
 		userSetting.setEncrypt(chkEncrypt.isSelected());
 		userSetting.setObfuscateFileName(chkObfuscateFileName.isSelected());
 		userSetting.setAddReference(chkAddReferences.isSelected());
@@ -645,6 +671,15 @@ public class ZipController {
 	}
 
 	@FXML
+	private void refreshInputFolder(MouseEvent event) {
+		try {
+			loadFolderAndFileLists();
+		} catch (Exception e) {
+			showError(e, "Could not refresh input folder", false);
+		}
+	}
+
+	@FXML
 	private void maskUnmask(MouseEvent event) {
 		try {
 			isMasked.set(!isMasked.get());
@@ -667,7 +702,7 @@ public class ZipController {
 	}
 
 	private boolean checkInput() {
-		if (inputFolder == null) {
+		if (inputFolder.get() == null) {
 			Utility.showAlert("Invalid input", "Please choose a folder!");
 			return false;
 		}
@@ -685,7 +720,7 @@ public class ZipController {
 		// check that reference tag is entered if user chooses to obfuscate name and add
 		// reference
 		if (chkObfuscateFileName.isSelected() && chkAddReferences.isSelected()
-				&& (txtReferenceTag.getText() == null || txtReferenceTag.getText().isEmpty())) {
+				&& (txtTag.getText() == null || txtTag.getText().isEmpty())) {
 			Utility.showAlert("Invalid input", "Please enter a reference tag!");
 			return false;
 		}
@@ -1021,7 +1056,7 @@ public class ZipController {
 				hboActions.setDisable(false);
 				btnStart.setDisable(false);
 				enableDisablePauseStop(true);
-				updateFolderAndFileLists();
+				loadFolderAndFileLists();
 
 				// play notification sound if process is not canceled prematurely
 				if (!isStopped) {
