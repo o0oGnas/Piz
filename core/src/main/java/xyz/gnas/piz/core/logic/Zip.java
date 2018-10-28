@@ -1,6 +1,8 @@
 package xyz.gnas.piz.core.logic;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +11,27 @@ import java.util.TreeMap;
 
 import org.apache.commons.io.FilenameUtils;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.progress.ProgressMonitor;
+import net.lingala.zip4j.util.Zip4jConstants;
 import xyz.gnas.piz.core.models.Abbreviation;
+import xyz.gnas.piz.core.models.ZipInput;
+import xyz.gnas.piz.core.models.ZipProcess;
+import xyz.gnas.piz.core.models.ZipReference;
 
 public class Zip {
+	private static final int NEW_REFERENCE_POSITION = 0;
+
+	/**
+	 * @author Gnas
+	 * @date Oct 27, 2018
+	 * @description get a set of Abbreviation objects based on a list of files
+	 * @param fileList     input list of files
+	 * @param isObfuscated flag to tell if obfuscation is needed
+	 * @return
+	 */
 	public static SortedMap<Abbreviation, Abbreviation> getAbbreviationList(List<File> fileList, boolean isObfuscated) {
 		SortedMap<Abbreviation, Abbreviation> abbreviationList = new TreeMap<Abbreviation, Abbreviation>();
 
@@ -231,5 +251,147 @@ public class Zip {
 		}
 
 		return newAbreviationList;
+	}
+
+	/**
+	 * @author Gnas
+	 * @date Oct 28, 2018
+	 * @description perform zipping on a file
+	 * @param input        wrapper around necesscary inputs
+	 * @param process      object to contain updates to the process
+	 * @param abbreviation the abbreviation object to determine the name of the zip
+	 *                     file
+	 * @throws Exception
+	 */
+	public static void processFile(ZipInput input, ZipProcess process, Abbreviation abbreviation) throws Exception {
+		if (input.isObfuscate()) {
+			obfuscateFileNameAndZip(process, abbreviation, input);
+		} else {
+			prepareToZip(process, input, abbreviation.getAbbreviation());
+		}
+
+		process.setComplete(true);
+	}
+
+	private static void obfuscateFileNameAndZip(ZipProcess process, Abbreviation abbreviation, ZipInput input)
+			throws ZipException, InterruptedException, IOException {
+		String zipName = abbreviation.getAbbreviation();
+		Map<File, String> map = abbreviation.getFileAbbreviationMap();
+
+		if (map.size() > 1) {
+			ArrayList<File> temp = new ArrayList<File>(map.keySet());
+
+			for (int i = 0; i < temp.size(); ++i) {
+				if (input.getOriginalFile().equals(temp.get(i))) {
+					// add suffix to make zip name unique
+					zipName += "_" + (i + 1);
+					break;
+				}
+			}
+		}
+
+		// create inner zip without encryption
+		File innerZipFile = prepareToZip(process, input, zipName + "_inner");
+
+		// only create outer zip if it's not cancelled
+		if (innerZipFile != null) {
+			processOuterZip(process, input, innerZipFile, zipName);
+		}
+	}
+
+	private static File prepareToZip(ZipProcess process, ZipInput input, String zipName)
+			throws ZipException, InterruptedException {
+		String extension = ".zip";
+		String fullZipName;
+		File fileZip = null;
+		int count = 0;
+
+		// if zip file with this name already exists, append a number until we get a
+		// unique file name
+		do {
+			fullZipName = zipName;
+
+			if (fileZip != null) {
+				fullZipName += "_" + count;
+			}
+
+			fullZipName += extension;
+			fileZip = new File(input.getOutputFolder().getAbsolutePath() + "\\" + fullZipName);
+			++count;
+		} while (fileZip == null || fileZip.exists());
+
+		process.setOutputFile(fileZip);
+
+		if (performZip(process, input, fileZip.getAbsolutePath())) {
+			return fileZip;
+		} else {
+			return null;
+		}
+	}
+
+	private static boolean performZip(ZipProcess process, ZipInput input, String zipPath)
+			throws ZipException, InterruptedException {
+		ZipFile zip = getZipFile(input, zipPath);
+		ProgressMonitor progressMonitor = zip.getProgressMonitor();
+		process.setProgressMonitor(progressMonitor);
+
+		while (progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
+			Thread.sleep(500);
+		}
+
+		if (progressMonitor.isCancelAllTasks()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	private static ZipFile getZipFile(ZipInput input, String zipPath) throws ZipException {
+		ZipFile zip = new ZipFile(zipPath);
+		ZipParameters parameters = new ZipParameters();
+		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
+
+		// set encryption
+		if (input.isEncrypt()) {
+			parameters.setEncryptFiles(true);
+			parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
+			parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
+			parameters.setPassword(input.getPassword());
+		}
+
+		// run in a separate thread so we can monitor progress
+		zip.setRunInThread(true);
+		File file = new File(input.getFileToZip().getAbsolutePath());
+
+		if (file.isDirectory()) {
+			zip.addFolder(file, parameters);
+		} else {
+			zip.addFile(file, parameters);
+		}
+
+		return zip;
+	}
+
+	private static void processOuterZip(ZipProcess process, ZipInput input, File innerZipFile, String outerZipName)
+			throws ZipException, InterruptedException, IOException {
+		process.setOuter(true);
+		input.setFileToZip(innerZipFile);
+		File outerZipFile = prepareToZip(process, input, outerZipName);
+
+		// remove inner zip from disk
+		innerZipFile.delete();
+
+		// only add reference if user chooses to and process is not cancelled
+		if (input.isAddReference() && outerZipFile != null) {
+			addReference(input, outerZipFile.getName());
+		}
+	}
+
+	synchronized private static int addReference(ZipInput input, String outZipName) throws IOException {
+		File zipFile = new File(outZipName);
+		input.getReferenceList().add(NEW_REFERENCE_POSITION,
+				new ZipReference(input.getTag(), input.getOriginalFile().getName(), zipFile.getName()));
+		return NEW_REFERENCE_POSITION;
 	}
 }

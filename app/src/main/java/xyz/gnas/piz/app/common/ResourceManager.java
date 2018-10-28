@@ -20,10 +20,6 @@ public class ResourceManager {
 	private static final String ZIP_FXML_FOLDER = FXML_FOLDER + "zip/";
 
 	private static Image appIcon;
-	private static Image maskedIcon;
-	private static Image unmaskedIcon;
-	private static Image resumeIcon;
-	private static Image pauseIcon;
 
 	private static Media notificationSound;
 
@@ -40,38 +36,6 @@ public class ResourceManager {
 		}
 
 		return appIcon;
-	}
-
-	public static Image getMaskedIcon() {
-		if (maskedIcon == null) {
-			maskedIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "masked.png"));
-		}
-
-		return maskedIcon;
-	}
-
-	public static Image getUnmaskedIcon() {
-		if (unmaskedIcon == null) {
-			unmaskedIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "unmasked.png"));
-		}
-
-		return unmaskedIcon;
-	}
-
-	public static Image getPauseIcon() {
-		if (pauseIcon == null) {
-			pauseIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "pause.png"));
-		}
-
-		return pauseIcon;
-	}
-
-	public static Image getResumeIcon() {
-		if (resumeIcon == null) {
-			resumeIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "resume.png"));
-		}
-
-		return resumeIcon;
 	}
 
 	public static Media getNotificationSound() {

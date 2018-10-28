@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -7,8 +8,6 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -27,25 +26,20 @@
 										<HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
 											<children>
 												<Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0" prefWidth="130.0" styleClass="sm" text="Input folder" HBox.hgrow="NEVER">
-
-													<graphic>
-														<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-															<image>
-																<Image url="@../../icons/input_folder.png" />
-															</image>
-														</ImageView>
-													</graphic>
+                                       <graphic>
+                                          <MaterialIconView glyphName="FOLDER_OPEN" size="16" />
+                                       </graphic>
 												</Button>
 												<Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
 													<HBox.margin>
 														<Insets left="10.0" />
 													</HBox.margin>
 												</Label>
-                                    <ImageView fx:id="imvRefresh" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#refreshInputFolder" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../../icons/refresh.png" />
-                                       </image>
-                                    </ImageView>
+                                    <MaterialIconView fx:id="mivRefresh" glyphName="REFRESH" size="16">
+                                       <HBox.margin>
+                                          <Insets left="10.0" />
+                                       </HBox.margin>
+                                    </MaterialIconView>
 											</children>
 										</HBox>
 										<HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
@@ -54,13 +48,9 @@
 													<HBox.margin>
 														<Insets />
 													</HBox.margin>
-													<graphic>
-														<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-															<image>
-																<Image url="@../../icons/output_folder.png" />
-															</image>
-														</ImageView>
-													</graphic>
+                                       <graphic>
+                                          <MaterialIconView glyphName="FOLDER" size="16" />
+                                       </graphic>
 												</Button>
 												<Label fx:id="lblOutputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0" HBox.hgrow="ALWAYS">
 													<HBox.margin>
@@ -133,14 +123,11 @@
 																<Insets />
 															</HBox.margin>
 														</PasswordField>
-														<ImageView fx:id="imvMaskUnmask" fitHeight="16.0" fitWidth="16.0" onMouseClicked="#maskUnmask" pickOnBounds="true" preserveRatio="true">
-															<image>
-																<Image url="@../../icons/masked.png" />
-															</image>
-															<HBox.margin>
-																<Insets left="5.0" />
-															</HBox.margin>
-														</ImageView>
+                                          <MaterialIconView fx:id="mivMaskUnmask" glyphName="VISIBILITY_OFF" onMouseClicked="#maskUnmask" size="16">
+                                             <HBox.margin>
+                                                <Insets left="10.0" />
+                                             </HBox.margin>
+                                          </MaterialIconView>
 													</children>
 													<HBox.margin>
 														<Insets left="10.0" />
@@ -155,7 +142,7 @@
 								</HBox>
 								<HBox fx:id="hboObfuscate" alignment="CENTER_LEFT">
 									<children>
-										<CheckBox fx:id="chkObfuscateFileName" mnemonicParsing="false" selected="true" text="Obfuscate file name">
+										<CheckBox fx:id="chkObfuscate" mnemonicParsing="false" selected="true" text="Obfuscate file name">
 											<HBox.margin>
 												<Insets />
 											</HBox.margin>
@@ -201,37 +188,25 @@
 						<HBox fx:id="hboActions" alignment="CENTER_LEFT">
 							<children>
 								<Button fx:id="btnStart" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#start" prefWidth="100.0" styleClass="sm" text="Start">
-									<graphic>
-										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-											<image>
-												<Image url="@../../icons/start.png" />
-											</image>
-										</ImageView>
-									</graphic>
+                           <graphic>
+                              <MaterialIconView glyphName="PLAY_CIRCLE_FILLED" size="16" />
+                           </graphic>
 								</Button>
 								<Button fx:id="btnPauseResume" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm" text="Pause">
 									<HBox.margin>
 										<Insets left="10.0" />
 									</HBox.margin>
-									<graphic>
-										<ImageView fx:id="imvPauseResume" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-											<image>
-												<Image url="@../../icons/pause.png" />
-											</image>
-										</ImageView>
-									</graphic>
+                           <graphic>
+                              <MaterialIconView fx:id="mivPauseResume" glyphName="PAUSE" size="16" />
+                           </graphic>
 								</Button>
 								<Button fx:id="btnStop" alignment="TOP_LEFT" disable="true" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" styleClass="sm" text="Stop">
 									<HBox.margin>
 										<Insets left="10.0" />
 									</HBox.margin>
-									<graphic>
-										<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
-											<image>
-												<Image url="@../../icons/stop.png" />
-											</image>
-										</ImageView>
-									</graphic>
+                           <graphic>
+                              <MaterialIconView glyphName="STOP" size="16" />
+                           </graphic>
 								</Button>
 							</children>
 							<VBox.margin>

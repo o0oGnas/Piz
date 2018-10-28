@@ -28,7 +28,7 @@ import xyz.gnas.piz.app.controllers.reference.ReferenceController;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
 import xyz.gnas.piz.app.events.SaveReferenceEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
-import xyz.gnas.piz.app.models.ZipReference;
+import xyz.gnas.piz.core.models.ZipReference;
 
 public class AppController {
 	@FXML

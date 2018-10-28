@@ -1,4 +1,4 @@
-package xyz.gnas.piz.app.models;
+package xyz.gnas.piz.core.models;
 
 import java.util.Calendar;
 

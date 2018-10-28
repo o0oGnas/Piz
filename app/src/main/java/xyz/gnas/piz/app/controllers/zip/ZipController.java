@@ -1,5 +1,9 @@
 package xyz.gnas.piz.app.controllers.zip;
 
+import static javafx.application.Platform.runLater;
+import static xyz.gnas.piz.app.common.Utility.showAlert;
+import static xyz.gnas.piz.app.common.Utility.showConfirmation;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,12 +11,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -22,7 +24,7 @@ import org.controlsfx.control.textfield.TextFields;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import javafx.application.Platform;
+import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -40,18 +42,13 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.DirectoryChooser;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.progress.ProgressMonitor;
-import net.lingala.zip4j.util.Zip4jConstants;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.ResourceManager;
 import xyz.gnas.piz.app.common.Utility;
@@ -62,9 +59,11 @@ import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
 import xyz.gnas.piz.app.events.zip.UpdateProgressEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
 import xyz.gnas.piz.app.models.UserSetting;
-import xyz.gnas.piz.app.models.ZipReference;
 import xyz.gnas.piz.core.logic.Zip;
 import xyz.gnas.piz.core.models.Abbreviation;
+import xyz.gnas.piz.core.models.ZipInput;
+import xyz.gnas.piz.core.models.ZipProcess;
+import xyz.gnas.piz.core.models.ZipReference;
 
 public class ZipController {
 	@FXML
@@ -74,13 +73,13 @@ public class ZipController {
 	private Label lblOutputFolder;
 
 	@FXML
-	private ImageView imvRefresh;
+	private MaterialIconView mivRefresh;
 
 	@FXML
-	private ImageView imvMaskUnmask;
+	private MaterialIconView mivMaskUnmask;
 
 	@FXML
-	private ImageView imvPauseResume;
+	private MaterialIconView mivPauseResume;
 
 	@FXML
 	private CheckComboBox<String> ccbFileFolder;
@@ -89,7 +88,7 @@ public class ZipController {
 	private CheckBox chkEncrypt;
 
 	@FXML
-	private CheckBox chkObfuscateFileName;
+	private CheckBox chkObfuscate;
 
 	@FXML
 	private CheckBox chkAddReferences;
@@ -166,7 +165,7 @@ public class ZipController {
 	 * keep track of all progresses to stop them all if user chooses to stop or
 	 * exits the application
 	 */
-	private Set<ProgressMonitor> progressList = new HashSet<ProgressMonitor>();
+	private Set<ZipProcess> processList = new HashSet<ZipProcess>();
 
 	/**
 	 * Keep track of how many processes are running
@@ -198,12 +197,20 @@ public class ZipController {
 	 */
 	private boolean isStopped;
 
+	private void showError(Exception e, String message, boolean exit) {
+		Utility.showError(getClass(), e, message, exit);
+	}
+
+	private void writeInfoLog(String log) {
+		Utility.writeInfoLog(getClass(), log);
+	}
+
 	@Subscribe
 	public void onExitEvent(ExitEvent event) {
 		try {
 			// show confirmation is there are running processes
 			if (isRunning.get()) {
-				if (Utility.showConfirmation("There are running processes, are you sure you want to exit?")) {
+				if (showConfirmation("There are running processes, are you sure you want to exit?")) {
 					stopAllProcesses();
 				} else {
 					event.getWindowEvent().consume();
@@ -212,14 +219,6 @@ public class ZipController {
 		} catch (Exception e) {
 			showError(e, "Error when closing the application", true);
 		}
-	}
-
-	private void showError(Exception e, String message, boolean exit) {
-		Utility.showError(getClass(), e, message, exit);
-	}
-
-	private void writeInfoLog(String log) {
-		Utility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -269,9 +268,9 @@ public class ZipController {
 		inputFolder.addListener(l -> {
 			try {
 				// disable refresh if no input folder is selected
-				imvRefresh.setDisable(inputFolder.get() == null);
+				mivRefresh.setVisible(inputFolder.get() != null);
 			} catch (Exception e) {
-				showError(e, "Error handling check box", false);
+				showError(e, "Error initialise input folder listener", false);
 			}
 		});
 	}
@@ -286,8 +285,8 @@ public class ZipController {
 		isPaused.addListener(l -> {
 			try {
 				boolean pause = isPaused.get();
-				btnPauseResume.setText(pause ? Configurations.RESUME : Configurations.PAUSE);
-				imvPauseResume.setImage(pause ? ResourceManager.getResumeIcon() : ResourceManager.getPauseIcon());
+				btnPauseResume.setText(pause ? Configurations.RESUME_TEXT : Configurations.PAUSE_TEXT);
+				mivPauseResume.setGlyphName(pause ? Configurations.RESUME_GLYPH : Configurations.PAUSE_GLYPH);
 			} catch (Exception e) {
 				showError(e, "Error handling pause/resume", false);
 			}
@@ -306,8 +305,8 @@ public class ZipController {
 
 	private void initialiseFileFolderCheckComboBox() {
 		ObservableList<String> itemList = ccbFileFolder.getItems();
-		itemList.add(Configurations.FILES);
-		itemList.add(Configurations.FOLDERS);
+		itemList.add(Configurations.FILES_TEXT);
+		itemList.add(Configurations.FOLDERS_TEXT);
 		IndexedCheckModel<String> checkedModel = ccbFileFolder.getCheckModel();
 
 		// check all by default
@@ -319,7 +318,7 @@ public class ZipController {
 			}
 		}
 
-		// handle event when user changes selection
+		// update list when selection changes
 		checkedModel.getCheckedItems().addListener((ListChangeListener<String>) l -> {
 			try {
 				loadFolderAndFileLists();
@@ -331,7 +330,7 @@ public class ZipController {
 
 	private void initialiseCheckBoxes() {
 		initialiseCheckBox(chkEncrypt, hboPassword, hboObfuscate);
-		initialiseCheckBox(chkObfuscateFileName, hboReference);
+		initialiseCheckBox(chkObfuscate, hboReference);
 		initialiseCheckBox(chkAddReferences, hboTag);
 	}
 
@@ -363,8 +362,7 @@ public class ZipController {
 
 		isMasked.addListener(l -> {
 			try {
-				imvMaskUnmask
-						.setImage(isMasked.get() ? ResourceManager.getMaskedIcon() : ResourceManager.getUnmaskedIcon());
+				mivMaskUnmask.setGlyphName(isMasked.get() ? Configurations.UNMASK_GLYPH : Configurations.MASK_GLYPH);
 			} catch (Exception e) {
 				showError(e, "Error handling masking/unmasking", false);
 			}
@@ -372,7 +370,7 @@ public class ZipController {
 	}
 
 	private void initialiseProcessCountTextField() {
-		txtProcessCount.textProperty().addListener(listner -> {
+		txtProcessCount.textProperty().addListener(l -> {
 			try {
 				String text = txtProcessCount.getText();
 
@@ -417,19 +415,27 @@ public class ZipController {
 
 	private void initialiseTagTextField() {
 		ApplicationModel.getInstance().getReferenceListPropery().addListener(protertyListener -> {
-			updateTagAutocomplete();
-			ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
+			try {
+				updateTagAutocomplete();
+				ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
 
-			if (referenceList != null) {
-				referenceList.addListener((ListChangeListener<ZipReference>) listListener -> {
-					updateTagAutocomplete();
-				});
+				if (referenceList != null) {
+					referenceList.addListener((ListChangeListener<ZipReference>) l -> {
+						try {
+							updateTagAutocomplete();
+						} catch (Exception e) {
+							showError(e, "Error generating autocomplete for tag", false);
+						}
+					});
+				}
+			} catch (Exception e) {
+				showError(e, "Error generating autocomplete for tag", false);
 			}
 		});
 	}
 
 	private void updateTagAutocomplete() {
-		List<String> autocomplete = new LinkedList<String>();
+		Set<String> autocomplete = new HashSet<String>();
 
 		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
 			autocomplete.add(reference.getTag());
@@ -440,16 +446,20 @@ public class ZipController {
 
 	private void initialiseInputFields() {
 		txtPassword.setText(userSetting.getPassword());
-		txtTag.setText(userSetting.getReferenceTag());
+		txtTag.setText(userSetting.getTag());
 		txtProcessCount.setText(userSetting.getProcessCount() + "");
 		chkEncrypt.setSelected(userSetting.isEncrypt());
-		chkObfuscateFileName.setSelected(userSetting.isObfuscateFileName());
+		chkObfuscate.setSelected(userSetting.isObfuscate());
 		chkAddReferences.setSelected(userSetting.isAddReference());
 	}
 
 	private void initialiseInputOutputFolders() throws IOException {
-		inputFolder.set(initialiseFolder(userSetting.getInputFolder(), lblInputFolder));
+		initialiseInputFolder();
 		outputFolder = initialiseFolder(userSetting.getOutputFolder(), lblOutputFolder);
+	}
+
+	private void initialiseInputFolder() throws IOException {
+		inputFolder.set(initialiseFolder(userSetting.getInputFolder(), lblInputFolder));
 		loadFolderAndFileLists();
 	}
 
@@ -481,6 +491,13 @@ public class ZipController {
 		hboActions.setDisable(true);
 		vboList.setDisable(true);
 		isStopped = true;
+
+		for (ZipProcess process : processList) {
+			// canceling tasks while paused doesn't release processing thread
+			// (possibly a bug of zip4j)
+			process.getProgressMonitor().setPause(false);
+			process.getProgressMonitor().cancelAllTasks();
+		}
 	}
 
 	private void loadFolderAndFileLists() throws IOException {
@@ -518,23 +535,9 @@ public class ZipController {
 			@Override
 			protected Integer call() {
 				try {
-					List<Node> itemList = getItemList();
-
-					Platform.runLater(() -> {
-						ObservableList<Node> childrenList = vboList.getChildren();
-
-						if (itemList.size() > 0) {
-							childrenList.remove(label);
-							childrenList.addAll(itemList);
-							hboActions.setDisable(false);
-						} else {
-							handleEmptyList(label);
-						}
-
-						vboInputsAndActions.setDisable(false);
-					});
+					runFileAndFolderGenerationThread(label);
 				} catch (Exception e) {
-					Platform.runLater(() -> {
+					runLater(() -> {
 						showError(e, "Error when generating file and folder list", true);
 					});
 				}
@@ -544,6 +547,28 @@ public class ZipController {
 		});
 
 		thread.start();
+	}
+
+	private void runFileAndFolderGenerationThread(Label label) throws IOException {
+		List<Node> itemList = getItemList();
+
+		runLater(() -> {
+			try {
+				ObservableList<Node> childrenList = vboList.getChildren();
+
+				if (itemList.size() > 0) {
+					childrenList.remove(label);
+					childrenList.addAll(itemList);
+					hboActions.setDisable(false);
+				} else {
+					handleEmptyList(label);
+				}
+
+				vboInputsAndActions.setDisable(false);
+			} catch (Exception e) {
+				showError(e, "Error when generating file and folder list", false);
+			}
+		});
 	}
 
 	/**
@@ -572,14 +597,14 @@ public class ZipController {
 		for (File file : inputFileList) {
 			boolean isDirectory = file.isDirectory();
 			ObservableList<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
-			boolean checkFolder = isDirectory && fileFolderSelection.contains(Configurations.FOLDERS);
-			boolean checkFile = !isDirectory && fileFolderSelection.contains(Configurations.FILES);
+			boolean checkFolder = isDirectory && fileFolderSelection.contains(Configurations.FOLDERS_TEXT);
+			boolean checkFile = !isDirectory && fileFolderSelection.contains(Configurations.FILES_TEXT);
 
 			if (checkFolder || checkFile) {
 				fileList.add(file);
 				FXMLLoader loader = new FXMLLoader(ResourceManager.getZipItemFXML());
 				itemList.add(loader.load());
-				EventBus.getDefault().post(new InitialiseItemEvent(file, chkObfuscateFileName.isSelected()));
+				EventBus.getDefault().post(new InitialiseItemEvent(file, chkObfuscate.isSelected()));
 			}
 		}
 	}
@@ -639,15 +664,17 @@ public class ZipController {
 		}
 
 		userSetting.setPassword(txtPassword.getText());
-		userSetting.setReferenceTag(txtTag.getText());
+		userSetting.setTag(txtTag.getText());
 		userSetting.setFileFolder(
 				Arrays.stream(ccbFileFolder.getCheckModel().getCheckedItems().toArray()).toArray(String[]::new));
 		userSetting.setEncrypt(chkEncrypt.isSelected());
-		userSetting.setObfuscateFileName(chkObfuscateFileName.isSelected());
+		userSetting.setObfuscate(chkObfuscate.isSelected());
 		userSetting.setAddReference(chkAddReferences.isSelected());
 		userSetting.setProcessCount(Integer.parseInt(txtProcessCount.getText()));
+		saveSettingToFile();
+	}
 
-		// save user data to file
+	private void saveSettingToFile() throws FileNotFoundException, IOException {
 		try (FileOutputStream fos = new FileOutputStream(Configurations.SETTING_FILE)) {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(userSetting);
@@ -673,7 +700,7 @@ public class ZipController {
 	@FXML
 	private void refreshInputFolder(MouseEvent event) {
 		try {
-			loadFolderAndFileLists();
+			initialiseInputFolder();
 		} catch (Exception e) {
 			showError(e, "Could not refresh input folder", false);
 		}
@@ -693,8 +720,8 @@ public class ZipController {
 		try {
 			if (checkInput()) {
 				prepareToStart();
-				runProcessMasterThread();
-				monitorAndUpdateProgress();
+				startProcesses();
+				monitorProcesses();
 			}
 		} catch (Exception e) {
 			showError(e, "Could not start", false);
@@ -703,25 +730,25 @@ public class ZipController {
 
 	private boolean checkInput() {
 		if (inputFolder.get() == null) {
-			Utility.showAlert("Invalid input", "Please choose a folder!");
+			showAlert("Invalid input", "Please choose a folder!");
 			return false;
 		}
 
 		if (ccbFileFolder.getCheckModel().getCheckedItems().isEmpty()) {
-			Utility.showAlert("Invalid input", "Please choose to perform zipping on files or folders or both!");
+			showAlert("Invalid input", "Please choose to perform zipping on files or folders or both!");
 			return false;
 		}
 
 		if (chkEncrypt.isSelected() && (txtPassword.getText() == null || txtPassword.getText().isEmpty())) {
-			Utility.showAlert("Invalid input", "Please enter a password!");
+			showAlert("Invalid input", "Please enter a password!");
 			return false;
 		}
 
 		// check that reference tag is entered if user chooses to obfuscate name and add
 		// reference
-		if (chkObfuscateFileName.isSelected() && chkAddReferences.isSelected()
+		if (chkObfuscate.isSelected() && chkAddReferences.isSelected()
 				&& (txtTag.getText() == null || txtTag.getText().isEmpty())) {
-			Utility.showAlert("Invalid input", "Please enter a reference tag!");
+			showAlert("Invalid input", "Please enter a reference tag!");
 			return false;
 		}
 
@@ -737,7 +764,7 @@ public class ZipController {
 		isRunning.set(true);
 		runningCount = 0;
 		finishCount = 0;
-		abbreviationList = Zip.getAbbreviationList(fileList, chkObfuscateFileName.isSelected());
+		abbreviationList = Zip.getAbbreviationList(fileList, chkObfuscate.isSelected());
 	}
 
 	private void enableDisablePauseStop(boolean disable) {
@@ -745,33 +772,16 @@ public class ZipController {
 		btnStop.setDisable(disable);
 	}
 
-	/**
-	 * @description Manage processes, ensure that the number of concurrent processes
-	 *              are within the limit
-	 * @date Oct 11, 2018
-	 */
-	private void runProcessMasterThread() {
+	private void startProcesses() {
 		writeInfoLog("Running process master thread");
 
 		Thread masterThread = new Thread(new Task<Integer>() {
 			@Override
 			protected Integer call() {
 				try {
-					for (File file : fileList) {
-						// wait until the number of concurrent processes are below the limit or user is
-						// pausing all processes
-						while (runningCount == userSetting.getProcessCount() || isPaused.get()) {
-							Thread.sleep(500);
-						}
-
-						if (isStopped) {
-							increaseFinishCount();
-						} else {
-							startNewProcess(file);
-						}
-					}
+					runMasterThread();
 				} catch (Exception e) {
-					Platform.runLater(() -> {
+					runLater(() -> {
 						showError(e, "Error when running master thread", true);
 					});
 				}
@@ -783,17 +793,33 @@ public class ZipController {
 		masterThread.start();
 	}
 
+	private void runMasterThread() throws InterruptedException {
+		for (File file : fileList) {
+			// wait until the number of concurrent processes are below the limit or user is
+			// pausing all processes
+			while (runningCount == userSetting.getProcessCount() || isPaused.get()) {
+				Thread.sleep(500);
+			}
+
+			if (isStopped) {
+				increaseFinishCount();
+			} else {
+				startNewProcess(file);
+			}
+		}
+	}
+
 	private void startNewProcess(File file) {
-		writeInfoLog("Running process thread for file/folder [" + file.getName() + "]");
+		writeInfoLog("Starting process for file/folder [" + file.getName() + "]");
 
 		// create a thread for each file
-		Thread processThread = new Thread(new Task<Integer>() {
+		Thread fileThread = new Thread(new Task<Integer>() {
 			@Override
 			protected Integer call() {
 				try {
-					runZipProcess(file);
+					runFileThread(file);
 				} catch (Exception e) {
-					Platform.runLater(() -> {
+					runLater(() -> {
 						showError(e, "Error when executing a thread", true);
 					});
 				}
@@ -802,16 +828,43 @@ public class ZipController {
 			}
 		});
 
+		fileThread.start();
 		updateRunningCount(1);
+	}
+
+	private void runFileThread(File file) throws InterruptedException {
+		ZipProcess process = new ZipProcess();
+		processList.add(process);
+
+		Thread processThread = new Thread(new Task<Integer>() {
+			@Override
+			protected Integer call() throws Exception {
+				try {
+					runProcessThread(file, process);
+				} catch (Exception e) {
+					runLater(() -> {
+						showError(e, "Error when executing a process thread", true);
+					});
+				}
+
+				return 1;
+			}
+		});
+
 		processThread.start();
+		showProcessOnZipItem(file);
+		monitorZipProcess(file, process);
 	}
 
-	synchronized private void updateRunningCount(int change) {
-		runningCount += change;
+	private void runProcessThread(File file, ZipProcess process) throws Exception {
+		Abbreviation abbreviation = findMatchingAbbreviation(file);
+		ZipInput input = new ZipInput(file, file, outputFolder, pwfPassword.getText(), txtTag.getText(),
+				chkEncrypt.isSelected(), chkObfuscate.isSelected(), chkAddReferences.isSelected(),
+				ApplicationModel.getInstance().getReferenceList());
+		Zip.processFile(input, process, abbreviation);
 	}
 
-	private void runZipProcess(File file) throws ZipException, InterruptedException, IOException {
-		// find the abbreviation object whose file map contains this file
+	private Abbreviation findMatchingAbbreviation(File file) {
 		Abbreviation abbreviation = null;
 
 		for (Abbreviation currentAbbreviation : abbreviationList.keySet()) {
@@ -821,187 +874,50 @@ public class ZipController {
 			}
 		}
 
-		if (chkObfuscateFileName.isSelected()) {
-			obfuscateFileNameAndZip(abbreviation, file);
-		} else {
-			prepareToZip(file, file, abbreviation.getAbbreviation(), file.getParent() + "\\", chkEncrypt.isSelected(),
-					true);
-			increaseFinishCount();
-		}
+		return abbreviation;
 	}
 
-	private void obfuscateFileNameAndZip(Abbreviation abbreviation, File file)
-			throws ZipException, InterruptedException, IOException {
-		String parentPath = outputFolder.getAbsolutePath() + "\\";
-		String zipName = abbreviation.getAbbreviation();
-		Map<File, String> map = abbreviation.getFileAbbreviationMap();
-
-		if (map.size() > 1) {
-			ArrayList<File> temp = new ArrayList<File>(map.keySet());
-
-			for (int i = 0; i < temp.size(); ++i) {
-				if (file.equals(temp.get(i))) {
-					// add suffix to make zip name unique
-					zipName += "_" + (i + 1);
-					break;
-				}
-			}
+	private void monitorZipProcess(File file, ZipProcess process) throws InterruptedException {
+		while (process.getProgressMonitor() == null) {
+			Thread.sleep(100);
 		}
 
-		// create inner zip without encryption
-		File innerZipFile = prepareToZip(file, file, zipName + "_inner", parentPath, false, false);
+		ProgressMonitor pm = process.getProgressMonitor();
 
-		// only create outer zip if it's not cancelled
-		if (innerZipFile != null) {
-			processOuterZip(file, innerZipFile, zipName, parentPath);
-		}
-
-		increaseFinishCount();
-		writeInfoLog("Finished process thread for file/folder [" + file.getName() + "]");
-	}
-
-	/**
-	 * @description do preparations and performing zipping
-	 * @date Oct 11, 2018
-	 * @param originalFile the original file
-	 * @param fileToZip    the file to perform zip on (same as original file if
-	 *                     encryption is not selected)
-	 * @param zipName      name of the zip file
-	 * @param parentPath   path of the zip file
-	 * @param encrypt      encryption
-	 * @param isOuter      flag to tell if the file is outer layer
-	 * @return the zip file, null if process is cancelled
-	 * @throws ZipException
-	 * @throws InterruptedException
-	 */
-	private File prepareToZip(File originalFile, File fileToZip, String zipName, String parentPath, boolean encrypt,
-			boolean isOuter) throws ZipException, InterruptedException {
-		String extension = ".zip";
-		String fullZipName = zipName + extension;
-		File fileZip = new File(parentPath + fullZipName);
-		int count = 1;
-
-		// if zip file with this name already exists, append a number until we get a
-		// unique file name
-		while (fileZip.exists()) {
-			fullZipName = zipName + "_" + count + extension;
-			fileZip = new File(parentPath + fullZipName);
-			++count;
-		}
-
-		if (performZip(originalFile, fileToZip, fullZipName, parentPath, encrypt, isOuter)) {
-			return fileZip;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * @description
-	 * @date Oct 11, 2018
-	 * @param originalFile
-	 * @param fileToZip
-	 * @param destinationPath
-	 * @param encrypt
-	 * @param isOuter
-	 * @return false if process is cancelled, true otherwise
-	 * @throws ZipException
-	 * @throws InterruptedException
-	 */
-	private boolean performZip(File originalFile, File fileToZip, String zipName, String parentFolderPath,
-			boolean encrypt, boolean isOuter) throws ZipException, InterruptedException {
-		ZipFile zip = getZipFile(fileToZip.getAbsolutePath(), parentFolderPath + zipName, encrypt);
-		ProgressMonitor progressMonitor = zip.getProgressMonitor();
-		showProcessOnZipItem(originalFile, progressMonitor, zipName);
-		addProgress(progressMonitor);
-
-		// run while zip is not cancelled and is still in progress (paused is considered
-		// in progress)
-		while (!isStopped && progressMonitor.getState() == ProgressMonitor.STATE_BUSY) {
-			// only update progress if process is not being paused
-			if (!progressMonitor.isPause()) {
-				showProgress(originalFile, isOuter);
-			}
-
-			// update progress every 0.5 second
+		while (!process.isComplete()) {
+			showProgress(file, process);
 			Thread.sleep(500);
 		}
 
-		return getZipResult(originalFile, progressMonitor, isOuter);
-	}
-
-	private ZipFile getZipFile(String filePath, String zipPath, boolean encrypt) throws ZipException {
-		ZipFile zip = new ZipFile(zipPath);
-		ZipParameters parameters = new ZipParameters();
-		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-		parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_ULTRA);
-
-		// set encryption
-		if (encrypt) {
-			parameters.setEncryptFiles(true);
-			parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
-			parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
-			parameters.setPassword(txtPassword.getText());
+		if (!pm.isCancelAllTasks()) {
+			showDoneProcess(file);
 		}
 
-		// run in a separate thread so we can monitor progress
-		zip.setRunInThread(true);
-		File file = new File(filePath);
-
-		if (file.isDirectory()) {
-			zip.addFolder(file, parameters);
-		} else {
-			zip.addFile(file, parameters);
-		}
-
-		return zip;
+		increaseFinishCount();
 	}
 
-	private void showProcessOnZipItem(File file, ProgressMonitor progressMonitor, String zipName) {
-		Platform.runLater(() -> {
+	private void showProcessOnZipItem(File file) {
+		runLater(() -> {
 			try {
-				EventBus.getDefault().post(new BeginProcessEvent(file, progressMonitor, zipName, isPaused));
+				EventBus.getDefault().post(new BeginProcessEvent(file, isPaused));
 			} catch (Exception e) {
 				showError(e, "Error when showing progress on file", false);
 			}
 		});
 	}
 
-	synchronized private void addProgress(ProgressMonitor progress) {
-		progressList.add(progress);
-	}
-
-	private void showProgress(File file, boolean isOuter) {
-		Platform.runLater(() -> {
+	private void showProgress(File file, ZipProcess process) {
+		runLater(() -> {
 			try {
-				EventBus.getDefault().post(new UpdateProgressEvent(file, isOuter));
+				EventBus.getDefault().post(new UpdateProgressEvent(file, process));
 			} catch (Exception e) {
 				showError(e, "Error when updating progress", false);
 			}
 		});
 	}
 
-	private boolean getZipResult(File file, ProgressMonitor progressMonitor, boolean isOuter) {
-		if (isStopped) {
-			// canceling tasks while paused doesn't release processing thread
-			// (possibly a bug of zip4j)
-			progressMonitor.setPause(false);
-			progressMonitor.cancelAllTasks();
-			return false;
-		} else if (progressMonitor.isCancelAllTasks()) {
-			return false;
-		} else {
-			// only show process is done if it's the outer layer
-			if (isOuter) {
-				showDoneProcess(file);
-			}
-
-			return true;
-		}
-	}
-
 	private void showDoneProcess(File file) {
-		Platform.runLater(() -> {
+		runLater(() -> {
 			try {
 				EventBus.getDefault().post(new FinishProcessEvent(file));
 			} catch (Exception e) {
@@ -1015,7 +931,11 @@ public class ZipController {
 		updateRunningCount(-1);
 	}
 
-	private void monitorAndUpdateProgress() {
+	synchronized private void updateRunningCount(int change) {
+		runningCount += change;
+	}
+
+	private void monitorProcesses() {
 		Thread thread = new Thread(new Task<Integer>() {
 			@Override
 			protected Integer call() {
@@ -1024,16 +944,13 @@ public class ZipController {
 					while (finishCount < fileList.size()) {
 						Thread.sleep(500);
 					}
-
-					finish();
 				} catch (Exception e) {
-					Platform.runLater(() -> {
+					runLater(() -> {
 						showError(e, "Error when monitoring progress", false);
 					});
-
-					finish();
 				}
 
+				finish();
 				return 1;
 			}
 		});
@@ -1041,18 +958,13 @@ public class ZipController {
 		thread.start();
 	}
 
-	/**
-	 * @description Refresh all controls, refresh file/folder list, clear progress
-	 *              list and play notification sound
-	 * @date Oct 9, 2018
-	 */
 	private void finish() {
 		writeInfoLog("Finished all processes");
 
-		Platform.runLater(() -> {
+		runLater(() -> {
 			try {
 				isRunning.set(false);
-				progressList.clear();
+				processList.clear();
 				hboActions.setDisable(false);
 				btnStart.setDisable(false);
 				enableDisablePauseStop(true);
@@ -1070,43 +982,6 @@ public class ZipController {
 		});
 	}
 
-	private void processOuterZip(File originalFile, File innerZipFile, String zipName, String parentPath)
-			throws ZipException, InterruptedException, IOException {
-		File outerZipFile = prepareToZip(originalFile, innerZipFile, zipName, parentPath, chkEncrypt.isSelected(),
-				true);
-
-		// remove inner zip from disk
-		innerZipFile.delete();
-
-		// only add reference if user chooses to and process is not cancelled
-		if (chkAddReferences.isSelected() && outerZipFile != null) {
-			addReference(originalFile, outerZipFile.getName());
-		}
-	}
-
-	/**
-	 * @description Synchronized to prevent concurrent modification
-	 * @date Oct 9, 2018
-	 * @param label        the label object
-	 * @param map          the file/folder map
-	 * @param outerZipPath path of the outer zip file
-	 * @throws IOException
-	 */
-	synchronized private void addReference(File file, String outerZipPath) throws IOException {
-		writeInfoLog("Adding new reference for file/folder [" + file.getName() + "]");
-		File zipFile = new File(outerZipPath);
-
-		Platform.runLater(() -> {
-			try {
-				// add reference to the top
-				ApplicationModel.getInstance().getReferenceList().add(0,
-						new ZipReference(userSetting.getReferenceTag(), file.getName(), zipFile.getName()));
-			} catch (Exception e) {
-				showError(e, "Error when adding reference", false);
-			}
-		});
-	}
-
 	@FXML
 	private void pauseOrResume(ActionEvent event) {
 		try {
@@ -1115,8 +990,8 @@ public class ZipController {
 			String pauseResume = pause ? "Pausing" : "Resuming";
 			writeInfoLog(pauseResume + " all proceses");
 
-			for (ProgressMonitor progress : progressList) {
-				progress.setPause(pause);
+			for (ZipProcess process : processList) {
+				process.getProgressMonitor().setPause(pause);
 			}
 		} catch (Exception e) {
 			showError(e, "Could not pause or resume all", false);
@@ -1126,7 +1001,7 @@ public class ZipController {
 	@FXML
 	private void stop(ActionEvent event) {
 		try {
-			if (Utility.showConfirmation("Are you sure you want to stop all processes?")) {
+			if (showConfirmation("Are you sure you want to stop all processes?")) {
 				stopAllProcesses();
 				isPaused.set(false);
 			}

@@ -2,15 +2,17 @@ package xyz.gnas.piz.app.events.zip;
 
 import java.io.File;
 
-public class UpdateProgressEvent extends ZipEvent {
-	private boolean isOuter;
+import xyz.gnas.piz.core.models.ZipProcess;
 
-	public boolean isOuter() {
-		return isOuter;
+public class UpdateProgressEvent extends ZipEvent {
+	private ZipProcess process;
+
+	public ZipProcess getProcess() {
+		return process;
 	}
 
-	public UpdateProgressEvent(File file, boolean isOuter) {
+	public UpdateProgressEvent(File file, ZipProcess process) {
 		super(file);
-		this.isOuter = isOuter;
+		this.process = process;
 	}
 }

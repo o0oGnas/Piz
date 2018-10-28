@@ -51,7 +51,7 @@ public class ZipWithUserSettingTest {
 		outputFolder.mkdir();
 
 		// create user setting
-		setting = new UserSetting(inputFolder.getAbsolutePath(), PASSWORD, TAG, new String[] { Configurations.FILES },
+		setting = new UserSetting(inputFolder.getAbsolutePath(), PASSWORD, TAG, new String[] { Configurations.FILES_TEXT },
 				false, false, false, PROCESS_COUNT);
 		setting.setOutputFolder(outputFolder.getAbsolutePath());
 
@@ -82,8 +82,8 @@ public class ZipWithUserSettingTest {
 		assertThat(ZipTestUtility.getEncryptCheckBox(robot)).matches(p -> p.isSelected() == setting.isEncrypt(),
 				"Encryption is " + setting.isEncrypt());
 		assertThat(ZipTestUtility.getObfuscateCheckBox(robot)).matches(
-				p -> p.isSelected() == setting.isObfuscateFileName(),
-				"Obfuscation is " + setting.isObfuscateFileName());
+				p -> p.isSelected() == setting.isObfuscate(),
+				"Obfuscation is " + setting.isObfuscate());
 		assertThat(ZipTestUtility.getAddReferenceCheckBox(robot)).matches(
 				p -> p.isSelected() == setting.isAddReference(), "Add reference is " + setting.isAddReference());
 	}
@@ -99,7 +99,7 @@ public class ZipWithUserSettingTest {
 	@Test
 	void referenceTag(FxRobot robot) {
 		assertThat(ZipTestUtility.getReferenceTagTextField(robot)).matches(
-				p -> p.getText().equalsIgnoreCase(setting.getReferenceTag()),
-				"reference tag is " + setting.getReferenceTag());
+				p -> p.getText().equalsIgnoreCase(setting.getTag()),
+				"reference tag is " + setting.getTag());
 	}
 }

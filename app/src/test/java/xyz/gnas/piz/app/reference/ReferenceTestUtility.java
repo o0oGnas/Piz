@@ -22,7 +22,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import xyz.gnas.piz.app.common.Configurations;
-import xyz.gnas.piz.app.models.ZipReference;
+import xyz.gnas.piz.core.models.ZipReference;
 import xyz.gnas.piz.app.TestUtility;
 import tornadofx.control.DateTimePicker;
 

@@ -13,12 +13,12 @@ public class UserSetting implements Serializable {
 	private String outputFolder;
 
 	private String password;
-	private String referenceTag;
+	private String tag;
 
 	private String[] fileFolder;
 
 	private boolean encrypt;
-	private boolean obfuscateFileName;
+	private boolean obfuscate;
 	private boolean addReference;
 
 	private int processCount;
@@ -47,12 +47,12 @@ public class UserSetting implements Serializable {
 		this.fileFolder = fileFolder;
 	}
 
-	public String getReferenceTag() {
-		return referenceTag;
+	public String getTag() {
+		return tag;
 	}
 
-	public void setReferenceTag(String referenceTag) {
-		this.referenceTag = referenceTag;
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 	public boolean isEncrypt() {
@@ -63,12 +63,12 @@ public class UserSetting implements Serializable {
 		this.encrypt = encrypt;
 	}
 
-	public boolean isObfuscateFileName() {
-		return obfuscateFileName;
+	public boolean isObfuscate() {
+		return obfuscate;
 	}
 
-	public void setObfuscateFileName(boolean obfuscateFileName) {
-		this.obfuscateFileName = obfuscateFileName;
+	public void setObfuscate(boolean obfuscate) {
+		this.obfuscate = obfuscate;
 	}
 
 	public boolean isAddReference() {
@@ -87,14 +87,14 @@ public class UserSetting implements Serializable {
 		this.processCount = processCount;
 	}
 
-	public UserSetting(String inputFolder, String password, String referenceTag, String[] fileFolder, boolean encrypt,
-			boolean obfuscateFileName, boolean addReference, int processCount) {
+	public UserSetting(String inputFolder, String password, String tag, String[] fileFolder, boolean encrypt,
+			boolean obfuscate, boolean addReference, int processCount) {
 		this.inputFolder = inputFolder;
 		this.password = password;
-		this.referenceTag = referenceTag;
+		this.tag = tag;
 		this.fileFolder = fileFolder;
 		this.encrypt = encrypt;
-		this.obfuscateFileName = obfuscateFileName;
+		this.obfuscate = obfuscate;
 		this.addReference = addReference;
 		this.processCount = processCount;
 	}

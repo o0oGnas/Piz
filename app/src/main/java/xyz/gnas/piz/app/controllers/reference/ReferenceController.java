@@ -1,8 +1,15 @@
 package xyz.gnas.piz.app.controllers.reference;
 
+import static xyz.gnas.piz.app.common.Utility.convertCalendarToLocalDateTime;
+import static xyz.gnas.piz.app.common.Utility.convertLocalDateTimeToCalendar;
+import static xyz.gnas.piz.app.common.Utility.showConfirmation;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.controlsfx.control.textfield.TextFields;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -31,7 +38,7 @@ import xyz.gnas.piz.app.common.Utility;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
 import xyz.gnas.piz.app.events.SaveReferenceEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
-import xyz.gnas.piz.app.models.ZipReference;
+import xyz.gnas.piz.core.models.ZipReference;
 
 /**
  * @author Gnas
@@ -101,6 +108,14 @@ public class ReferenceController {
 	 */
 	private boolean isManualUpdate;
 
+	private void showError(Exception e, String message, boolean exit) {
+		Utility.showError(getClass(), e, message, exit);
+	}
+
+	private void writeInfoLog(String log) {
+		Utility.writeInfoLog(getClass(), log);
+	}
+
 	@Subscribe
 	public void onChangeTabEvent(ChangeTabEvent event) {
 		try {
@@ -108,14 +123,6 @@ public class ReferenceController {
 		} catch (Exception e) {
 			showError(e, "Could not update isActive flag of reference tab", false);
 		}
-	}
-
-	private void showError(Exception e, String message, boolean exit) {
-		Utility.showError(getClass(), e, message, exit);
-	}
-
-	private void writeInfoLog(String log) {
-		Utility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML
@@ -133,28 +140,73 @@ public class ReferenceController {
 	}
 
 	private void addListenerToList() {
-		ApplicationModel.getInstance().getReferenceListPropery().addListener(l -> {
-			ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
-			tbvTable.setItems(referenceList);
-			initialiseDateTimePickers();
+		ApplicationModel.getInstance().getReferenceListPropery().addListener(propertyListener -> {
+			try {
+				ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
+				handleDataUpdate();
+				initialiseDateTimePickers();
 
-			if (referenceList != null) {
-				referenceList.addListener((ListChangeListener<ZipReference>) listener -> {
-					try {
-						// only show alert if the tab is active and the change was automatic
-						if (!isManualUpdate && isActive) {
-							Utility.showAlert("Update detected",
-									"Reference file was updated, the list will be automatically refreshed");
+				if (referenceList != null) {
+					referenceList.addListener((ListChangeListener<ZipReference>) l -> {
+						try {
+							// only show alert if the tab is active and the change was automatic
+							if (!isManualUpdate && isActive) {
+								Utility.showAlert("Update detected",
+										"Reference file was updated, the list will be automatically refreshed");
+							}
+
+							isManualUpdate = false;
+							handleDataUpdate();
+						} catch (Exception e) {
+							showError(e, "Error when handling update to reference list", false);
 						}
-
-						isManualUpdate = false;
-						tbvTable.setItems(referenceList);
-					} catch (Exception e) {
-						showError(e, "Error when handling update to reference list", false);
-					}
-				});
+					});
+				}
+			} catch (Exception e) {
+				showError(e, "Error when handling update to reference list", false);
 			}
 		});
+	}
+
+	private void handleDataUpdate() {
+		tbvTable.setItems(ApplicationModel.getInstance().getReferenceList());
+		updateAutoComplete();
+	}
+
+	private void updateAutoComplete() {
+		updateOriginalAutoComplete();
+		updateZipAutoComplete();
+		updateTagAutoComplete();
+	}
+
+	private void updateOriginalAutoComplete() {
+		Set<String> autocomplete = new HashSet<String>();
+
+		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+			autocomplete.add(reference.getOriginal());
+		}
+
+		TextFields.bindAutoCompletion(txtOriginal, autocomplete);
+	}
+
+	private void updateZipAutoComplete() {
+		Set<String> autocomplete = new HashSet<String>();
+
+		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+			autocomplete.add(reference.getZip());
+		}
+
+		TextFields.bindAutoCompletion(txtZip, autocomplete);
+	}
+
+	private void updateTagAutoComplete() {
+		Set<String> autocomplete = new HashSet<String>();
+
+		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+			autocomplete.add(reference.getTag());
+		}
+
+		TextFields.bindAutoCompletion(txtTag, autocomplete);
 	}
 
 	private void initialiseDateTimePickers() {
@@ -171,9 +223,8 @@ public class ReferenceController {
 			}
 		}
 
-		dtpFrom.setDateTimeValue(Utility.convertCalendarToLocalDateTime(cMin));
-		dtpTo.setDateTimeValue(Utility.convertCalendarToLocalDateTime(cMax));
-
+		dtpFrom.setDateTimeValue(convertCalendarToLocalDateTime(cMin));
+		dtpTo.setDateTimeValue(convertCalendarToLocalDateTime(cMax));
 	}
 
 	/**
@@ -194,7 +245,7 @@ public class ReferenceController {
 			lblReferenceCount.setText(tbvTable.getItems().size() + " references");
 		});
 
-		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ZipReference>) listener -> {
+		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ZipReference>) l -> {
 			// disable delete button if there is no selection
 			btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
 		});
@@ -256,8 +307,8 @@ public class ReferenceController {
 	private void filter(ActionEvent event) {
 		try {
 			writeInfoLog("Filtering references");
-			Calendar cFrom = Utility.convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
-			Calendar cTo = Utility.convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
+			Calendar cFrom = convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
+			Calendar cTo = convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
 			ObservableList<ZipReference> filteredList = FXCollections.observableArrayList();
 
 			for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
@@ -402,7 +453,7 @@ public class ReferenceController {
 	@FXML
 	private void delete(ActionEvent event) {
 		try {
-			if (Utility.showConfirmation("Are you sure you want to delete selected reference(s)?")) {
+			if (showConfirmation("Are you sure you want to delete selected reference(s)?")) {
 				isManualUpdate = true;
 				ApplicationModel.getInstance().getReferenceList()
 						.removeAll(tbvTable.getSelectionModel().getSelectedItems());

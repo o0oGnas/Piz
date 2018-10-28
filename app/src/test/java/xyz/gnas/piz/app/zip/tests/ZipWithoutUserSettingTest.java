@@ -34,7 +34,7 @@ public class ZipWithoutUserSettingTest {
 						.matches(
 								p -> p.getItems()
 										.containsAll(new LinkedList<String>(
-												Arrays.asList(Configurations.FILES, Configurations.FOLDERS))),
+												Arrays.asList(Configurations.FILES_TEXT, Configurations.FOLDERS_TEXT))),
 								"File folder check combo box contains all options");
 	}
 

@@ -3,6 +3,7 @@ package xyz.gnas.piz.app.models;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import xyz.gnas.piz.core.models.ZipReference;
 
 public class ApplicationModel {
 	private static ApplicationModel instance = null;
