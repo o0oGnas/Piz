@@ -272,18 +272,19 @@ public class Zip {
 	 *                     file
 	 * @throws Exception
 	 */
-	public static void processFile(ZipInput input, ZipProcess process, Abbreviation abbreviation) throws Exception {
+	public static void processFile(ZipInput input, ZipProcess process) throws Exception {
 		if (input.isObfuscate()) {
-			obfuscateFileNameAndZip(input, process, abbreviation);
+			obfuscateFileNameAndZip(input, process);
 		} else {
-			prepareToZip(input, process, abbreviation.getAbbreviation());
+			prepareToZip(input, process, input.getAbbreviation().getAbbreviation());
 		}
 
 		process.setComplete(true);
 	}
 
-	private static void obfuscateFileNameAndZip(ZipInput input, ZipProcess process, Abbreviation abbreviation)
+	private static void obfuscateFileNameAndZip(ZipInput input, ZipProcess process)
 			throws ZipException, InterruptedException, IOException {
+		Abbreviation abbreviation = input.getAbbreviation();
 		String zipName = abbreviation.getAbbreviation();
 		Map<File, String> map = abbreviation.getFileAbbreviationMap();
 

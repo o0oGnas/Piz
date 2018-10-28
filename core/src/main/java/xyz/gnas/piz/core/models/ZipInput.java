@@ -7,6 +7,8 @@ public class ZipInput {
 	private File fileToZip;
 	private File outputFolder;
 
+	Abbreviation abbreviation;
+
 	private String password;
 	private String tag;
 
@@ -29,6 +31,10 @@ public class ZipInput {
 		return outputFolder;
 	}
 
+	public Abbreviation getAbbreviation() {
+		return abbreviation;
+	}
+
 	public String getPassword() {
 		return password;
 	}
@@ -45,11 +51,12 @@ public class ZipInput {
 		return obfuscate;
 	}
 
-	public ZipInput(File originalFile, File fileToZip, File outputFolder, String password, String tag, boolean encrypt,
-			boolean obfuscate) {
+	public ZipInput(File originalFile, File fileToZip, File outputFolder, Abbreviation abbreviation, String password,
+			String tag, boolean encrypt, boolean obfuscate) {
 		this.originalFile = originalFile;
 		this.fileToZip = fileToZip;
 		this.outputFolder = outputFolder;
+		this.abbreviation = abbreviation;
 		this.password = password;
 		this.tag = tag;
 		this.encrypt = encrypt;

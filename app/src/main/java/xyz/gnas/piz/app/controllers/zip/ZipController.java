@@ -161,8 +161,7 @@ public class ZipController {
 	private SortedMap<Abbreviation, Abbreviation> abbreviationList;
 
 	/**
-	 * keep track of all progresses to stop them all if user chooses to stop or
-	 * exits the application
+	 * keep track of all processes to stop or pause
 	 */
 	private Set<ZipProcess> processList = new HashSet<ZipProcess>();
 
@@ -856,13 +855,6 @@ public class ZipController {
 	}
 
 	private void runProcessThread(File file, ZipProcess process) throws Exception {
-		Abbreviation abbreviation = findMatchingAbbreviation(file);
-		ZipInput input = new ZipInput(file, file, outputFolder, pwfPassword.getText(), txtTag.getText(),
-				chkEncrypt.isSelected(), chkObfuscate.isSelected());
-		Zip.processFile(input, process, abbreviation);
-	}
-
-	private Abbreviation findMatchingAbbreviation(File file) {
 		Abbreviation abbreviation = null;
 
 		for (Abbreviation currentAbbreviation : abbreviationList.keySet()) {
@@ -872,7 +864,9 @@ public class ZipController {
 			}
 		}
 
-		return abbreviation;
+		ZipInput input = new ZipInput(file, file, outputFolder, abbreviation, pwfPassword.getText(), txtTag.getText(),
+				chkEncrypt.isSelected(), chkObfuscate.isSelected());
+		Zip.processFile(input, process);
 	}
 
 	private void monitorZipProcess(File file, ZipProcess process) throws InterruptedException {
