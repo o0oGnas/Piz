@@ -22,12 +22,12 @@ import xyz.gnas.piz.app.zip.ZipTestUtility;
 @ExtendWith(ApplicationExtension.class)
 public class ZipUncheckCheckAddReferenceTest {
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		TestUtility.initialiseStage(stage);
 	}
 
 	@Test
-	void uncheck_check_add_reference(FxRobot robot) {
+	public void uncheck_check_add_reference(FxRobot robot) {
 		CheckBox chk = ZipTestUtility.getAddReferenceCheckBox(robot);
 		HBox hbo = ZipTestUtility.getTagHBox(robot);
 

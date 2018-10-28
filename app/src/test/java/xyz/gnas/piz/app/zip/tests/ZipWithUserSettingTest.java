@@ -1,6 +1,7 @@
 package xyz.gnas.piz.app.zip.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,9 +21,9 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
 import javafx.stage.Stage;
+import xyz.gnas.piz.app.TestUtility;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.models.UserSetting;
-import xyz.gnas.piz.app.TestUtility;
 import xyz.gnas.piz.app.zip.ZipTestUtility;;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -38,12 +39,12 @@ public class ZipWithUserSettingTest {
 	private UserSetting setting;
 
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		TestUtility.initialiseStage(stage);
 	}
 
 	@BeforeAll
-	void createUserSettingFile() throws FileNotFoundException, IOException {
+	public void createUserSettingFile() throws FileNotFoundException, IOException {
 		// create input and output folders
 		File inputFolder = new File(INPUT_FOLDER);
 		inputFolder.mkdir();
@@ -51,8 +52,8 @@ public class ZipWithUserSettingTest {
 		outputFolder.mkdir();
 
 		// create user setting
-		setting = new UserSetting(inputFolder.getAbsolutePath(), PASSWORD, TAG, new String[] { Configurations.FILES_TEXT },
-				false, false, false, PROCESS_COUNT);
+		setting = new UserSetting(inputFolder.getAbsolutePath(), PASSWORD, TAG,
+				new String[] { Configurations.FILES_TEXT }, false, false, false, PROCESS_COUNT);
 		setting.setOutputFolder(outputFolder.getAbsolutePath());
 
 		// save to file
@@ -63,33 +64,30 @@ public class ZipWithUserSettingTest {
 	}
 
 	@Test
-	void file_folder_check_combobox(FxRobot robot) {
-		assertThat(ZipTestUtility.getFileFolderCheckComboBox(robot)).matches(
-				p -> p.getCheckModel().getCheckedItems()
-						.containsAll(new LinkedList<String>(Arrays.asList(setting.getFileFolder()))),
-				"Selected items on file folder check combo box is correct");
+	public void file_folder_check_combobox(FxRobot robot) {
+		assertTrue(ZipTestUtility.getFileFolderCheckComboBox(robot).getCheckModel().getCheckedItems()
+				.containsAll(new LinkedList<String>(Arrays.asList(setting.getFileFolder()))));
 	}
 
 	@Test
-	void process_count(FxRobot robot) {
+	public void process_count(FxRobot robot) {
 		assertThat(ZipTestUtility.getProcessCountTextField(robot)).matches(
 				p -> p.getText().equalsIgnoreCase(setting.getProcessCount() + ""),
 				"Process count is " + setting.getProcessCount());
 	}
 
 	@Test
-	void checkboxes(FxRobot robot) {
+	public void checkboxes(FxRobot robot) {
 		assertThat(ZipTestUtility.getEncryptCheckBox(robot)).matches(p -> p.isSelected() == setting.isEncrypt(),
 				"Encryption is " + setting.isEncrypt());
-		assertThat(ZipTestUtility.getObfuscateCheckBox(robot)).matches(
-				p -> p.isSelected() == setting.isObfuscate(),
+		assertThat(ZipTestUtility.getObfuscateCheckBox(robot)).matches(p -> p.isSelected() == setting.isObfuscate(),
 				"Obfuscation is " + setting.isObfuscate());
 		assertThat(ZipTestUtility.getAddReferenceCheckBox(robot)).matches(
 				p -> p.isSelected() == setting.isAddReference(), "Add reference is " + setting.isAddReference());
 	}
 
 	@Test
-	void password(FxRobot robot) {
+	public void password(FxRobot robot) {
 		assertThat(ZipTestUtility.getPasswordField(robot)).matches(
 				p -> p.getText().equalsIgnoreCase(setting.getPassword()), "password is " + setting.getPassword());
 		assertThat(ZipTestUtility.getPasswordTextField(robot)).matches(
@@ -97,9 +95,8 @@ public class ZipWithUserSettingTest {
 	}
 
 	@Test
-	void referenceTag(FxRobot robot) {
-		assertThat(ZipTestUtility.getReferenceTagTextField(robot)).matches(
-				p -> p.getText().equalsIgnoreCase(setting.getTag()),
-				"reference tag is " + setting.getTag());
+	public void referenceTag(FxRobot robot) {
+		assertThat(ZipTestUtility.getReferenceTagTextField(robot))
+				.matches(p -> p.getText().equalsIgnoreCase(setting.getTag()), "reference tag is " + setting.getTag());
 	}
 }

@@ -22,12 +22,12 @@ import xyz.gnas.piz.app.zip.ZipTestUtility;
 @ExtendWith(ApplicationExtension.class)
 public class ZipUncheckCheckObfuscationTest {
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		TestUtility.initialiseStage(stage);
 	}
 
 	@Test
-	void uncheck_check_obfuscation(FxRobot robot) {
+	public void uncheck_check_obfuscation(FxRobot robot) {
 		CheckBox chk = ZipTestUtility.getObfuscateCheckBox(robot);
 		HBox hbo = ZipTestUtility.getReferenceHBox(robot);
 

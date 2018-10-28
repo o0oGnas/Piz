@@ -29,17 +29,17 @@ public class ReferenceDefaultSettingTest {
 	private boolean hasSelectedTab;
 
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		ReferenceTestUtility.initialise(stage);
 	}
 
 	@BeforeEach
-	void selectTab(FxRobot robot) {
+	public void selectTab(FxRobot robot) {
 		hasSelectedTab = ReferenceTestUtility.selectTab(robot, hasSelectedTab);
 	}
 
 	@Test
-	void from_and_to_dates_are_first_and_last_dates(FxRobot robot) {
+	public void from_and_to_dates_are_first_and_last_dates(FxRobot robot) {
 		checkDate(ReferenceTestUtility.getFromDateTimePicker(robot), ReferenceTestUtility.getFirstDate(),
 				"From date is first date");
 		checkDate(ReferenceTestUtility.getToDateTimePicker(robot), ReferenceTestUtility.getLastDate(),
@@ -52,7 +52,7 @@ public class ReferenceDefaultSettingTest {
 	}
 
 	@Test
-	void comboboxes_has_options(FxRobot robot) {
+	public void comboboxes_has_options(FxRobot robot) {
 		checkComboBoxHasAllOptions(ReferenceTestUtility.getOriginalComboBox(robot), "Original");
 		checkComboBoxHasAllOptions(ReferenceTestUtility.getZipComboBox(robot), "Original");
 		checkComboBoxHasAllOptions(ReferenceTestUtility.getTagComboBox(robot), "Original");
@@ -66,7 +66,7 @@ public class ReferenceDefaultSettingTest {
 	}
 
 	@Test
-	void comboboxes_selects_contains(FxRobot robot) {
+	public void comboboxes_selects_contains(FxRobot robot) {
 		checkComboBoxSelectsContains(ReferenceTestUtility.getOriginalComboBox(robot), "Original");
 		checkComboBoxSelectsContains(ReferenceTestUtility.getZipComboBox(robot), "Zip");
 		checkComboBoxSelectsContains(ReferenceTestUtility.getTagComboBox(robot), "Tag");
@@ -78,7 +78,7 @@ public class ReferenceDefaultSettingTest {
 	}
 
 	@Test
-	void all_references_are_loaded(FxRobot robot) {
+	public void all_references_are_loaded(FxRobot robot) {
 		assertThat(ReferenceTestUtility.getReferenceCountLabel(robot)).matches(
 				p -> p.getText().contains(ReferenceTestUtility.getReferenceCount() + ""),
 				"Reference count label is correct");

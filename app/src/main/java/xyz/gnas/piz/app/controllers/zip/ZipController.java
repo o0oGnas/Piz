@@ -53,13 +53,12 @@ import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.ResourceManager;
 import xyz.gnas.piz.app.common.Utility;
 import xyz.gnas.piz.app.events.ExitEvent;
-import xyz.gnas.piz.app.events.zip.BeginProcessEvent;
 import xyz.gnas.piz.app.events.zip.FinishProcessEvent;
 import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
 import xyz.gnas.piz.app.events.zip.UpdateProgressEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
 import xyz.gnas.piz.app.models.UserSetting;
-import xyz.gnas.piz.core.logic.Zip;
+import xyz.gnas.piz.core.Zip;
 import xyz.gnas.piz.core.models.Abbreviation;
 import xyz.gnas.piz.core.models.ZipInput;
 import xyz.gnas.piz.core.models.ZipProcess;
@@ -859,8 +858,7 @@ public class ZipController {
 	private void runProcessThread(File file, ZipProcess process) throws Exception {
 		Abbreviation abbreviation = findMatchingAbbreviation(file);
 		ZipInput input = new ZipInput(file, file, outputFolder, pwfPassword.getText(), txtTag.getText(),
-				chkEncrypt.isSelected(), chkObfuscate.isSelected(), chkAddReferences.isSelected(),
-				ApplicationModel.getInstance().getReferenceList());
+				chkEncrypt.isSelected(), chkObfuscate.isSelected());
 		Zip.processFile(input, process, abbreviation);
 	}
 
@@ -890,7 +888,7 @@ public class ZipController {
 		}
 
 		if (!pm.isCancelAllTasks()) {
-			showDoneProcess(file);
+			handleCompleteProcess(file, process);
 		}
 
 		increaseFinishCount();
@@ -899,7 +897,6 @@ public class ZipController {
 	private void showProcessOnZipItem(File file) {
 		runLater(() -> {
 			try {
-				EventBus.getDefault().post(new BeginProcessEvent(file, isPaused));
 			} catch (Exception e) {
 				showError(e, "Error when showing progress on file", false);
 			}
@@ -916,12 +913,16 @@ public class ZipController {
 		});
 	}
 
-	private void showDoneProcess(File file) {
+	private void handleCompleteProcess(File file, ZipProcess process) {
 		runLater(() -> {
 			try {
 				EventBus.getDefault().post(new FinishProcessEvent(file));
+
+				if (chkAddReferences.isSelected()) {
+					ApplicationModel.getInstance().getReferenceList().add(0, process.getReference());
+				}
 			} catch (Exception e) {
-				showError(e, "Error when showing done process", false);
+				showError(e, "Error when handling complete process", false);
 			}
 		});
 	}

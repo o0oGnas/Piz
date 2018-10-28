@@ -170,6 +170,7 @@ public class ReferenceController {
 
 	private void handleDataUpdate() {
 		tbvTable.setItems(ApplicationModel.getInstance().getReferenceList());
+		tbvTable.refresh();
 		updateAutoComplete();
 	}
 

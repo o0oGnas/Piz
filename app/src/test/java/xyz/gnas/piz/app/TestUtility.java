@@ -7,6 +7,7 @@ import org.controlsfx.control.CheckComboBox;
 import org.testfx.api.FxRobot;
 import org.testfx.service.query.NodeQuery;
 
+import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,11 +18,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import xyz.gnas.piz.app.common.ResourceManager;
 import tornadofx.control.DateTimePicker;
+import xyz.gnas.piz.app.common.ResourceManager;
 
 /**
  * @author ADMIN
@@ -67,8 +67,8 @@ public class TestUtility {
 		return getNodeQueryByID(robot, id).queryAs(TextField.class);
 	}
 
-	public static ImageView getImageView(FxRobot robot, String id) {
-		return getNodeQueryByID(robot, id).queryAs(ImageView.class);
+	public static MaterialIconView getMaterialIconView(FxRobot robot, String id) {
+		return getNodeQueryByID(robot, id).queryAs(MaterialIconView.class);
 	}
 
 	public static Button getButtonByID(FxRobot robot, String id) {

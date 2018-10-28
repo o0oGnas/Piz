@@ -15,37 +15,36 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
 import javafx.stage.Stage;
-import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.TestUtility;
+import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.zip.ZipTestUtility;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(ApplicationExtension.class)
 public class ZipWithoutUserSettingTest {
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		TestUtility.initialiseStage(stage);
 	}
 
 	@Test
-	void file_folder_check_combobox(FxRobot robot) {
-		assertThat(
-				ZipTestUtility.getFileFolderCheckComboBox(robot))
-						.matches(
-								p -> p.getItems()
-										.containsAll(new LinkedList<String>(
-												Arrays.asList(Configurations.FILES_TEXT, Configurations.FOLDERS_TEXT))),
-								"File folder check combo box contains all options");
+	public void file_folder_check_combobox(FxRobot robot) {
+		assertThat(ZipTestUtility.getFileFolderCheckComboBox(robot))
+				.matches(
+						p -> p.getItems()
+								.containsAll(new LinkedList<String>(
+										Arrays.asList(Configurations.FILES_TEXT, Configurations.FOLDERS_TEXT))),
+						"File folder check combo box contains all options");
 	}
 
 	@Test
-	void process_count(FxRobot robot) {
+	public void process_count(FxRobot robot) {
 		assertThat(ZipTestUtility.getProcessCountTextField(robot)).matches(p -> p.getText().equalsIgnoreCase("5"),
 				"Process count is 5");
 	}
 
 	@Test
-	void checkboxes(FxRobot robot) {
+	public void checkboxes(FxRobot robot) {
 		assertThat(ZipTestUtility.getEncryptCheckBox(robot)).matches(p -> p.isSelected(), "Encryption is checked");
 		assertThat(ZipTestUtility.getObfuscateCheckBox(robot)).matches(p -> p.isSelected(), "Obfuscation is checked");
 		assertThat(ZipTestUtility.getAddReferenceCheckBox(robot)).matches(p -> p.isSelected(),
@@ -53,7 +52,7 @@ public class ZipWithoutUserSettingTest {
 	}
 
 	@Test
-	void password(FxRobot robot) {
+	public void password(FxRobot robot) {
 		assertThat(ZipTestUtility.getPasswordField(robot)).matches(p -> p.isVisible(), "Password field is visible");
 		assertThat(ZipTestUtility.getPasswordTextField(robot)).matches(p -> !p.isVisible(),
 				"Plaint text password field is invisible");

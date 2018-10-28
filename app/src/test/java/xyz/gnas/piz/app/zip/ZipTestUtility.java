@@ -3,11 +3,11 @@ package xyz.gnas.piz.app.zip;
 import org.controlsfx.control.CheckComboBox;
 import org.testfx.api.FxRobot;
 
+import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import xyz.gnas.piz.app.TestUtility;
 
@@ -28,7 +28,7 @@ public class ZipTestUtility {
 	private static TextField txtPassword;
 	private static TextField txtReferenceTag;
 
-	private static ImageView imvMaskUnmask;
+	private static MaterialIconView mivMaskUnmask;
 
 	private static Button btnStart;
 
@@ -120,12 +120,12 @@ public class ZipTestUtility {
 		return txtReferenceTag;
 	}
 
-	public static ImageView getMaskUnmaskIcon(FxRobot robot) {
-		if (imvMaskUnmask == null) {
-			imvMaskUnmask = TestUtility.getImageView(robot, "imvMaskUnmask");
+	public static MaterialIconView getMaskUnmaskIcon(FxRobot robot) {
+		if (mivMaskUnmask == null) {
+			mivMaskUnmask = TestUtility.getMaterialIconView(robot, "imvMaskUnmask");
 		}
 
-		return imvMaskUnmask;
+		return mivMaskUnmask;
 	}
 
 	public static Button getStartButton(FxRobot robot) {

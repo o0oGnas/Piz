@@ -22,17 +22,17 @@ public class ReferenceAddTest {
 	private boolean hasSelectedTab;
 
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		ReferenceTestUtility.initialise(stage);
 	}
 
 	@BeforeEach
-	void selectTab(FxRobot robot) {
+	public void selectTab(FxRobot robot) {
 		hasSelectedTab = ReferenceTestUtility.selectTab(robot, hasSelectedTab);
 	}
 
 	@Test
-	void add(FxRobot robot) {
+	public void add(FxRobot robot) {
 		robot.clickOn(ReferenceTestUtility.getAddButton(robot));
 		assertThat(ReferenceTestUtility.getTableView(robot)).matches(
 				p -> p.getItems().size() == ReferenceTestUtility.getReferenceCount() + 1,

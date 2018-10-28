@@ -1,7 +1,6 @@
 package xyz.gnas.piz.core.models;
 
 import java.io.File;
-import java.util.List;
 
 public class ZipInput {
 	private File originalFile;
@@ -13,9 +12,6 @@ public class ZipInput {
 
 	private boolean encrypt;
 	private boolean obfuscate;
-	private boolean addReference;
-
-	private List<ZipReference> referenceList;
 
 	public File getOriginalFile() {
 		return originalFile;
@@ -49,16 +45,8 @@ public class ZipInput {
 		return obfuscate;
 	}
 
-	public boolean isAddReference() {
-		return addReference;
-	}
-
-	public List<ZipReference> getReferenceList() {
-		return referenceList;
-	}
-
 	public ZipInput(File originalFile, File fileToZip, File outputFolder, String password, String tag, boolean encrypt,
-			boolean obfuscate, boolean addReference, List<ZipReference> referenceList) {
+			boolean obfuscate) {
 		this.originalFile = originalFile;
 		this.fileToZip = fileToZip;
 		this.outputFolder = outputFolder;
@@ -66,7 +54,5 @@ public class ZipInput {
 		this.tag = tag;
 		this.encrypt = encrypt;
 		this.obfuscate = obfuscate;
-		this.addReference = addReference;
-		this.referenceList = referenceList;
 	}
 }

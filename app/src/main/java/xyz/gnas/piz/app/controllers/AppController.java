@@ -24,7 +24,6 @@ import javafx.scene.control.TabPane;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.ResourceManager;
 import xyz.gnas.piz.app.common.Utility;
-import xyz.gnas.piz.app.controllers.reference.ReferenceController;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
 import xyz.gnas.piz.app.events.SaveReferenceEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
@@ -40,7 +39,13 @@ public class AppController {
 	@FXML
 	private Tab tabReference;
 
-	private ReferenceController referenceController;
+	private void showError(Exception e, String message, boolean exit) {
+		Utility.showError(getClass(), e, message, exit);
+	}
+
+	private void writeInfoLog(String log) {
+		Utility.writeInfoLog(getClass(), log);
+	}
 
 	@Subscribe
 	public void onSaveReferenceEvent(SaveReferenceEvent event) {
@@ -55,14 +60,6 @@ public class AppController {
 		} catch (Exception e) {
 			showError(e, "Could not save references", false);
 		}
-	}
-
-	private void showError(Exception e, String message, boolean exit) {
-		Utility.showError(getClass(), e, message, exit);
-	}
-
-	private void writeInfoLog(String log) {
-		Utility.writeInfoLog(getClass(), log);
 	}
 
 	@FXML

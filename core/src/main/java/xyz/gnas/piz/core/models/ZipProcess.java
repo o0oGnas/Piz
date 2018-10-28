@@ -9,6 +9,8 @@ public class ZipProcess {
 
 	private File outputFile;
 
+	private ZipReference reference;
+
 	private boolean isOuter;
 	private boolean isComplete;
 
@@ -26,6 +28,14 @@ public class ZipProcess {
 
 	public void setOutputFile(File outputFile) {
 		this.outputFile = outputFile;
+	}
+
+	public ZipReference getReference() {
+		return reference;
+	}
+
+	public void setReference(ZipReference reference) {
+		this.reference = reference;
 	}
 
 	public boolean isOuter() {

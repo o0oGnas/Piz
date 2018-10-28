@@ -22,12 +22,12 @@ import xyz.gnas.piz.app.zip.ZipTestUtility;
 @ExtendWith(ApplicationExtension.class)
 public class ZipUncheckCheckEncryptionTest {
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		TestUtility.initialiseStage(stage);
 	}
 
 	@Test
-	void uncheck_check_encryption(FxRobot robot) {
+	public void uncheck_check_encryption(FxRobot robot) {
 		CheckBox chk = ZipTestUtility.getEncryptCheckBox(robot);
 		HBox hbo = ZipTestUtility.getPasswordHBox(robot);
 

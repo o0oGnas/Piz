@@ -61,4 +61,18 @@ public class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbrev
 	public int compareTo(Abbreviation o) {
 		return abbreviation.compareTo(o.abbreviation);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+
+		if (obj instanceof Abbreviation) {
+			Abbreviation a = (Abbreviation) obj;
+			return abbreviation.equals(a);
+		} else {
+			return false;
+		}
+	}
 }

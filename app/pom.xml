@@ -30,7 +30,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<release>10</release>
+					<release>11</release>
 				</configuration>
 			</plugin>
 
@@ -51,7 +51,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- generate a jar file with Main manifest -->
+			<!-- copy dependencies to target folder -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -117,13 +117,6 @@
 										<include>**</include>
 									</includes>
 								</filter>
-
-								<filter>
-									<artifact>org.testfx</artifact>
-									<excludes>
-										<exclude>**</exclude>
-									</excludes>
-								</filter>
 							</filters>
 						</configuration>
 					</execution>
@@ -140,7 +133,7 @@
 					<reuseForks>true</reuseForks>
 					<threadCount>1</threadCount>
 					<printSummary>true</printSummary>
-					<skipTests>true</skipTests>
+					<skipTests>false</skipTests>
 
 					<!-- run test in a designated folder -->
 					<workingDirectory>${project.build.directory}/test-environment</workingDirectory>
@@ -221,12 +214,14 @@
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-core</artifactId>
 			<version>4.0.15-alpha</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.testfx</groupId>
 			<artifactId>testfx-junit5</artifactId>
 			<version>4.0.15-alpha</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

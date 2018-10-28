@@ -23,17 +23,17 @@ public class ReferenceFilterByZipMatchesTest {
 	private boolean hasSelectedTab;
 
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		ReferenceTestUtility.initialise(stage);
 	}
 
 	@BeforeEach
-	void selectTab(FxRobot robot) {
+	public void selectTab(FxRobot robot) {
 		hasSelectedTab = ReferenceTestUtility.selectTab(robot, hasSelectedTab);
 	}
 
 	@Test
-	void filter_by_zip_matches(FxRobot robot) {
+	public void filter_by_zip_matches(FxRobot robot) {
 		ReferenceTestUtility.filterByComboBoxAndTextField(robot, ReferenceTestUtility.getZipComboBox(robot),
 				Configurations.MATCHES, ReferenceTestUtility.getZipTextField(robot),
 				ReferenceTestUtility.getTableView(robot).getItems().get(0).getZip());

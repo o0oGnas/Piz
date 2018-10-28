@@ -1,4 +1,6 @@
 module xyz.gnas.piz.app {
+	requires xyz.gnas.piz.core;
+
 	requires javafx.fxml;
 	requires javafx.controls;
 	requires javafx.media;
@@ -13,11 +15,4 @@ module xyz.gnas.piz.app {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires zip4j;
-
-	requires org.testfx;
-	requires org.testfx.junit5;
-	requires org.junit.jupiter.api;
-	requires org.assertj.core;
-	requires hamcrest.core;
-	requires core;
 }

@@ -1,4 +1,4 @@
-package xyz.gnas.piz.core.logic;
+package xyz.gnas.piz.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +22,6 @@ import xyz.gnas.piz.core.models.ZipProcess;
 import xyz.gnas.piz.core.models.ZipReference;
 
 public class Zip {
-	private static final int NEW_REFERENCE_POSITION = 0;
-
 	/**
 	 * @author Gnas
 	 * @date Oct 27, 2018
@@ -210,24 +208,35 @@ public class Zip {
 			// rebuild the original file names of abbreviation with multiple files
 			if (map.size() > 1) {
 				for (File file : map.keySet()) {
-					String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
-					StringBuilder sb = new StringBuilder();
-
-					for (String word : split) {
-						// separate each consecutive character by a space
-						for (int i = 0; i <= characterCount && i < word.length(); ++i) {
-							if (i > 0) {
-								sb.append(" ");
-							}
-
-							sb.append(word.charAt(i));
-						}
-					}
-
-					fileRebuiltNameMap.put(file, sb.toString().toUpperCase());
+					fileRebuiltNameMap.put(file, getRebuiltName(file, characterCount));
 				}
 			}
 		}
+	}
+
+	private static String getRebuiltName(File file, int characterCount) {
+		String space = " ";
+		String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
+		StringBuilder sb = new StringBuilder();
+
+		for (int i = 0; i < split.length; ++i) {
+			if (i > 0) {
+				sb.append(space);
+			}
+
+			String word = split[i];
+
+			// separate each consecutive character by a space
+			for (int j = 0; j <= characterCount && j < word.length(); ++j) {
+				if (j > 0) {
+					sb.append(space);
+				}
+
+				sb.append(word.charAt(j));
+			}
+		}
+
+		return sb.toString().toUpperCase();
 	}
 
 	private static SortedMap<Abbreviation, Abbreviation> mergeDuplicateAbbreviations(
@@ -265,43 +274,59 @@ public class Zip {
 	 */
 	public static void processFile(ZipInput input, ZipProcess process, Abbreviation abbreviation) throws Exception {
 		if (input.isObfuscate()) {
-			obfuscateFileNameAndZip(process, abbreviation, input);
+			obfuscateFileNameAndZip(input, process, abbreviation);
 		} else {
-			prepareToZip(process, input, abbreviation.getAbbreviation());
+			prepareToZip(input, process, abbreviation.getAbbreviation());
 		}
 
 		process.setComplete(true);
 	}
 
-	private static void obfuscateFileNameAndZip(ZipProcess process, Abbreviation abbreviation, ZipInput input)
+	private static void obfuscateFileNameAndZip(ZipInput input, ZipProcess process, Abbreviation abbreviation)
 			throws ZipException, InterruptedException, IOException {
 		String zipName = abbreviation.getAbbreviation();
 		Map<File, String> map = abbreviation.getFileAbbreviationMap();
 
 		if (map.size() > 1) {
-			ArrayList<File> temp = new ArrayList<File>(map.keySet());
-
-			for (int i = 0; i < temp.size(); ++i) {
-				if (input.getOriginalFile().equals(temp.get(i))) {
-					// add suffix to make zip name unique
-					zipName += "_" + (i + 1);
-					break;
-				}
-			}
+			zipName = getSuffixedZipName(input, zipName, map);
 		}
 
 		// create inner zip without encryption
-		File innerZipFile = prepareToZip(process, input, zipName + "_inner");
+		File innerZipFile = prepareToZip(input, process, zipName + "_inner");
 
 		// only create outer zip if it's not cancelled
 		if (innerZipFile != null) {
-			processOuterZip(process, input, innerZipFile, zipName);
+			processOuterZip(input, process, innerZipFile, zipName);
 		}
 	}
 
-	private static File prepareToZip(ZipProcess process, ZipInput input, String zipName)
+	private static String getSuffixedZipName(ZipInput input, String zipName, Map<File, String> map) {
+		ArrayList<File> temp = new ArrayList<File>(map.keySet());
+
+		for (int i = 0; i < temp.size(); ++i) {
+			if (input.getOriginalFile().equals(temp.get(i))) {
+				// add suffix to make zip name unique
+				zipName += "_" + (i + 1);
+				break;
+			}
+		}
+
+		return zipName;
+	}
+
+	private static File prepareToZip(ZipInput input, ZipProcess process, String zipName)
 			throws ZipException, InterruptedException {
-		String extension = ".zip";
+		File fileZip = getResultZipFile(input, zipName);
+		process.setOutputFile(fileZip);
+
+		if (performZip(input, process, fileZip.getAbsolutePath())) {
+			return fileZip;
+		} else {
+			return null;
+		}
+	}
+
+	private static File getResultZipFile(ZipInput input, String zipName) {
 		String fullZipName;
 		File fileZip = null;
 		int count = 0;
@@ -315,21 +340,15 @@ public class Zip {
 				fullZipName += "_" + count;
 			}
 
-			fullZipName += extension;
+			fullZipName += ".zip";
 			fileZip = new File(input.getOutputFolder().getAbsolutePath() + "\\" + fullZipName);
 			++count;
 		} while (fileZip == null || fileZip.exists());
 
-		process.setOutputFile(fileZip);
-
-		if (performZip(process, input, fileZip.getAbsolutePath())) {
-			return fileZip;
-		} else {
-			return null;
-		}
+		return fileZip;
 	}
 
-	private static boolean performZip(ZipProcess process, ZipInput input, String zipPath)
+	private static boolean performZip(ZipInput input, ZipProcess process, String zipPath)
 			throws ZipException, InterruptedException {
 		ZipFile zip = getZipFile(input, zipPath);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
@@ -354,10 +373,7 @@ public class Zip {
 
 		// set encryption
 		if (input.isEncrypt()) {
-			parameters.setEncryptFiles(true);
-			parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
-			parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
-			parameters.setPassword(input.getPassword());
+			setEncryption(input, parameters);
 		}
 
 		// run in a separate thread so we can monitor progress
@@ -373,25 +389,26 @@ public class Zip {
 		return zip;
 	}
 
-	private static void processOuterZip(ZipProcess process, ZipInput input, File innerZipFile, String outerZipName)
+	private static void setEncryption(ZipInput input, ZipParameters parameters) {
+		parameters.setEncryptFiles(true);
+		parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
+		parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
+		parameters.setPassword(input.getPassword());
+	}
+
+	private static void processOuterZip(ZipInput input, ZipProcess process, File innerZipFile, String outerZipName)
 			throws ZipException, InterruptedException, IOException {
 		process.setOuter(true);
 		input.setFileToZip(innerZipFile);
-		File outerZipFile = prepareToZip(process, input, outerZipName);
+		File zipFile = prepareToZip(input, process, outerZipName);
 
 		// remove inner zip from disk
 		innerZipFile.delete();
 
 		// only add reference if user chooses to and process is not cancelled
-		if (input.isAddReference() && outerZipFile != null) {
-			addReference(input, outerZipFile.getName());
+		if (zipFile != null) {
+			process.setReference(
+					new ZipReference(input.getTag(), input.getOriginalFile().getName(), zipFile.getName()));
 		}
-	}
-
-	synchronized private static int addReference(ZipInput input, String outZipName) throws IOException {
-		File zipFile = new File(outZipName);
-		input.getReferenceList().add(NEW_REFERENCE_POSITION,
-				new ZipReference(input.getTag(), input.getOriginalFile().getName(), zipFile.getName()));
-		return NEW_REFERENCE_POSITION;
 	}
 }

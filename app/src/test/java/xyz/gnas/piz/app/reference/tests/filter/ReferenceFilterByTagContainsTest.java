@@ -23,17 +23,17 @@ public class ReferenceFilterByTagContainsTest {
 	private boolean hasSelectedTab;
 
 	@Start
-	void onStart(Stage stage) throws IOException {
+	public void onStart(Stage stage) throws IOException {
 		ReferenceTestUtility.initialise(stage);
 	}
 
 	@BeforeEach
-	void selectTab(FxRobot robot) {
+	public void selectTab(FxRobot robot) {
 		hasSelectedTab = ReferenceTestUtility.selectTab(robot, hasSelectedTab);
 	}
 
 	@Test
-	void filter_by_tag_contains(FxRobot robot) {
+	public void filter_by_tag_contains(FxRobot robot) {
 		ReferenceTestUtility.filterByComboBoxAndTextField(robot, ReferenceTestUtility.getZipComboBox(robot),
 				Configurations.CONTAINS, ReferenceTestUtility.getZipTextField(robot), "1");
 		assertThat(ReferenceTestUtility.getTableView(robot)).matches(
