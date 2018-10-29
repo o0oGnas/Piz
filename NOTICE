@@ -1,12 +1,15 @@
 Piz
+
 Copyright (c) 2018 o0oGnas
 	
-This application is distributed under the MIT license and uses third party libraries and creative works that are distributed with or without a license of their own (see below). Their individual licenses and notices can be found in the "licenses" directory.
+This application is distributed under the MIT license and uses third party libraries and creative works that are distributed with or without a license of their own (see below).
+
+To see the full terms and conditions of these licenses as well as their notices, check "licenses" folder.
 
 * Third party libraries:
 	- OpenJFX: 
 		+ Source: https://wiki.openjdk.java.net/display/OpenJFX/Main
-		+ License: The GNU General Public License (GPL) Version 2, June 1991
+		+ License: GNU General Public License (GPL) Version 2, June 1991
 	- ControlsFX:
 		+ Source: https://bitbucket.org/controlsfx/controlsfx/
 		+ License: BSD 3-Clause
@@ -38,8 +41,7 @@ This application is distributed under the MIT license and uses third party libra
 		+ License: The European Union Public Licence (EUPL) v1.1
 	- JUnit 5:
 		+ Source: https://github.com/junit-team/junit5/
-		+ License: Eclipse Public License - v 2.0
-		
+		+ License: Eclipse Public License - v2.0		
 
 * Creative works
 	- Zip icon:

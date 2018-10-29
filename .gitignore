@@ -1,8 +1,10 @@
+.metadata
+.recommenders
+.settings
+.ucdetector_reports
+.classpath
+.project
+target
 *.bin
 *.txt
 *.log
-.classpath
-.project
-.settings
-bin
-target

@@ -93,7 +93,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<minimizeJar>true</minimizeJar>
+							<minimizeJar>false</minimizeJar>
 
 							<!-- list of packages to include and exclude -->
 							<filters>
@@ -134,6 +134,10 @@
 					<threadCount>1</threadCount>
 					<printSummary>true</printSummary>
 					<skipTests>false</skipTests>
+					
+        		    <additionalClasspathElements>
+                		<additionalClasspathElement>src\main\</additionalClasspathElement>
+           			</additionalClasspathElements>
 
 					<!-- run test in a designated folder -->
 					<workingDirectory>${project.build.directory}/test-environment</workingDirectory>
@@ -144,6 +148,11 @@
 						<monocle.platform>Headless</monocle.platform>
 						<prism.order>d3d</prism.order>
 					</systemPropertyVariables>
+					
+					<argLine>
+						--add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+					</argLine>
 				</configuration>
 			</plugin>
 		</plugins>

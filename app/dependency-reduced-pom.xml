@@ -13,7 +13,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
-          <release>10</release>
+          <release>11</release>
         </configuration>
       </plugin>
       <plugin>
@@ -65,7 +65,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
               <filters>
                 <filter>
                   <artifact>org.openjfx</artifact>
@@ -85,12 +85,6 @@
                     <include>**</include>
                   </includes>
                 </filter>
-                <filter>
-                  <artifact>org.testfx</artifact>
-                  <excludes>
-                    <exclude>**</exclude>
-                  </excludes>
-                </filter>
               </filters>
             </configuration>
           </execution>
@@ -104,7 +98,7 @@
           <reuseForks>true</reuseForks>
           <threadCount>1</threadCount>
           <printSummary>true</printSummary>
-          <skipTests>true</skipTests>
+          <skipTests>false</skipTests>
           <workingDirectory>${project.build.directory}/test-environment</workingDirectory>
           <systemPropertyVariables>
             <glass.platform>Monocle</glass.platform>
@@ -116,6 +110,38 @@
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-core</artifactId>
+      <version>4.0.15-alpha</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.hamcrest</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>assertj-core</artifactId>
+          <groupId>org.assertj</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit5</artifactId>
+      <version>4.0.15-alpha</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>apiguardian-api</artifactId>
+          <groupId>org.apiguardian</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-jupiter-api</artifactId>
+          <groupId>org.junit.jupiter</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>org.testfx</groupId>
       <artifactId>openjfx-monocle</artifactId>
@@ -131,6 +157,14 @@
         <exclusion>
           <artifactId>junit-platform-engine</artifactId>
           <groupId>org.junit.platform</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>apiguardian-api</artifactId>
+          <groupId>org.apiguardian</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-jupiter-api</artifactId>
+          <groupId>org.junit.jupiter</groupId>
         </exclusion>
       </exclusions>
     </dependency>

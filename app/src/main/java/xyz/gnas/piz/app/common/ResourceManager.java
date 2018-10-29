@@ -7,6 +7,7 @@ import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import xyz.gnas.piz.app.FXMain;
+import xyz.gnas.piz.app.Main;
 
 /**
  * @author Gnas

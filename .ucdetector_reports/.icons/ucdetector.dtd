@@ -1,0 +1,79 @@
+<!--
+ Copyright (c) 2016 Joerg Spieler All rights reserved. This program and the
+ accompanying materials are made available under the terms of the Eclipse
+ Public License v1.0 which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+-->
+<!ELEMENT ucdetector   (statistics+, markers+, problems+)+>
+<!ELEMENT statistics   (abouts+, searched+, preferences+)+>
+
+<!ELEMENT abouts       (about)+>
+<!ELEMENT about        (key, value)*>
+<!ATTLIST about 
+    name               NMTOKEN        #REQUIRED
+    show               (true | false) #REQUIRED
+>
+<!ELEMENT key          (#PCDATA)>
+<!ELEMENT value        (#PCDATA)>
+
+<!ELEMENT searched     (search+)+>
+<!ELEMENT search       (#PCDATA)>
+<!ATTLIST search 
+    class              NMTOKEN        #REQUIRED
+>
+
+<!ELEMENT preferences  (preference+)+>
+<!ELEMENT preference   (#PCDATA)>
+<!ATTLIST preference 
+    key                NMTOKEN        #REQUIRED
+    value              CDATA          #REQUIRED
+>
+
+<!ELEMENT markers      (marker+)+>
+<!ELEMENT marker       (description+, file+, project+, sourceFolder+, package+, class+, javaType+, method*, field*, author*)+>
+
+<!ATTLIST marker 
+    level              (ERROR | WARNING) 
+                                      #REQUIRED
+    line               NMTOKEN        #REQUIRED
+    lineEnd            NMTOKEN        #REQUIRED
+    lineStart          NMTOKEN        #REQUIRED
+    markerType         (Reference | FewReference | VisibilityPrivate | VisibilityProtected | VisibilityDefault | Final| TestOnly| Other)   
+                                      #REQUIRED
+    nr                 NMTOKEN        #REQUIRED
+    referenceCount     NMTOKEN        #REQUIRED
+>
+
+<!ELEMENT description  (#PCDATA)>
+<!ELEMENT file         (#PCDATA)>
+
+<!ELEMENT project      (#PCDATA)>
+<!ATTLIST project 
+    dir                NMTOKEN        #REQUIRED
+    name               NMTOKEN        #REQUIRED
+    parentDir          CDATA          #REQUIRED
+>
+
+<!ELEMENT sourceFolder (#PCDATA)>
+<!ELEMENT package      (#PCDATA)>
+<!ELEMENT class        (#PCDATA)>
+
+<!ELEMENT javaType     (#PCDATA)>
+<!ATTLIST javaType 
+    icon               NMTOKEN        #REQUIRED
+    long               (Annotation | Class | ClassAnonymous | ClassLocal | ClassMember | Constant | Constructor | Enum | EnumConstant | Field | Initializer | Interface | Method )
+                                      #REQUIRED
+    simple             (Class | Method | Field | Initializer)  #REQUIRED
+>
+
+<!ELEMENT method       (#PCDATA)>
+<!ELEMENT author       (#PCDATA)>
+<!ELEMENT field        (#PCDATA)>
+
+<!ELEMENT problems     (problem*)+>
+<!ELEMENT problem      (status+, exception+)+>
+
+<!ELEMENT status       (#PCDATA)>
+<!ELEMENT exception    (#PCDATA)>
+
+
