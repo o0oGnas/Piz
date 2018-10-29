@@ -7,19 +7,13 @@ import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import xyz.gnas.piz.app.FXMain;
-import xyz.gnas.piz.app.Main;
 
 /**
  * @author Gnas
- * @Description Manage resources, including lazy load and caching
+ * @Description Manage resources, including lazy initialisation
  * @Date Oct 10, 2018
  */
 public class ResourceManager {
-	private static final String CSS_FOLDER = "css/";
-	private static final String ICON_FOLDER = "icons/";
-	private static final String FXML_FOLDER = "fxml/";
-	private static final String ZIP_FXML_FOLDER = FXML_FOLDER + "zip/";
-
 	private static Image appIcon;
 
 	private static Media notificationSound;
@@ -33,50 +27,73 @@ public class ResourceManager {
 
 	public static Image getAppIcon() {
 		if (appIcon == null) {
-			appIcon = new Image(FXMain.class.getClassLoader().getResourceAsStream(ICON_FOLDER + "app.png"));
+			appIcon = new Image(getClassLoader().getResourceAsStream("icon.png"));
 		}
 
 		return appIcon;
 	}
 
+	private static ClassLoader getClassLoader() {
+		return FXMain.class.getClassLoader();
+	}
+
 	public static Media getNotificationSound() {
 		if (notificationSound == null) {
-			notificationSound = new Media(
-					FXMain.class.getClassLoader().getResource("notification.wav").toExternalForm());
+			notificationSound = new Media(getResourceString("notification.wav"));
 		}
 
 		return notificationSound;
 	}
 
+	private static String getResourceString(String resource) {
+		return getResourceURL(resource).toExternalForm();
+	}
+
+	private static URL getResourceURL(String resource) {
+		return getClassLoader().getResource(resource);
+	}
+
 	public static List<String> getCSSList() {
 		if (cssList == null) {
 			cssList = new LinkedList<String>();
-			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "app.css").toExternalForm());
-			cssList.add(FXMain.class.getClassLoader().getResource(CSS_FOLDER + "theme.css").toExternalForm());
+			cssList.add(getCSS("app"));
+			cssList.add(getCSS("theme"));
 		}
 
 		return cssList;
 	}
 
+	private static String getCSS(String cssName) {
+		return getResourceString("css/" + cssName + ".css");
+	}
+
 	public static URL getAppFXML() {
 		if (appFXML == null) {
-			appFXML = FXMain.class.getClassLoader().getResource(FXML_FOLDER + "App.fxml");
+			appFXML = getFXML("App");
 		}
 
 		return appFXML;
 	}
 
+	private static URL getFXML(String fxml) {
+		return getResourceURL("fxml/" + fxml + ".fxml");
+	}
+
 	public static URL getZipFXML() {
 		if (zipFXML == null) {
-			zipFXML = FXMain.class.getClassLoader().getResource(ZIP_FXML_FOLDER + "Zip.fxml");
+			zipFXML = getZipFXMLWrapper("Zip");
 		}
 
 		return zipFXML;
 	}
 
+	private static URL getZipFXMLWrapper(String fxml) {
+		return getFXML("zip/" + fxml);
+	}
+
 	public static URL getZipItemFXML() {
 		if (zipItemFXML == null) {
-			zipItemFXML = FXMain.class.getClassLoader().getResource(ZIP_FXML_FOLDER + "ZipItem.fxml");
+			getZipFXMLWrapper("ZipItem");
 		}
 
 		return zipItemFXML;
@@ -84,7 +101,7 @@ public class ResourceManager {
 
 	public static URL getReferenceFXML() {
 		if (referenceFXML == null) {
-			referenceFXML = FXMain.class.getClassLoader().getResource(FXML_FOLDER + "reference/Reference.fxml");
+			referenceFXML = getFXML("reference/Reference");
 		}
 
 		return referenceFXML;
