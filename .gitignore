@@ -2,9 +2,9 @@
 .recommenders
 .settings
 .ucdetector_reports
+target
 .classpath
 .project
-target
+references.txt
 *.bin
-*.txt
 *.log
