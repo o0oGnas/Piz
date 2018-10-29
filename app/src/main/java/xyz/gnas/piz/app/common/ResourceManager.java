@@ -93,7 +93,7 @@ public class ResourceManager {
 
 	public static URL getZipItemFXML() {
 		if (zipItemFXML == null) {
-			getZipFXMLWrapper("ZipItem");
+			zipItemFXML = getZipFXMLWrapper("ZipItem");
 		}
 
 		return zipItemFXML;
