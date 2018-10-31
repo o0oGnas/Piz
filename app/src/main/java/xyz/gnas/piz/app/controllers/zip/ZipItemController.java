@@ -2,7 +2,12 @@ package xyz.gnas.piz.app.controllers.zip;
 
 import static xyz.gnas.piz.app.common.Utility.showConfirmation;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.File;
+
+import javax.swing.Icon;
+import javax.swing.filechooser.FileSystemView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -18,6 +23,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import net.lingala.zip4j.progress.ProgressMonitor;
@@ -27,14 +35,17 @@ import xyz.gnas.piz.app.events.zip.BeginProcessEvent;
 import xyz.gnas.piz.app.events.zip.FinishProcessEvent;
 import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
 import xyz.gnas.piz.app.events.zip.UpdateProgressEvent;
-import xyz.gnas.piz.core.models.ZipProcess;
+import xyz.gnas.piz.core.models.zip.ZipProcessModel;
 
 public class ZipItemController {
 	@FXML
 	private AnchorPane acpRoot;
 
 	@FXML
-	private MaterialIconView mivFileFolder;
+	private MaterialIconView mivIcon;
+
+	@FXML
+	private ImageView imvIcon;
 
 	@FXML
 	private Label lblStatus;
@@ -94,9 +105,13 @@ public class ZipItemController {
 				file = event.getFile();
 				isObfuscated = event.isObfuscated();
 
-				// folder is shown in different colour
-				if (file.isDirectory()) {
-					mivFileFolder.setGlyphName("FOLDER");
+				// show system defined icon if it's a file
+				if (!file.isDirectory()) {
+					mivIcon.setManaged(false);
+					mivIcon.setVisible(false);
+					imvIcon.setManaged(true);
+					imvIcon.setVisible(true);
+					setFileIcon();
 				}
 
 				lblOriginal.setText(file.getName());
@@ -104,6 +119,23 @@ public class ZipItemController {
 		} catch (Exception e) {
 			showError(e, "Error when initialising zip item", true);
 		}
+	}
+
+	private void setFileIcon() {
+		Icon icon = FileSystemView.getFileSystemView().getSystemIcon(file);
+		BufferedImage bi = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics g = bi.createGraphics();
+		icon.paintIcon(null, g, 0, 0);
+		WritableImage wr = new WritableImage(bi.getWidth(), bi.getHeight());
+		PixelWriter pw = wr.getPixelWriter();
+
+		for (int x = 0; x < bi.getWidth(); x++) {
+			for (int y = 0; y < bi.getHeight(); y++) {
+				pw.setArgb(x, y, bi.getRGB(x, y));
+			}
+		}
+
+		imvIcon.setImage(wr);
 	}
 
 	@Subscribe
@@ -130,7 +162,7 @@ public class ZipItemController {
 	public void onUpdateProgressEvent(UpdateProgressEvent event) {
 		try {
 			if (event.getFile() == file) {
-				ZipProcess process = event.getProcess();
+				ZipProcessModel process = event.getProcess();
 				progressMonitor.set(process.getProgressMonitor());
 				File outputFile = process.getOutputFile();
 
@@ -145,7 +177,7 @@ public class ZipItemController {
 		}
 	}
 
-	private void updatePercent(ZipProcess process) {
+	private void updatePercent(ZipProcessModel process) {
 		if (progressMonitor.get().getState() == ProgressMonitor.STATE_BUSY) {
 			percent = progressMonitor.get().getPercentDone() / 100.0;
 
@@ -180,6 +212,7 @@ public class ZipItemController {
 	@FXML
 	private void initialize() {
 		try {
+			imvIcon.setManaged(false);
 			EventBus.getDefault().register(this);
 
 			isPaused.addListener(l -> {

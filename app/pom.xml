@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>xyz.gnas.piz</groupId>
 		<artifactId>piz</artifactId>
-		<version>1.4.4</version>
+		<version>1.4.5</version>
 	</parent>
 
 	<artifactId>app</artifactId>
@@ -209,13 +209,6 @@
 			<groupId>org.greenrobot</groupId>
 			<artifactId>eventbus</artifactId>
 			<version>3.1.1</version>
-		</dependency>
-
-		<!-- utility -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.9.7</version>
 		</dependency>
 
 		<!-- test -->

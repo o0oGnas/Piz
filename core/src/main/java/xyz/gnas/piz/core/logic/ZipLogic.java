@@ -1,4 +1,4 @@
-package xyz.gnas.piz.core;
+package xyz.gnas.piz.core.logic;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +16,12 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import net.lingala.zip4j.util.Zip4jConstants;
-import xyz.gnas.piz.core.models.Abbreviation;
-import xyz.gnas.piz.core.models.ZipInput;
-import xyz.gnas.piz.core.models.ZipProcess;
-import xyz.gnas.piz.core.models.ZipReference;
+import xyz.gnas.piz.core.models.ReferenceModel;
+import xyz.gnas.piz.core.models.zip.AbbreviationModel;
+import xyz.gnas.piz.core.models.zip.ZipInputModel;
+import xyz.gnas.piz.core.models.zip.ZipProcessModel;
 
-public class Zip {
+public class ZipLogic {
 	/**
 	 * @author Gnas
 	 * @date Oct 27, 2018
@@ -30,15 +30,16 @@ public class Zip {
 	 * @param isObfuscated flag to tell if obfuscation is needed
 	 * @return
 	 */
-	public static SortedMap<Abbreviation, Abbreviation> getAbbreviationList(List<File> fileList, boolean isObfuscated) {
-		SortedMap<Abbreviation, Abbreviation> abbreviationList = new TreeMap<Abbreviation, Abbreviation>();
+	public static SortedMap<AbbreviationModel, AbbreviationModel> getAbbreviationList(List<File> fileList,
+			boolean isObfuscated) {
+		SortedMap<AbbreviationModel, AbbreviationModel> abbreviationList = new TreeMap<AbbreviationModel, AbbreviationModel>();
 
 		for (File file : fileList) {
 			// remove trailing spaces and replace multiple spaces by one space
 			String fileName = file.getName().trim().replaceAll(" +", " ");
 			String zipFileName = isObfuscated ? getAbbreviatedFileName(fileName, file.isDirectory())
 					: FilenameUtils.removeExtension(fileName);
-			Abbreviation abbreviation = new Abbreviation(zipFileName);
+			AbbreviationModel abbreviation = new AbbreviationModel(zipFileName);
 
 			if (abbreviationList.containsKey(abbreviation)) {
 				abbreviation = abbreviationList.get(abbreviation);
@@ -75,9 +76,9 @@ public class Zip {
 		return sb.toString().toUpperCase();
 	}
 
-	private static SortedMap<Abbreviation, Abbreviation> generateObfuscatedAbbreviationList(
-			SortedMap<Abbreviation, Abbreviation> abbreviationList) {
-		for (Abbreviation abbreviation : abbreviationList.keySet()) {
+	private static SortedMap<AbbreviationModel, AbbreviationModel> generateObfuscatedAbbreviationList(
+			SortedMap<AbbreviationModel, AbbreviationModel> abbreviationList) {
+		for (AbbreviationModel abbreviation : abbreviationList.keySet()) {
 			for (File file : abbreviation.getFileAbbreviationMap().keySet()) {
 				String[] split = FilenameUtils.removeExtension(file.getName()).split(" ");
 
@@ -102,8 +103,8 @@ public class Zip {
 	 *              case
 	 * @date Oct 9, 2018
 	 */
-	private static void uniquifyAbbreviationList(SortedMap<Abbreviation, Abbreviation> abbreviationList) {
-		for (Abbreviation abbreviation : abbreviationList.keySet()) {
+	private static void uniquifyAbbreviationList(SortedMap<AbbreviationModel, AbbreviationModel> abbreviationList) {
+		for (AbbreviationModel abbreviation : abbreviationList.keySet()) {
 			Map<File, String> map = abbreviation.getFileAbbreviationMap();
 
 			if (map.size() > 1) {
@@ -133,7 +134,7 @@ public class Zip {
 		}
 	}
 
-	private static Map<File, String> uniquifyByExtension(Abbreviation abbreviation) {
+	private static Map<File, String> uniquifyByExtension(AbbreviationModel abbreviation) {
 		Map<File, String> mapWithExtension = new HashMap<File, String>();
 		Map<File, String> map = abbreviation.getFileAbbreviationMap();
 
@@ -155,11 +156,11 @@ public class Zip {
 	private static Map<File, String> uniquifyByAddingCharacters(Map<File, String> map, int characterCount,
 			Map<File, String> fileRebuiltNameMap) {
 		// temporary new abbreviation list
-		Map<Abbreviation, Abbreviation> newAbbreviationList = getNewAbbreviationList(map);
+		Map<AbbreviationModel, AbbreviationModel> newAbbreviationList = getNewAbbreviationList(map);
 		updateNewAbbreviationList(newAbbreviationList, characterCount, fileRebuiltNameMap);
 		Map<File, String> result = new HashMap<File, String>();
 
-		for (Abbreviation abbreviation : newAbbreviationList.keySet()) {
+		for (AbbreviationModel abbreviation : newAbbreviationList.keySet()) {
 			Map<File, String> fileAbbreviationMap = abbreviation.getFileAbbreviationMap();
 
 			for (File file : fileAbbreviationMap.keySet()) {
@@ -178,11 +179,11 @@ public class Zip {
 		return result;
 	}
 
-	private static Map<Abbreviation, Abbreviation> getNewAbbreviationList(Map<File, String> map) {
-		Map<Abbreviation, Abbreviation> newAbbreviationList = new HashMap<Abbreviation, Abbreviation>();
+	private static Map<AbbreviationModel, AbbreviationModel> getNewAbbreviationList(Map<File, String> map) {
+		Map<AbbreviationModel, AbbreviationModel> newAbbreviationList = new HashMap<AbbreviationModel, AbbreviationModel>();
 
 		for (String value : map.values()) {
-			Abbreviation abbreviation = new Abbreviation(value);
+			AbbreviationModel abbreviation = new AbbreviationModel(value);
 
 			if (newAbbreviationList.containsKey(abbreviation)) {
 				abbreviation = newAbbreviationList.get(abbreviation);
@@ -200,9 +201,9 @@ public class Zip {
 		return newAbbreviationList;
 	}
 
-	private static void updateNewAbbreviationList(Map<Abbreviation, Abbreviation> newAbbreviationList,
+	private static void updateNewAbbreviationList(Map<AbbreviationModel, AbbreviationModel> newAbbreviationList,
 			int characterCount, Map<File, String> fileRebuiltNameMap) {
-		for (Abbreviation abbreviation : newAbbreviationList.keySet()) {
+		for (AbbreviationModel abbreviation : newAbbreviationList.keySet()) {
 			Map<File, String> map = abbreviation.getFileAbbreviationMap();
 
 			// rebuild the original file names of abbreviation with multiple files
@@ -239,16 +240,16 @@ public class Zip {
 		return sb.toString().toUpperCase();
 	}
 
-	private static SortedMap<Abbreviation, Abbreviation> mergeDuplicateAbbreviations(
-			SortedMap<Abbreviation, Abbreviation> abbreviationList) {
-		SortedMap<Abbreviation, Abbreviation> newAbreviationList = new TreeMap<Abbreviation, Abbreviation>();
+	private static SortedMap<AbbreviationModel, AbbreviationModel> mergeDuplicateAbbreviations(
+			SortedMap<AbbreviationModel, AbbreviationModel> abbreviationList) {
+		SortedMap<AbbreviationModel, AbbreviationModel> newAbreviationList = new TreeMap<AbbreviationModel, AbbreviationModel>();
 
-		for (Abbreviation abbreviation : abbreviationList.keySet()) {
+		for (AbbreviationModel abbreviation : abbreviationList.keySet()) {
 			Map<File, String> map = abbreviation.getFileAbbreviationMap();
 
 			for (File file : map.keySet()) {
 				// create a new Abbreviation object for each newly generated abbreviation
-				Abbreviation newAbbreviation = new Abbreviation(map.get(file));
+				AbbreviationModel newAbbreviation = new AbbreviationModel(map.get(file));
 
 				if (newAbreviationList.containsKey(newAbbreviation)) {
 					newAbbreviation = newAbreviationList.get(newAbbreviation);
@@ -272,7 +273,7 @@ public class Zip {
 	 *                     file
 	 * @throws Exception
 	 */
-	public static void processFile(ZipInput input, ZipProcess process) throws Exception {
+	public static void processFile(ZipInputModel input, ZipProcessModel process) throws Exception {
 		if (input.isObfuscate()) {
 			obfuscateFileNameAndZip(input, process);
 		} else {
@@ -282,9 +283,9 @@ public class Zip {
 		process.setComplete(true);
 	}
 
-	private static void obfuscateFileNameAndZip(ZipInput input, ZipProcess process)
+	private static void obfuscateFileNameAndZip(ZipInputModel input, ZipProcessModel process)
 			throws ZipException, InterruptedException, IOException {
-		Abbreviation abbreviation = input.getAbbreviation();
+		AbbreviationModel abbreviation = input.getAbbreviation();
 		String zipName = abbreviation.getAbbreviation();
 		Map<File, String> map = abbreviation.getFileAbbreviationMap();
 
@@ -301,7 +302,7 @@ public class Zip {
 		}
 	}
 
-	private static String getSuffixedZipName(ZipInput input, String zipName, Map<File, String> map) {
+	private static String getSuffixedZipName(ZipInputModel input, String zipName, Map<File, String> map) {
 		ArrayList<File> temp = new ArrayList<File>(map.keySet());
 
 		for (int i = 0; i < temp.size(); ++i) {
@@ -315,7 +316,7 @@ public class Zip {
 		return zipName;
 	}
 
-	private static File prepareToZip(ZipInput input, ZipProcess process, String zipName)
+	private static File prepareToZip(ZipInputModel input, ZipProcessModel process, String zipName)
 			throws ZipException, InterruptedException {
 		File fileZip = getResultZipFile(input, zipName);
 		process.setOutputFile(fileZip);
@@ -327,7 +328,7 @@ public class Zip {
 		}
 	}
 
-	private static File getResultZipFile(ZipInput input, String zipName) {
+	private static File getResultZipFile(ZipInputModel input, String zipName) {
 		String fullZipName;
 		File fileZip = null;
 		int count = 0;
@@ -349,7 +350,7 @@ public class Zip {
 		return fileZip;
 	}
 
-	private static boolean performZip(ZipInput input, ZipProcess process, String zipPath)
+	private static boolean performZip(ZipInputModel input, ZipProcessModel process, String zipPath)
 			throws ZipException, InterruptedException {
 		ZipFile zip = getZipFile(input, zipPath);
 		ProgressMonitor progressMonitor = zip.getProgressMonitor();
@@ -366,7 +367,7 @@ public class Zip {
 		}
 	}
 
-	private static ZipFile getZipFile(ZipInput input, String zipPath) throws ZipException {
+	private static ZipFile getZipFile(ZipInputModel input, String zipPath) throws ZipException {
 		ZipFile zip = new ZipFile(zipPath);
 		ZipParameters parameters = new ZipParameters();
 		parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
@@ -390,15 +391,15 @@ public class Zip {
 		return zip;
 	}
 
-	private static void setEncryption(ZipInput input, ZipParameters parameters) {
+	private static void setEncryption(ZipInputModel input, ZipParameters parameters) {
 		parameters.setEncryptFiles(true);
 		parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
 		parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
 		parameters.setPassword(input.getPassword());
 	}
 
-	private static void processOuterZip(ZipInput input, ZipProcess process, File innerZipFile, String outerZipName)
-			throws ZipException, InterruptedException, IOException {
+	private static void processOuterZip(ZipInputModel input, ZipProcessModel process, File innerZipFile,
+			String outerZipName) throws ZipException, InterruptedException, IOException {
 		process.setOuter(true);
 		input.setFileToZip(innerZipFile);
 		File zipFile = prepareToZip(input, process, outerZipName);
@@ -409,7 +410,7 @@ public class Zip {
 		// only add reference if user chooses to and process is not cancelled
 		if (zipFile != null) {
 			process.setReference(
-					new ZipReference(input.getTag(), input.getOriginalFile().getName(), zipFile.getName()));
+					new ReferenceModel(input.getTag(), input.getOriginalFile().getName(), zipFile.getName()));
 		}
 	}
 }

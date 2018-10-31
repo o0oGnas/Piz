@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 
@@ -12,7 +13,8 @@
 	<children>
 		<HBox alignment="CENTER_LEFT" fillHeight="false" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
 			<children>
-            <MaterialIconView fx:id="mivFileFolder" glyphName="INSERT_DRIVE_FILE" />
+            <MaterialIconView fx:id="mivIcon" glyphName="FOLDER_OPEN" />
+            <ImageView fx:id="imvIcon" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" visible="false" />
 				<Label fx:id="lblOriginal" text="Original file name">
 					<HBox.margin>
 						<Insets left="10.0" />

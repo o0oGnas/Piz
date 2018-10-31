@@ -17,7 +17,7 @@ import java.util.Calendar;
  * @Description
  * @Date Oct 9, 2018
  */
-public class ZipReference {
+public class ReferenceModel {
 	private Calendar date;
 	private String tag;
 	private String original;
@@ -55,7 +55,7 @@ public class ZipReference {
 		this.zip = zip;
 	}
 
-	public ZipReference() {
+	public ReferenceModel() {
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class ZipReference {
 	 * @param original
 	 * @param zip
 	 */
-	public ZipReference(String tag, String original, String zip) {
+	public ReferenceModel(String tag, String original, String zip) {
 		this.date = Calendar.getInstance();
 		this.tag = tag;
 		this.original = original;

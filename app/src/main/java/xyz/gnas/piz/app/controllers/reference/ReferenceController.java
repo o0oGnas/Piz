@@ -38,7 +38,7 @@ import xyz.gnas.piz.app.common.Utility;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
 import xyz.gnas.piz.app.events.SaveReferenceEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
-import xyz.gnas.piz.core.models.ZipReference;
+import xyz.gnas.piz.core.models.ReferenceModel;
 
 /**
  * @author Gnas
@@ -79,19 +79,19 @@ public class ReferenceController {
 	private Label lblReferenceCount;
 
 	@FXML
-	private TableView<ZipReference> tbvTable;
+	private TableView<ReferenceModel> tbvTable;
 
 	@FXML
-	private TableColumn<ZipReference, Calendar> tbcDate;
+	private TableColumn<ReferenceModel, Calendar> tbcDate;
 
 	@FXML
-	private TableColumn<ZipReference, String> tbcTag;
+	private TableColumn<ReferenceModel, String> tbcTag;
 
 	@FXML
-	private TableColumn<ZipReference, String> tbcOriginal;
+	private TableColumn<ReferenceModel, String> tbcOriginal;
 
 	@FXML
-	private TableColumn<ZipReference, String> tbcZip;
+	private TableColumn<ReferenceModel, String> tbcZip;
 
 	@FXML
 	private Button btnDelete;
@@ -142,12 +142,12 @@ public class ReferenceController {
 	private void addListenerToList() {
 		ApplicationModel.getInstance().getReferenceListPropery().addListener(propertyListener -> {
 			try {
-				ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
+				ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
 				handleDataUpdate();
 				initialiseDateTimePickers();
 
 				if (referenceList != null) {
-					referenceList.addListener((ListChangeListener<ZipReference>) l -> {
+					referenceList.addListener((ListChangeListener<ReferenceModel>) l -> {
 						try {
 							// only show alert if the tab is active and the change was automatic
 							if (!isManualUpdate && isActive) {
@@ -183,7 +183,7 @@ public class ReferenceController {
 	private void updateOriginalAutoComplete() {
 		Set<String> autocomplete = new HashSet<String>();
 
-		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
 			autocomplete.add(reference.getOriginal());
 		}
 
@@ -193,7 +193,7 @@ public class ReferenceController {
 	private void updateZipAutoComplete() {
 		Set<String> autocomplete = new HashSet<String>();
 
-		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
 			autocomplete.add(reference.getZip());
 		}
 
@@ -203,7 +203,7 @@ public class ReferenceController {
 	private void updateTagAutoComplete() {
 		Set<String> autocomplete = new HashSet<String>();
 
-		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
 			autocomplete.add(reference.getTag());
 		}
 
@@ -214,7 +214,7 @@ public class ReferenceController {
 		Calendar cMin = Calendar.getInstance();
 		Calendar cMax = Calendar.getInstance();
 
-		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
 			if (cMin == null || reference.getDate().compareTo(cMin) < 0) {
 				cMin = reference.getDate();
 			}
@@ -246,7 +246,7 @@ public class ReferenceController {
 			lblReferenceCount.setText(tbvTable.getItems().size() + " references");
 		});
 
-		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ZipReference>) l -> {
+		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ReferenceModel>) l -> {
 			// disable delete button if there is no selection
 			btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
 		});
@@ -258,8 +258,8 @@ public class ReferenceController {
 	}
 
 	private void initialiseDateColumn() {
-		tbcDate.setCellFactory((TableColumn<ZipReference, Calendar> param) -> {
-			return new TableCell<ZipReference, Calendar>() {
+		tbcDate.setCellFactory((TableColumn<ReferenceModel, Calendar> param) -> {
+			return new TableCell<ReferenceModel, Calendar>() {
 				@Override
 				protected void updateItem(Calendar item, boolean empty) {
 					try {
@@ -278,7 +278,7 @@ public class ReferenceController {
 			};
 		});
 
-		tbcDate.setCellValueFactory(new PropertyValueFactory<ZipReference, Calendar>("date"));
+		tbcDate.setCellValueFactory(new PropertyValueFactory<ReferenceModel, Calendar>("date"));
 	}
 
 	/**
@@ -287,8 +287,8 @@ public class ReferenceController {
 	 * @param column       TableColumn object
 	 * @param propertyName name of the property to bind to column
 	 */
-	private void initialiseStringColumn(TableColumn<ZipReference, String> column, String propertyName) {
-		column.setCellValueFactory(new PropertyValueFactory<ZipReference, String>(propertyName));
+	private void initialiseStringColumn(TableColumn<ReferenceModel, String> column, String propertyName) {
+		column.setCellValueFactory(new PropertyValueFactory<ReferenceModel, String>(propertyName));
 		column.setCellFactory(TextFieldTableCell.forTableColumn());
 	}
 
@@ -307,12 +307,13 @@ public class ReferenceController {
 	@FXML
 	private void filter(ActionEvent event) {
 		try {
+			ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
 			writeInfoLog("Filtering references");
 			Calendar cFrom = convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
 			Calendar cTo = convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
-			ObservableList<ZipReference> filteredList = FXCollections.observableArrayList();
+			ObservableList<ReferenceModel> filteredList = FXCollections.observableArrayList();
 
-			for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+			for (ReferenceModel reference : referenceList) {
 				Calendar date = reference.getDate();
 				boolean checkDate = cFrom.compareTo(date) <= 0 && date.compareTo(cTo) <= 1;
 
@@ -376,7 +377,7 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void sortTable(SortEvent<TableView<ZipReference>> event) {
+	private void sortTable(SortEvent<TableView<ReferenceModel>> event) {
 		try {
 			writeInfoLog("Sorting table");
 			isManualUpdate = true;
@@ -386,9 +387,9 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void startEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
+	private void startEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
 		try {
-			writeInfoLog("Beginning edit on column " + ((TableColumn<ZipReference, String>) event.getSource()).getId());
+			writeInfoLog("Beginning edit on column " + ((TableColumn<ReferenceModel, String>) event.getSource()).getId());
 			isEditing = true;
 		} catch (Exception e) {
 			showError(e, "Error when starting edit", false);
@@ -396,11 +397,11 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void commitEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
+	private void commitEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
 		try {
-			TableColumn<ZipReference, String> source = (TableColumn<ZipReference, String>) event.getSource();
+			TableColumn<ReferenceModel, String> source = (TableColumn<ReferenceModel, String>) event.getSource();
 			writeInfoLog("Commiting edit on column " + source.getId());
-			ZipReference reference = ApplicationModel.getInstance().getReferenceList()
+			ReferenceModel reference = ApplicationModel.getInstance().getReferenceList()
 					.get(event.getTablePosition().getRow());
 			String value = event.getNewValue();
 
@@ -423,9 +424,9 @@ public class ReferenceController {
 	}
 
 	@FXML
-	private void cancelEdit(TableColumn.CellEditEvent<ZipReference, String> event) {
+	private void cancelEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
 		try {
-			writeInfoLog("Canceling edit on column " + ((TableColumn<ZipReference, String>) event.getSource()).getId());
+			writeInfoLog("Canceling edit on column " + ((TableColumn<ReferenceModel, String>) event.getSource()).getId());
 			isEditing = false;
 		} catch (Exception e) {
 			showError(e, "Error when cenceling edit", false);
@@ -436,7 +437,7 @@ public class ReferenceController {
 	private void add(ActionEvent event) {
 		try {
 			isManualUpdate = true;
-			ApplicationModel.getInstance().getReferenceList().add(0, new ZipReference(null, null, null));
+			ApplicationModel.getInstance().getReferenceList().add(0, new ReferenceModel(null, null, null));
 
 			// scroll to top
 			scrollToTop(null);

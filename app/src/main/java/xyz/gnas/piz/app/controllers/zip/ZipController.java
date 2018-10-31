@@ -53,16 +53,17 @@ import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.ResourceManager;
 import xyz.gnas.piz.app.common.Utility;
 import xyz.gnas.piz.app.events.ExitEvent;
+import xyz.gnas.piz.app.events.zip.BeginProcessEvent;
 import xyz.gnas.piz.app.events.zip.FinishProcessEvent;
 import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
 import xyz.gnas.piz.app.events.zip.UpdateProgressEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
-import xyz.gnas.piz.app.models.UserSetting;
-import xyz.gnas.piz.core.Zip;
-import xyz.gnas.piz.core.models.Abbreviation;
-import xyz.gnas.piz.core.models.ZipInput;
-import xyz.gnas.piz.core.models.ZipProcess;
-import xyz.gnas.piz.core.models.ZipReference;
+import xyz.gnas.piz.app.models.UserSettingModel;
+import xyz.gnas.piz.core.logic.ZipLogic;
+import xyz.gnas.piz.core.models.ReferenceModel;
+import xyz.gnas.piz.core.models.zip.AbbreviationModel;
+import xyz.gnas.piz.core.models.zip.ZipInputModel;
+import xyz.gnas.piz.core.models.zip.ZipProcessModel;
 
 public class ZipController {
 	@FXML
@@ -147,7 +148,7 @@ public class ZipController {
 	 */
 	private File outputFolder;
 
-	private UserSetting userSetting;
+	private UserSettingModel userSetting;
 
 	/**
 	 * Set of files to process
@@ -158,12 +159,12 @@ public class ZipController {
 	 * Keep track of the different abbreviations and files that will be abbreviated
 	 * to them, so output zip files have unique names
 	 */
-	private SortedMap<Abbreviation, Abbreviation> abbreviationList;
+	private SortedMap<AbbreviationModel, AbbreviationModel> abbreviationList;
 
 	/**
 	 * keep track of all processes to stop or pause
 	 */
-	private Set<ZipProcess> processList = new HashSet<ZipProcess>();
+	private Set<ZipProcessModel> processList = new HashSet<ZipProcessModel>();
 
 	/**
 	 * Keep track of how many processes are running
@@ -240,7 +241,7 @@ public class ZipController {
 				ObjectInputStream ois = new ObjectInputStream(fis);
 
 				try {
-					userSetting = (UserSetting) ois.readObject();
+					userSetting = (UserSettingModel) ois.readObject();
 				} catch (ClassNotFoundException e) {
 					showError(e, "Error reading user setting", false);
 					setDefaultUserSetting();
@@ -252,7 +253,7 @@ public class ZipController {
 	}
 
 	private void setDefaultUserSetting() {
-		userSetting = new UserSetting(null, null, null, null, true, true, true,
+		userSetting = new UserSettingModel(null, null, null, null, true, true, true,
 				Integer.parseInt(txtProcessCount.getText()));
 	}
 
@@ -415,10 +416,10 @@ public class ZipController {
 		ApplicationModel.getInstance().getReferenceListPropery().addListener(protertyListener -> {
 			try {
 				updateTagAutocomplete();
-				ObservableList<ZipReference> referenceList = ApplicationModel.getInstance().getReferenceList();
+				ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
 
 				if (referenceList != null) {
-					referenceList.addListener((ListChangeListener<ZipReference>) l -> {
+					referenceList.addListener((ListChangeListener<ReferenceModel>) l -> {
 						try {
 							updateTagAutocomplete();
 						} catch (Exception e) {
@@ -435,7 +436,7 @@ public class ZipController {
 	private void updateTagAutocomplete() {
 		Set<String> autocomplete = new HashSet<String>();
 
-		for (ZipReference reference : ApplicationModel.getInstance().getReferenceList()) {
+		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
 			autocomplete.add(reference.getTag());
 		}
 
@@ -464,8 +465,8 @@ public class ZipController {
 	/**
 	 * @description Wrapper around initialing input and output folder
 	 * @date Oct 9, 2018
-	 * @param path
-	 * @param label
+	 * @param path  path to the folder
+	 * @param label label to display the path
 	 * @return
 	 */
 	private File initialiseFolder(String path, Label label) {
@@ -490,7 +491,7 @@ public class ZipController {
 		vboList.setDisable(true);
 		isStopped = true;
 
-		for (ZipProcess process : processList) {
+		for (ZipProcessModel process : processList) {
 			// canceling tasks while paused doesn't release processing thread
 			// (possibly a bug of zip4j)
 			process.getProgressMonitor().setPause(false);
@@ -535,9 +536,7 @@ public class ZipController {
 				try {
 					runFileAndFolderGenerationThread(label);
 				} catch (Exception e) {
-					runLater(() -> {
-						showError(e, "Error when generating file and folder list", true);
-					});
+					showError(e, "Error when generating file and folder list", true);
 				}
 
 				return 1;
@@ -554,7 +553,7 @@ public class ZipController {
 			try {
 				ObservableList<Node> childrenList = vboList.getChildren();
 
-				if (itemList.size() > 0) {
+				if (!itemList.isEmpty()) {
 					childrenList.remove(label);
 					childrenList.addAll(itemList);
 					hboActions.setDisable(false);
@@ -755,14 +754,14 @@ public class ZipController {
 
 	private void prepareToStart() throws FileNotFoundException, IOException {
 		writeInfoLog("Preparing");
-		isStopped = false;
 		saveUserSetting();
+		isStopped = false;
 		btnStart.setDisable(true);
 		enableDisablePauseStop(false);
 		isRunning.set(true);
 		runningCount = 0;
 		finishCount = 0;
-		abbreviationList = Zip.getAbbreviationList(fileList, chkObfuscate.isSelected());
+		abbreviationList = ZipLogic.getAbbreviationList(fileList, chkObfuscate.isSelected());
 	}
 
 	private void enableDisablePauseStop(boolean disable) {
@@ -779,9 +778,7 @@ public class ZipController {
 				try {
 					runMasterThread();
 				} catch (Exception e) {
-					runLater(() -> {
-						showError(e, "Error when running master thread", true);
-					});
+					showError(e, "Error when running master thread", true);
 				}
 
 				return 1;
@@ -817,9 +814,7 @@ public class ZipController {
 				try {
 					runFileThread(file);
 				} catch (Exception e) {
-					runLater(() -> {
-						showError(e, "Error when executing a thread", true);
-					});
+					showError(e, "Error when executing a thread", true);
 				}
 
 				return 1;
@@ -831,18 +826,24 @@ public class ZipController {
 	}
 
 	private void runFileThread(File file) throws InterruptedException {
-		ZipProcess process = new ZipProcess();
+		ZipProcessModel process = new ZipProcessModel();
 		processList.add(process);
 
 		Thread processThread = new Thread(new Task<Integer>() {
 			@Override
 			protected Integer call() throws Exception {
 				try {
+					runLater(() -> {
+						try {
+							EventBus.getDefault().post(new BeginProcessEvent(file, isPaused));
+						} catch (Exception e) {
+							showError(e, "Error when beginning process", false);
+						}
+					});
+
 					runProcessThread(file, process);
 				} catch (Exception e) {
-					runLater(() -> {
-						showError(e, "Error when executing a process thread", true);
-					});
+					showError(e, "Error when executing a process thread", true);
 				}
 
 				return 1;
@@ -850,26 +851,25 @@ public class ZipController {
 		});
 
 		processThread.start();
-		showProcessOnZipItem(file);
 		monitorZipProcess(file, process);
 	}
 
-	private void runProcessThread(File file, ZipProcess process) throws Exception {
-		Abbreviation abbreviation = null;
+	private void runProcessThread(File file, ZipProcessModel process) throws Exception {
+		AbbreviationModel abbreviation = null;
 
-		for (Abbreviation currentAbbreviation : abbreviationList.keySet()) {
+		for (AbbreviationModel currentAbbreviation : abbreviationList.keySet()) {
 			if (currentAbbreviation.getFileAbbreviationMap().containsKey(file)) {
 				abbreviation = currentAbbreviation;
 				break;
 			}
 		}
 
-		ZipInput input = new ZipInput(file, file, outputFolder, abbreviation, pwfPassword.getText(), txtTag.getText(),
-				chkEncrypt.isSelected(), chkObfuscate.isSelected());
-		Zip.processFile(input, process);
+		ZipInputModel input = new ZipInputModel(file, file, outputFolder, abbreviation, pwfPassword.getText(),
+				txtTag.getText(), chkEncrypt.isSelected(), chkObfuscate.isSelected());
+		ZipLogic.processFile(input, process);
 	}
 
-	private void monitorZipProcess(File file, ZipProcess process) throws InterruptedException {
+	private void monitorZipProcess(File file, ZipProcessModel process) throws InterruptedException {
 		while (process.getProgressMonitor() == null) {
 			Thread.sleep(100);
 		}
@@ -888,16 +888,7 @@ public class ZipController {
 		increaseFinishCount();
 	}
 
-	private void showProcessOnZipItem(File file) {
-		runLater(() -> {
-			try {
-			} catch (Exception e) {
-				showError(e, "Error when showing progress on file", false);
-			}
-		});
-	}
-
-	private void showProgress(File file, ZipProcess process) {
+	private void showProgress(File file, ZipProcessModel process) {
 		runLater(() -> {
 			try {
 				EventBus.getDefault().post(new UpdateProgressEvent(file, process));
@@ -907,7 +898,7 @@ public class ZipController {
 		});
 	}
 
-	private void handleCompleteProcess(File file, ZipProcess process) {
+	private void handleCompleteProcess(File file, ZipProcessModel process) {
 		runLater(() -> {
 			try {
 				EventBus.getDefault().post(new FinishProcessEvent(file));
@@ -940,9 +931,7 @@ public class ZipController {
 						Thread.sleep(500);
 					}
 				} catch (Exception e) {
-					runLater(() -> {
-						showError(e, "Error when monitoring progress", false);
-					});
+					showError(e, "Error when monitoring progress", false);
 				}
 
 				finish();
@@ -985,7 +974,7 @@ public class ZipController {
 			String pauseResume = pause ? "Pausing" : "Resuming";
 			writeInfoLog(pauseResume + " all proceses");
 
-			for (ZipProcess process : processList) {
+			for (ZipProcessModel process : processList) {
 				process.getProgressMonitor().setPause(pause);
 			}
 		} catch (Exception e) {

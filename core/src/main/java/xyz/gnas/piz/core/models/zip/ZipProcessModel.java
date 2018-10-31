@@ -1,15 +1,16 @@
-package xyz.gnas.piz.core.models;
+package xyz.gnas.piz.core.models.zip;
 
 import java.io.File;
 
 import net.lingala.zip4j.progress.ProgressMonitor;
+import xyz.gnas.piz.core.models.ReferenceModel;
 
-public class ZipProcess {
+public class ZipProcessModel {
 	private ProgressMonitor progressMonitor;
 
 	private File outputFile;
 
-	private ZipReference reference;
+	private ReferenceModel reference;
 
 	private boolean isOuter;
 	private boolean isComplete;
@@ -30,11 +31,11 @@ public class ZipProcess {
 		this.outputFile = outputFile;
 	}
 
-	public ZipReference getReference() {
+	public ReferenceModel getReference() {
 		return reference;
 	}
 
-	public void setReference(ZipReference reference) {
+	public void setReference(ReferenceModel reference) {
 		this.reference = reference;
 	}
 

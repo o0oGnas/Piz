@@ -9,23 +9,24 @@ import java.util.SortedMap;
 
 import org.junit.jupiter.api.Test;
 
-import xyz.gnas.piz.core.models.Abbreviation;
-import xyz.gnas.piz.core.models.ZipInput;
-import xyz.gnas.piz.core.models.ZipProcess;
+import xyz.gnas.piz.core.logic.ZipLogic;
+import xyz.gnas.piz.core.models.zip.AbbreviationModel;
+import xyz.gnas.piz.core.models.zip.ZipInputModel;
+import xyz.gnas.piz.core.models.zip.ZipProcessModel;
 
 public class ProcessFileTest {
 	@Test
 	public void output_test() throws Exception {
-		ZipProcess process = new ZipProcess();
+		ZipProcessModel process = new ZipProcessModel();
 		File folder = new File("folder");
 		folder.mkdir();
 		File file = new File(folder.getAbsolutePath() + "\\abc.txt");
 		List<File> fileList = List.of(file);
-		SortedMap<Abbreviation, Abbreviation> abbreviationSet = Zip.getAbbreviationList(fileList, true);
+		SortedMap<AbbreviationModel, AbbreviationModel> abbreviationSet = ZipLogic.getAbbreviationList(fileList, true);
 
-		for (Abbreviation abbreviation : abbreviationSet.keySet()) {
-			ZipInput input = new ZipInput(file, file, folder, abbreviation, "password", "tag", true, true);
-			Zip.processFile(input, process);
+		for (AbbreviationModel abbreviation : abbreviationSet.keySet()) {
+			ZipInputModel input = new ZipInputModel(file, file, folder, abbreviation, "password", "tag", true, true);
+			ZipLogic.processFile(input, process);
 			assertTrue(process.isComplete());
 			assertNotNull(process.getOutputFile());
 		}

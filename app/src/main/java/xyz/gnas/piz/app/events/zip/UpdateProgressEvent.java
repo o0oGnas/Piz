@@ -2,16 +2,16 @@ package xyz.gnas.piz.app.events.zip;
 
 import java.io.File;
 
-import xyz.gnas.piz.core.models.ZipProcess;
+import xyz.gnas.piz.core.models.zip.ZipProcessModel;
 
 public class UpdateProgressEvent extends ZipEvent {
-	private ZipProcess process;
+	private ZipProcessModel process;
 
-	public ZipProcess getProcess() {
+	public ZipProcessModel getProcess() {
 		return process;
 	}
 
-	public UpdateProgressEvent(File file, ZipProcess process) {
+	public UpdateProgressEvent(File file, ZipProcessModel process) {
 		super(file);
 		this.process = process;
 	}

@@ -3,11 +3,14 @@ module xyz.gnas.piz.app {
 
 	requires javafx.fxml;
 	requires javafx.controls;
+	requires javafx.graphics;
 	requires javafx.media;
+
 	requires controlsfx;
 	requires tornadofx.controls;
 	requires de.jensd.fx.glyphs.materialicons;
 
+	requires java.desktop;
 	requires org.slf4j;
 	requires ch.qos.logback.core;
 	requires eventbus;

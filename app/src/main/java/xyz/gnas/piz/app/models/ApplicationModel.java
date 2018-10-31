@@ -3,35 +3,35 @@ package xyz.gnas.piz.app.models;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import xyz.gnas.piz.core.models.ZipReference;
+import xyz.gnas.piz.core.models.ReferenceModel;
 
 public class ApplicationModel {
 	private static ApplicationModel instance = null;
 
-	private UserSetting setting;
+	private UserSettingModel setting;
 
 	/**
 	 * List of references, shared between tabs
 	 */
-	private ObjectProperty<ObservableList<ZipReference>> referenceList = new SimpleObjectProperty<ObservableList<ZipReference>>();
+	private ObjectProperty<ObservableList<ReferenceModel>> referenceList = new SimpleObjectProperty<ObservableList<ReferenceModel>>();
 
-	public UserSetting getSetting() {
+	public UserSettingModel getSetting() {
 		return setting;
 	}
 
-	public void setSetting(UserSetting setting) {
+	public void setSetting(UserSettingModel setting) {
 		this.setting = setting;
 	}
 
-	public ObservableList<ZipReference> getReferenceList() {
+	public ObservableList<ReferenceModel> getReferenceList() {
 		return referenceList.get();
 	}
 
-	public ObjectProperty<ObservableList<ZipReference>> getReferenceListPropery() {
+	public ObjectProperty<ObservableList<ReferenceModel>> getReferenceListPropery() {
 		return referenceList;
 	}
 
-	public void setReferenceList(ObservableList<ZipReference> referenceList) {
+	public void setReferenceList(ObservableList<ReferenceModel> referenceList) {
 		this.referenceList.set(referenceList);
 	}
 

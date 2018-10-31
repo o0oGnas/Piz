@@ -1,13 +1,13 @@
-package xyz.gnas.piz.core.models;
+package xyz.gnas.piz.core.models.zip;
 
 import java.io.File;
 
-public class ZipInput {
+public class ZipInputModel {
 	private File originalFile;
 	private File fileToZip;
 	private File outputFolder;
 
-	Abbreviation abbreviation;
+	AbbreviationModel abbreviation;
 
 	private String password;
 	private String tag;
@@ -31,7 +31,7 @@ public class ZipInput {
 		return outputFolder;
 	}
 
-	public Abbreviation getAbbreviation() {
+	public AbbreviationModel getAbbreviation() {
 		return abbreviation;
 	}
 
@@ -51,7 +51,7 @@ public class ZipInput {
 		return obfuscate;
 	}
 
-	public ZipInput(File originalFile, File fileToZip, File outputFolder, Abbreviation abbreviation, String password,
+	public ZipInputModel(File originalFile, File fileToZip, File outputFolder, AbbreviationModel abbreviation, String password,
 			String tag, boolean encrypt, boolean obfuscate) {
 		this.originalFile = originalFile;
 		this.fileToZip = fileToZip;

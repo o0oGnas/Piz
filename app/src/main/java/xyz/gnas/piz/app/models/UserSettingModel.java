@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @Description Model of the settings, serializable to save in binary file
  * @Date Oct 9, 2018
  */
-public class UserSetting implements Serializable {
+public class UserSettingModel implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String inputFolder;
 	private String outputFolder;
@@ -87,7 +87,7 @@ public class UserSetting implements Serializable {
 		this.processCount = processCount;
 	}
 
-	public UserSetting(String inputFolder, String password, String tag, String[] fileFolder, boolean encrypt,
+	public UserSettingModel(String inputFolder, String password, String tag, String[] fileFolder, boolean encrypt,
 			boolean obfuscate, boolean addReference, int processCount) {
 		this.inputFolder = inputFolder;
 		this.password = password;

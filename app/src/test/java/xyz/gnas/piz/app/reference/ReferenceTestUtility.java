@@ -22,7 +22,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import xyz.gnas.piz.app.common.Configurations;
-import xyz.gnas.piz.core.models.ZipReference;
+import xyz.gnas.piz.core.models.ReferenceModel;
 import xyz.gnas.piz.app.TestUtility;
 import tornadofx.control.DateTimePicker;
 
@@ -45,7 +45,7 @@ public class ReferenceTestUtility {
 
 	private static Label lblReferenceCount;
 
-	private static TableView<ZipReference> tbvTable;
+	private static TableView<ReferenceModel> tbvTable;
 
 	private static Calendar firstDate;
 
@@ -143,7 +143,7 @@ public class ReferenceTestUtility {
 		return lblReferenceCount;
 	}
 
-	public static TableView<ZipReference> getTableView(FxRobot robot) {
+	public static TableView<ReferenceModel> getTableView(FxRobot robot) {
 		if (tbvTable == null) {
 			tbvTable = TestUtility.getTableView(robot, "tbvTable");
 		}
@@ -166,11 +166,11 @@ public class ReferenceTestUtility {
 
 	private static void createReferenceFile() throws FileNotFoundException, IOException {
 		initialiseDates();
-		List<ZipReference> referenceList = new LinkedList<ZipReference>();
+		List<ReferenceModel> referenceList = new LinkedList<ReferenceModel>();
 
 		// populate the list
 		for (int i = 1; i <= REFERENCE_COUNT; ++i) {
-			ZipReference reference = new ZipReference("Tag " + i, "Original file " + i, "Zip file " + i);
+			ReferenceModel reference = new ReferenceModel("Tag " + i, "Original file " + i, "Zip file " + i);
 
 			if (i == 1) {
 				reference.setDate(firstDate);

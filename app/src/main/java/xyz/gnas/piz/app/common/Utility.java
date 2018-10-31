@@ -1,5 +1,7 @@
 package xyz.gnas.piz.app.common;
 
+import static javafx.application.Platform.runLater;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
@@ -33,26 +35,32 @@ public final class Utility {
 	 * @param exit    Flag to whether exit the application after showing the error
 	 */
 	public static void showError(Class callingClass, Throwable e, String message, boolean exit) {
-		// Get stack trace as string
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
-		String stackTrace = sw.toString();
+		runLater(() -> {
+			try {
+				// Get stack trace as string
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				e.printStackTrace(pw);
+				String stackTrace = sw.toString();
 
-		GridPane expContent = getExpandableContent(stackTrace);
+				GridPane expContent = getExpandableContent(stackTrace);
 
-		Alert alert = new Alert(AlertType.ERROR);
-		alert.setTitle("Error");
-		alert.setHeaderText("An error has occurred!");
-		alert.setContentText(message + ". See details below");
-		alert.getDialogPane().setExpandableContent(expContent);
-		alert.showAndWait();
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error");
+				alert.setHeaderText("An error has occurred!");
+				alert.setContentText(message + ". See details below");
+				alert.getDialogPane().setExpandableContent(expContent);
+				alert.showAndWait();
 
-		writeErrorLog(callingClass, message, e);
+				writeErrorLog(callingClass, message, e);
+			} catch (Exception ex) {
+				writeErrorLog(Utility.class, "Could not display error", ex);
+			}
 
-		if (exit) {
-			System.exit(1);
-		}
+			if (exit) {
+				System.exit(1);
+			}
+		});
 	}
 
 	private static GridPane getExpandableContent(String sStackTrace) {
@@ -96,16 +104,23 @@ public final class Utility {
 	 * @param message    Detailed message
 	 */
 	public static void showAlert(String headerText, String message) {
-		Alert alert = new Alert(AlertType.NONE);
-		alert.setTitle("Message");
-		alert.setHeaderText(headerText);
-		alert.setContentText(message);
-		alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
-		alert.showAndWait();
+		runLater(() -> {
+			try {
+				Alert alert = new Alert(AlertType.NONE);
+				alert.setTitle("Message");
+				alert.setHeaderText(headerText);
+				alert.setContentText(message);
+				alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
+				alert.showAndWait();
+			} catch (Exception ex) {
+				writeErrorLog(Utility.class, "Could not display alert", ex);
+			}
+		});
 	}
 
 	/**
-	 * @Description show confirmation dialog
+	 * @Description show confirmation dialog, cannot be wrapped in runlater because
+	 *              it needs to return the result of the dialog
 	 * @Date Oct 9, 2018
 	 * @param message the displayed message
 	 * @return confirmation result

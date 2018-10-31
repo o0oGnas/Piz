@@ -1,6 +1,5 @@
 package xyz.gnas.piz.app.controllers;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -8,11 +7,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -27,7 +22,8 @@ import xyz.gnas.piz.app.common.Utility;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
 import xyz.gnas.piz.app.events.SaveReferenceEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
-import xyz.gnas.piz.core.models.ZipReference;
+import xyz.gnas.piz.core.logic.ReferenceLogic;
+import xyz.gnas.piz.core.models.ReferenceModel;
 
 public class AppController {
 	@FXML
@@ -51,12 +47,7 @@ public class AppController {
 	public void onSaveReferenceEvent(SaveReferenceEvent event) {
 		try {
 			writeInfoLog("Saving references to file");
-			File fileReference = new File(Configurations.REFERENCE_FILE);
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.enable(SerializationFeature.INDENT_OUTPUT);
-			DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-			prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-			mapper.writeValue(fileReference, ApplicationModel.getInstance().getReferenceList().toArray());
+			ReferenceLogic.saveReferences(ApplicationModel.getInstance().getReferenceList(), Configurations.REFERENCE_FILE);
 		} catch (Exception e) {
 			showError(e, "Could not save references", false);
 		}
@@ -84,18 +75,12 @@ public class AppController {
 	}
 
 	private void initialiseReferenceList() throws JsonParseException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		File file = new File(Configurations.REFERENCE_FILE);
+		writeInfoLog("Initialising references");
 		ApplicationModel model = ApplicationModel.getInstance();
+		model.setReferenceList(
+				FXCollections.observableArrayList(ReferenceLogic.loadReferences(Configurations.REFERENCE_FILE)));
 
-		if (file.exists()) {
-			ZipReference[] zipArray = mapper.readValue(file, ZipReference[].class);
-			model.setReferenceList(FXCollections.observableArrayList(zipArray));
-		} else {
-			model.setReferenceList(FXCollections.observableArrayList());
-		}
-
-		model.getReferenceList().addListener((ListChangeListener<ZipReference>) listener -> {
+		model.getReferenceList().addListener((ListChangeListener<ReferenceModel>) listener -> {
 			try {
 				onSaveReferenceEvent(null);
 			} catch (Exception e) {

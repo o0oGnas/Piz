@@ -1,4 +1,4 @@
-package xyz.gnas.piz.core.models;
+package xyz.gnas.piz.core.models.zip;
 
 import java.io.File;
 import java.util.Comparator;
@@ -12,7 +12,7 @@ import java.util.Map;
  *              multiple files/folder have the same abbreviation in the most
  *              simple case
  */
-public class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbreviation> {
+public class AbbreviationModel implements Comparable<AbbreviationModel>, Comparator<AbbreviationModel> {
 	/**
 	 * This is the original result of the most simple case of abbreviation
 	 */
@@ -48,17 +48,17 @@ public class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbrev
 		this.longestWordLength = longestWordLength;
 	}
 
-	public Abbreviation(String abbreviation) {
+	public AbbreviationModel(String abbreviation) {
 		this.abbreviation = abbreviation;
 	}
 
 	@Override
-	public int compare(Abbreviation o1, Abbreviation o2) {
+	public int compare(AbbreviationModel o1, AbbreviationModel o2) {
 		return o1.abbreviation.compareTo(o2.abbreviation);
 	}
 
 	@Override
-	public int compareTo(Abbreviation o) {
+	public int compareTo(AbbreviationModel o) {
 		return abbreviation.compareTo(o.abbreviation);
 	}
 
@@ -68,8 +68,8 @@ public class Abbreviation implements Comparable<Abbreviation>, Comparator<Abbrev
 			return false;
 		}
 
-		if (obj instanceof Abbreviation) {
-			Abbreviation a = (Abbreviation) obj;
+		if (obj instanceof AbbreviationModel) {
+			AbbreviationModel a = (AbbreviationModel) obj;
 			return abbreviation.equals(a);
 		} else {
 			return false;

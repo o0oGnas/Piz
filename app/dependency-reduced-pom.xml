@@ -3,7 +3,7 @@
   <parent>
     <artifactId>piz</artifactId>
     <groupId>xyz.gnas.piz</groupId>
-    <version>1.4.4</version>
+    <version>1.4.5</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>app</artifactId>
@@ -99,12 +99,17 @@
           <threadCount>1</threadCount>
           <printSummary>true</printSummary>
           <skipTests>false</skipTests>
+          <additionalClasspathElements>
+            <additionalClasspathElement>src\main\</additionalClasspathElement>
+          </additionalClasspathElements>
           <workingDirectory>${project.build.directory}/test-environment</workingDirectory>
           <systemPropertyVariables>
             <glass.platform>Monocle</glass.platform>
             <monocle.platform>Headless</monocle.platform>
             <prism.order>d3d</prism.order>
           </systemPropertyVariables>
+          <argLine>--add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+						--add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
     </plugins>

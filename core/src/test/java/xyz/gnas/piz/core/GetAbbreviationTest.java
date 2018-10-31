@@ -8,37 +8,38 @@ import java.util.SortedMap;
 
 import org.junit.jupiter.api.Test;
 
-import xyz.gnas.piz.core.models.Abbreviation;
+import xyz.gnas.piz.core.logic.ZipLogic;
+import xyz.gnas.piz.core.models.zip.AbbreviationModel;
 
 public class GetAbbreviationTest {
 	@Test
 	public void single_file() {
 		List<File> fileList = List.of(new File("abc 123.txt"));
-		SortedMap<Abbreviation, Abbreviation> abbreviationSet = Zip.getAbbreviationList(fileList, true);
-		assertNotNull(abbreviationSet.get(new Abbreviation("A1")));
+		SortedMap<AbbreviationModel, AbbreviationModel> abbreviationSet = ZipLogic.getAbbreviationList(fileList, true);
+		assertNotNull(abbreviationSet.get(new AbbreviationModel("A1")));
 	}
 
 	@Test
 	public void two_files_with_different_names() {
 		List<File> fileList = List.of(new File("abc 123.txt"), new File("xyz 456.txt"));
-		SortedMap<Abbreviation, Abbreviation> abbreviationSet = Zip.getAbbreviationList(fileList, true);
-		assertNotNull(abbreviationSet.get(new Abbreviation("A1")));
-		assertNotNull(abbreviationSet.get(new Abbreviation("X4")));
+		SortedMap<AbbreviationModel, AbbreviationModel> abbreviationSet = ZipLogic.getAbbreviationList(fileList, true);
+		assertNotNull(abbreviationSet.get(new AbbreviationModel("A1")));
+		assertNotNull(abbreviationSet.get(new AbbreviationModel("X4")));
 	}
 
 	@Test
 	public void two_files_with_same_names() {
 		List<File> fileList = List.of(new File("abc 123.txt"), new File("abc 123.ini"));
-		SortedMap<Abbreviation, Abbreviation> abbreviationSet = Zip.getAbbreviationList(fileList, true);
-		assertNotNull(abbreviationSet.get(new Abbreviation("A1_txt")));
-		assertNotNull(abbreviationSet.get(new Abbreviation("A1_ini")));
+		SortedMap<AbbreviationModel, AbbreviationModel> abbreviationSet = ZipLogic.getAbbreviationList(fileList, true);
+		assertNotNull(abbreviationSet.get(new AbbreviationModel("A1_txt")));
+		assertNotNull(abbreviationSet.get(new AbbreviationModel("A1_ini")));
 	}
 
 	@Test
 	public void two_files_with_same_simple_abbreviation() {
 		List<File> fileList = List.of(new File("abc 123.txt"), new File("acb 123.txt"));
-		SortedMap<Abbreviation, Abbreviation> abbreviationSet = Zip.getAbbreviationList(fileList, true);
-		assertNotNull(abbreviationSet.get(new Abbreviation("AB12")));
-		assertNotNull(abbreviationSet.get(new Abbreviation("AC12")));
+		SortedMap<AbbreviationModel, AbbreviationModel> abbreviationSet = ZipLogic.getAbbreviationList(fileList, true);
+		assertNotNull(abbreviationSet.get(new AbbreviationModel("AB12")));
+		assertNotNull(abbreviationSet.get(new AbbreviationModel("AC12")));
 	}
 }
