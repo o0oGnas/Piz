@@ -4,71 +4,58 @@ import java.util.Calendar;
 
 /**
  * @author Gnas
- * @Description Model of the references
- * @Date Oct 9, 2018
- */
-/**
- * @author Gnas
- * @Description
- * @Date Oct 9, 2018
- */
-/**
- * @author Gnas
  * @Description
  * @Date Oct 9, 2018
  */
 public class ReferenceModel {
-	private Calendar date;
-	private String tag;
-	private String original;
-	private String zip;
+    private Calendar date;
+    private String tag;
+    private String original;
+    private String zip;
 
-	public Calendar getDate() {
-		return date;
-	}
+    public ReferenceModel() {
+    }
 
-	public void setDate(Calendar date) {
-		this.date = date;
-	}
+    /**
+     * @Description this constructor uses current date for the date property
+     * @Date Oct 9, 2018
+     */
+    public ReferenceModel(String tag, String original, String zip) {
+        this.date = Calendar.getInstance();
+        this.tag = tag;
+        this.original = original;
+        this.zip = zip;
+    }
 
-	public String getTag() {
-		return tag;
-	}
+    public Calendar getDate() {
+        return date;
+    }
 
-	public void setTag(String tag) {
-		this.tag = tag;
-	}
+    public void setDate(Calendar date) {
+        this.date = date;
+    }
 
-	public String getOriginal() {
-		return original;
-	}
+    public String getTag() {
+        return tag;
+    }
 
-	public void setOriginal(String original) {
-		this.original = original;
-	}
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
 
-	public String getZip() {
-		return zip;
-	}
+    public String getOriginal() {
+        return original;
+    }
 
-	public void setZip(String zip) {
-		this.zip = zip;
-	}
+    public void setOriginal(String original) {
+        this.original = original;
+    }
 
-	public ReferenceModel() {
-	}
+    public String getZip() {
+        return zip;
+    }
 
-	/**
-	 * @Description this constructor uses current date for the date property
-	 * @Date Oct 9, 2018
-	 * @param tag
-	 * @param original
-	 * @param zip
-	 */
-	public ReferenceModel(String tag, String original, String zip) {
-		this.date = Calendar.getInstance();
-		this.tag = tag;
-		this.original = original;
-		this.zip = zip;
-	}
+    public void setZip(String zip) {
+        this.zip = zip;
+    }
 }

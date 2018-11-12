@@ -1,10 +1,5 @@
-.metadata
-.recommenders
-.settings
-.ucdetector_reports
+.idea
 target
-.classpath
-.project
 references.txt
 *.bin
 *.log

@@ -1,12 +1,7 @@
 package xyz.gnas.piz.app.reference.tests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedList;
-
+import javafx.scene.control.ComboBox;
+import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -15,13 +10,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-
-import javafx.scene.control.ComboBox;
-import javafx.stage.Stage;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.Utility;
 import xyz.gnas.piz.app.reference.ReferenceTestUtility;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.LinkedList;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(ApplicationExtension.class)
@@ -54,8 +53,8 @@ public class ReferenceDefaultSettingTest {
 	@Test
 	public void comboboxes_has_options(FxRobot robot) {
 		checkComboBoxHasAllOptions(ReferenceTestUtility.getOriginalComboBox(robot), "Original");
-		checkComboBoxHasAllOptions(ReferenceTestUtility.getZipComboBox(robot), "Original");
-		checkComboBoxHasAllOptions(ReferenceTestUtility.getTagComboBox(robot), "Original");
+        checkComboBoxHasAllOptions(ReferenceTestUtility.getZipComboBox(robot), "Zip");
+        checkComboBoxHasAllOptions(ReferenceTestUtility.getTagComboBox(robot), "Tag");
 	}
 
 	private void checkComboBoxHasAllOptions(ComboBox<String> cbb, String comboBoxName) {

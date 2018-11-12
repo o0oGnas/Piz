@@ -8,72 +8,66 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-
-<AnchorPane fx:id="acpRoot" style="-fx-border-color: lightgray;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xyz.gnas.piz.app.controllers.zip.ZipItemController">
-	<children>
-		<HBox alignment="CENTER_LEFT" fillHeight="false" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-			<children>
-            <MaterialIconView fx:id="mivIcon" glyphName="FOLDER_OPEN" />
-            <ImageView fx:id="imvIcon" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true" visible="false" />
-				<Label fx:id="lblOriginal" text="Original file name">
-					<HBox.margin>
-						<Insets left="10.0" />
-					</HBox.margin>
-				</Label>
-				<HBox fx:id="hboResult" alignment="CENTER_LEFT" fillHeight="false" visible="false">
-					<children>
-                  <MaterialIconView glyphName="ARROW_FORWARD" size="16" />
-						<Label fx:id="lblZip" textFill="BLUE">
-							<HBox.margin>
-								<Insets left="10.0" />
-							</HBox.margin>
-						</Label>
-					</children>
-					<HBox.margin>
-						<Insets left="10.0" />
-					</HBox.margin>
-				</HBox>
-				<HBox fx:id="hboProcess" alignment="CENTER_LEFT" fillHeight="false" visible="false">
-					<children>
-						<ProgressIndicator fx:id="pgiProgress" progress="0.0">
-							<HBox.margin>
-								<Insets />
-							</HBox.margin>
-						</ProgressIndicator>
-								<Label fx:id="lblStatus" text="[Processing]" textFill="#005500">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Label>
-						<HBox fx:id="hboActions" alignment="CENTER_LEFT" fillHeight="false">
-							<children>
-								<Button fx:id="btnPauseResume" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm" text="Pause">
-									<HBox.margin>
-										<Insets left="10.0" />
-									</HBox.margin>
-                           <graphic>
-                              <MaterialIconView fx:id="mivPauseResume" glyphName="PAUSE" size="16" />
-                           </graphic>
-								</Button>
-								<Button fx:id="btnStop" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#stop" prefWidth="100.0" styleClass="sm" text="Stop">
-									<HBox.margin>
-										<Insets left="10.0" />
-									</HBox.margin>
-                           <graphic>
-                              <MaterialIconView glyphName="STOP" size="16" />
-                           </graphic>
-								</Button>
-							</children>
-							<HBox.margin>
-								<Insets left="10.0" />
-							</HBox.margin>
-						</HBox>
-					</children>
-					<HBox.margin>
-						<Insets left="10.0" />
-					</HBox.margin>
-				</HBox>
-			</children>
-		</HBox>
-	</children>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:id="acpRoot" style="-fx-border-color: lightgray;"
+            xmlns="http://javafx.com/javafx/10.0.1" fx:controller="xyz.gnas.piz.app.controllers.zip.ZipItemController">
+    <HBox alignment="CENTER_LEFT" fillHeight="false" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+          AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+        <MaterialIconView fx:id="mivIcon" glyphName="FOLDER_OPEN"/>
+        <ImageView fx:id="imvIcon" fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true"
+                   visible="false"/>
+        <Label fx:id="lblOriginal" text="Original file name">
+            <HBox.margin>
+                <Insets left="10.0"/>
+            </HBox.margin>
+        </Label>
+        <HBox fx:id="hboResult" alignment="CENTER_LEFT" fillHeight="false" visible="false">
+            <HBox.margin>
+                <Insets left="10.0"/>
+            </HBox.margin>
+            <MaterialIconView glyphName="ARROW_FORWARD" size="16"/>
+            <Label fx:id="lblZip" textFill="BLUE">
+                <HBox.margin>
+                    <Insets left="10.0"/>
+                </HBox.margin>
+            </Label>
+        </HBox>
+        <HBox fx:id="hboProcess" alignment="CENTER_LEFT" fillHeight="false" visible="false">
+            <HBox.margin>
+                <Insets left="10.0"/>
+            </HBox.margin>
+            <ProgressIndicator fx:id="pgiProgress" progress="0.0">
+                <HBox.margin>
+                    <Insets/>
+                </HBox.margin>
+            </ProgressIndicator>
+            <Label fx:id="lblStatus" text="[Processing]" textFill="#005500">
+                <HBox.margin>
+                    <Insets left="10.0"/>
+                </HBox.margin>
+            </Label>
+            <HBox fx:id="hboActions" alignment="CENTER_LEFT" fillHeight="false">
+                <HBox.margin>
+                    <Insets left="10.0"/>
+                </HBox.margin>
+                <Button fx:id="btnPauseResume" alignment="TOP_LEFT" mnemonicParsing="false"
+                        onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm" text="Pause">
+                    <HBox.margin>
+                        <Insets left="10.0"/>
+                    </HBox.margin>
+                    <graphic>
+                        <MaterialIconView fx:id="mivPauseResume" glyphName="PAUSE" size="16"/>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnStop" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#stop"
+                        prefWidth="100.0" styleClass="sm" text="Stop">
+                    <HBox.margin>
+                        <Insets left="10.0"/>
+                    </HBox.margin>
+                    <graphic>
+                        <MaterialIconView glyphName="STOP" size="16"/>
+                    </graphic>
+                </Button>
+            </HBox>
+        </HBox>
+    </HBox>
 </AnchorPane>

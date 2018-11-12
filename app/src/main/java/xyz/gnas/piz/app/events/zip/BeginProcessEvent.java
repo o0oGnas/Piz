@@ -1,18 +1,18 @@
 package xyz.gnas.piz.app.events.zip;
 
-import java.io.File;
-
 import javafx.beans.property.BooleanProperty;
 
-public class BeginProcessEvent extends ZipEvent {
-	private BooleanProperty isMasterPaused;
+import java.io.File;
 
-	public BooleanProperty getIsMasterPaused() {
-		return isMasterPaused;
-	}
+public class BeginProcessEvent extends ZipEvent {
+    private final BooleanProperty isMasterPaused;
 
 	public BeginProcessEvent(File file, BooleanProperty isMasterPaused) {
 		super(file);
 		this.isMasterPaused = isMasterPaused;
 	}
+
+    public BooleanProperty getIsMasterPaused() {
+        return isMasterPaused;
+    }
 }

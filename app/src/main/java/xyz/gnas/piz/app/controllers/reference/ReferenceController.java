@@ -1,18 +1,5 @@
 package xyz.gnas.piz.app.controllers.reference;
 
-import static xyz.gnas.piz.app.common.Utility.convertCalendarToLocalDateTime;
-import static xyz.gnas.piz.app.common.Utility.convertLocalDateTimeToCalendar;
-import static xyz.gnas.piz.app.common.Utility.showConfirmation;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.controlsfx.control.textfield.TextFields;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -32,6 +19,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.controlsfx.control.textfield.TextFields;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.Utility;
@@ -40,450 +30,421 @@ import xyz.gnas.piz.app.events.SaveReferenceEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
 import xyz.gnas.piz.core.models.ReferenceModel;
 
-/**
- * @author Gnas
- * @Description
- * @Date Oct 9, 2018
- */
-/**
- * @author Gnas
- * @Description
- * @Date Oct 9, 2018
- */
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static xyz.gnas.piz.app.common.Utility.convertCalendarToLocalDateTime;
+import static xyz.gnas.piz.app.common.Utility.convertLocalDateTimeToCalendar;
+import static xyz.gnas.piz.app.common.Utility.showConfirmation;
+
 public class ReferenceController {
-	@FXML
-	private DateTimePicker dtpFrom;
-
-	@FXML
-	private DateTimePicker dtpTo;
-
-	@FXML
-	private ComboBox<String> cboOriginal;
-
-	@FXML
-	private ComboBox<String> cboZip;
-
-	@FXML
-	private ComboBox<String> cboTag;
-
-	@FXML
-	private TextField txtOriginal;
-
-	@FXML
-	private TextField txtZip;
-
-	@FXML
-	private TextField txtTag;
-
-	@FXML
-	private Label lblReferenceCount;
-
-	@FXML
-	private TableView<ReferenceModel> tbvTable;
-
-	@FXML
-	private TableColumn<ReferenceModel, Calendar> tbcDate;
-
-	@FXML
-	private TableColumn<ReferenceModel, String> tbcTag;
-
-	@FXML
-	private TableColumn<ReferenceModel, String> tbcOriginal;
-
-	@FXML
-	private TableColumn<ReferenceModel, String> tbcZip;
-
-	@FXML
-	private Button btnDelete;
-
-	/**
-	 * Flag to tell if reference tab is active
-	 */
-	private boolean isActive;
-
-	private boolean isEditing = false;
-
-	/**
-	 * Flag to check if the update is manual
-	 */
-	private boolean isManualUpdate;
-
-	private void showError(Exception e, String message, boolean exit) {
-		Utility.showError(getClass(), e, message, exit);
-	}
-
-	private void writeInfoLog(String log) {
-		Utility.writeInfoLog(getClass(), log);
-	}
-
-	@Subscribe
-	public void onChangeTabEvent(ChangeTabEvent event) {
-		try {
-			isActive = event.getNewTab().getId().equalsIgnoreCase("tabReference");
-		} catch (Exception e) {
-			showError(e, "Could not update isActive flag of reference tab", false);
-		}
-	}
-
-	@FXML
-	private void initialize() {
-		try {
-			EventBus.getDefault().register(this);
-			addListenerToList();
-			initialiseComboBox(cboOriginal);
-			initialiseComboBox(cboZip);
-			initialiseComboBox(cboTag);
-			initialiseTable();
-		} catch (Exception e) {
-			showError(e, "Could not initialise reference tab", true);
-		}
-	}
-
-	private void addListenerToList() {
-		ApplicationModel.getInstance().getReferenceListPropery().addListener(propertyListener -> {
-			try {
-				ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
-				handleDataUpdate();
-				initialiseDateTimePickers();
-
-				if (referenceList != null) {
-					referenceList.addListener((ListChangeListener<ReferenceModel>) l -> {
-						try {
-							// only show alert if the tab is active and the change was automatic
-							if (!isManualUpdate && isActive) {
-								Utility.showAlert("Update detected",
-										"Reference file was updated, the list will be automatically refreshed");
-							}
-
-							isManualUpdate = false;
-							handleDataUpdate();
-						} catch (Exception e) {
-							showError(e, "Error when handling update to reference list", false);
-						}
-					});
-				}
-			} catch (Exception e) {
-				showError(e, "Error when handling update to reference list", false);
-			}
-		});
-	}
-
-	private void handleDataUpdate() {
-		tbvTable.setItems(ApplicationModel.getInstance().getReferenceList());
-		tbvTable.refresh();
-		updateAutoComplete();
-	}
-
-	private void updateAutoComplete() {
-		updateOriginalAutoComplete();
-		updateZipAutoComplete();
-		updateTagAutoComplete();
-	}
-
-	private void updateOriginalAutoComplete() {
-		Set<String> autocomplete = new HashSet<String>();
-
-		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
-			autocomplete.add(reference.getOriginal());
-		}
-
-		TextFields.bindAutoCompletion(txtOriginal, autocomplete);
-	}
-
-	private void updateZipAutoComplete() {
-		Set<String> autocomplete = new HashSet<String>();
-
-		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
-			autocomplete.add(reference.getZip());
-		}
-
-		TextFields.bindAutoCompletion(txtZip, autocomplete);
-	}
-
-	private void updateTagAutoComplete() {
-		Set<String> autocomplete = new HashSet<String>();
-
-		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
-			autocomplete.add(reference.getTag());
-		}
-
-		TextFields.bindAutoCompletion(txtTag, autocomplete);
-	}
-
-	private void initialiseDateTimePickers() {
-		Calendar cMin = Calendar.getInstance();
-		Calendar cMax = Calendar.getInstance();
-
-		for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
-			if (cMin == null || reference.getDate().compareTo(cMin) < 0) {
-				cMin = reference.getDate();
-			}
-
-			if (cMax == null || cMax.compareTo(reference.getDate()) < 0) {
-				cMax = reference.getDate();
-			}
-		}
-
-		dtpFrom.setDateTimeValue(convertCalendarToLocalDateTime(cMin));
-		dtpTo.setDateTimeValue(convertCalendarToLocalDateTime(cMax));
-	}
-
-	/**
-	 * @Description Wrapper to initialise comobo boxes
-	 * @Date Oct 12, 2018
-	 * @param cbb the combo box
-	 */
-	private void initialiseComboBox(ComboBox<String> cbb) {
-		cbb.getItems().addAll(Configurations.CONTAINS, Configurations.MATCHES);
-		cbb.getSelectionModel().select(Configurations.CONTAINS);
-	}
-
-	private void initialiseTable() {
-		tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
-		tbvTable.itemsProperty().addListener(l -> {
-			tbvTable.refresh();
-			lblReferenceCount.setText(tbvTable.getItems().size() + " references");
-		});
-
-		tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ReferenceModel>) l -> {
-			// disable delete button if there is no selection
-			btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
-		});
-
-		initialiseDateColumn();
-		initialiseStringColumn(tbcTag, "tag");
-		initialiseStringColumn(tbcOriginal, "original");
-		initialiseStringColumn(tbcZip, "zip");
-	}
-
-	private void initialiseDateColumn() {
-		tbcDate.setCellFactory((TableColumn<ReferenceModel, Calendar> param) -> {
-			return new TableCell<ReferenceModel, Calendar>() {
-				@Override
-				protected void updateItem(Calendar item, boolean empty) {
-					try {
-						super.updateItem(item, empty);
-
-						if (empty || item == null) {
-							setGraphic(null);
-						} else {
-							SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
-							setText(dateFormat.format(item.getTime()));
-						}
-					} catch (Exception e) {
-						showError(e, "Error when displaying date column", false);
-					}
-				}
-			};
-		});
-
-		tbcDate.setCellValueFactory(new PropertyValueFactory<ReferenceModel, Calendar>("date"));
-	}
-
-	/**
-	 * @Description Wrapper to reduce copy paste
-	 * @Date Oct 9, 2018
-	 * @param column       TableColumn object
-	 * @param propertyName name of the property to bind to column
-	 */
-	private void initialiseStringColumn(TableColumn<ReferenceModel, String> column, String propertyName) {
-		column.setCellValueFactory(new PropertyValueFactory<ReferenceModel, String>(propertyName));
-		column.setCellFactory(TextFieldTableCell.forTableColumn());
-	}
-
-	@FXML
-	private void filtersKeyPressed(KeyEvent event) {
-		try {
-			// if user presses enter
-			if (event.getCode() == KeyCode.ENTER) {
-				filter(null);
-			}
-		} catch (Exception e) {
-			showError(e, "Could not handle key event for filters", false);
-		}
-	}
-
-	@FXML
-	private void filter(ActionEvent event) {
-		try {
-			ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
-			writeInfoLog("Filtering references");
-			Calendar cFrom = convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
-			Calendar cTo = convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
-			ObservableList<ReferenceModel> filteredList = FXCollections.observableArrayList();
-
-			for (ReferenceModel reference : referenceList) {
-				Calendar date = reference.getDate();
-				boolean checkDate = cFrom.compareTo(date) <= 0 && date.compareTo(cTo) <= 1;
-
-				// filter by time
-				if (checkDate && checkField(cboOriginal, txtOriginal, reference.getOriginal())
-						&& checkField(cboZip, txtZip, reference.getZip())
-						&& checkField(cboTag, txtTag, reference.getTag())) {
-					filteredList.add(reference);
-				}
-			}
-
-			tbvTable.setItems(filteredList);
-		} catch (Exception e) {
-			showError(e, "Could not filter", false);
-		}
-	}
-
-	/**
-	 * @Description Wrapper to check if an attribute is valid for a filter criteria
-	 * @Date Oct 13, 2018
-	 * @param cbb   the combo box (matches or contains)
-	 * @param tf    the text input
-	 * @param value the value of the attribute
-	 * @return
-	 */
-	private boolean checkField(ComboBox<String> cbb, TextField txt, String value) {
-		String text = txt.getText();
-
-		if (text == null || text.isEmpty()) {
-			return true;
-		} else {
-			String containsOrMatches = cbb.getSelectionModel().getSelectedItem();
-			boolean checkContains = containsOrMatches.equalsIgnoreCase(Configurations.CONTAINS)
-					&& value.toUpperCase().contains(text.toUpperCase());
-			boolean checkMatches = containsOrMatches.equalsIgnoreCase(Configurations.MATCHES)
-					&& value.equalsIgnoreCase(text);
-			return checkContains || checkMatches;
-		}
-	}
-
-	@FXML
-	private void scrollToTop(ActionEvent event) {
-		try {
-			writeInfoLog("Scrolling to top");
-			ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
-			verticalBar.setValue(verticalBar.getMin());
-		} catch (Exception e) {
-			showError(e, "Could not scroll to top", false);
-		}
-	}
-
-	@FXML
-	private void scrollToBottom(ActionEvent event) {
-		try {
-			writeInfoLog("Scrolling to bottom");
-			ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
-			verticalBar.setValue(verticalBar.getMax());
-		} catch (Exception e) {
-			showError(e, "Could not scroll to bottom", false);
-		}
-	}
-
-	@FXML
-	private void sortTable(SortEvent<TableView<ReferenceModel>> event) {
-		try {
-			writeInfoLog("Sorting table");
-			isManualUpdate = true;
-		} catch (Exception e) {
-			showError(e, "Could not handle sorting table", false);
-		}
-	}
-
-	@FXML
-	private void startEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
-		try {
-			writeInfoLog("Beginning edit on column " + ((TableColumn<ReferenceModel, String>) event.getSource()).getId());
-			isEditing = true;
-		} catch (Exception e) {
-			showError(e, "Error when starting edit", false);
-		}
-	}
-
-	@FXML
-	private void commitEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
-		try {
-			TableColumn<ReferenceModel, String> source = (TableColumn<ReferenceModel, String>) event.getSource();
-			writeInfoLog("Commiting edit on column " + source.getId());
-			ReferenceModel reference = ApplicationModel.getInstance().getReferenceList()
-					.get(event.getTablePosition().getRow());
-			String value = event.getNewValue();
-
-			if (source == tbcTag) {
-				reference.setTag(value);
-			} else if (source == tbcOriginal) {
-				reference.setOriginal(value);
-			} else {
-				reference.setZip(value);
-			}
-
-			saveReferences();
-		} catch (Exception e) {
-			showError(e, "Error when committing edit", false);
-		}
-	}
-
-	private void saveReferences() {
-		EventBus.getDefault().post(new SaveReferenceEvent());
-	}
-
-	@FXML
-	private void cancelEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
-		try {
-			writeInfoLog("Canceling edit on column " + ((TableColumn<ReferenceModel, String>) event.getSource()).getId());
-			isEditing = false;
-		} catch (Exception e) {
-			showError(e, "Error when cenceling edit", false);
-		}
-	}
-
-	@FXML
-	private void add(ActionEvent event) {
-		try {
-			isManualUpdate = true;
-			ApplicationModel.getInstance().getReferenceList().add(0, new ReferenceModel(null, null, null));
-
-			// scroll to top
-			scrollToTop(null);
-
-			// focus on the new row
-			tbvTable.requestFocus();
-			tbvTable.getSelectionModel().clearAndSelect(0);
-			tbvTable.getFocusModel().focus(0);
-			writeInfoLog("Added new reference");
-		} catch (Exception e) {
-			showError(e, "Could not add reference", false);
-		}
-	}
-
-	@FXML
-	private void delete(ActionEvent event) {
-		try {
-			if (showConfirmation("Are you sure you want to delete selected reference(s)?")) {
-				isManualUpdate = true;
-				ApplicationModel.getInstance().getReferenceList()
-						.removeAll(tbvTable.getSelectionModel().getSelectedItems());
-				writeInfoLog("Deleted reference(s)");
-			}
-		} catch (Exception e) {
-			showError(e, "Could not delete reference", false);
-		}
-	}
-
-	@FXML
-	private void save(ActionEvent event) {
-		try {
-			saveReferences();
-		} catch (Exception e) {
-			showError(e, "Could not save references", false);
-		}
-	}
-
-	@FXML
-	private void tableKeyReleased(KeyEvent event) {
-		try {
-			// if user presses delete while not editing a cell
-			if (event.getCode() == KeyCode.DELETE && !isEditing) {
-				delete(null);
-			}
-		} catch (Exception e) {
-			showError(e, "Could not handle key event for table", false);
-		}
-	}
+    @FXML
+    private DateTimePicker dtpFrom;
+
+    @FXML
+    private DateTimePicker dtpTo;
+
+    @FXML
+    private ComboBox<String> cboOriginal;
+
+    @FXML
+    private ComboBox<String> cboZip;
+
+    @FXML
+    private ComboBox<String> cboTag;
+
+    @FXML
+    private TextField txtOriginal;
+
+    @FXML
+    private TextField txtZip;
+
+    @FXML
+    private TextField txtTag;
+
+    @FXML
+    private Label lblReferenceCount;
+
+    @FXML
+    private TableView<ReferenceModel> tbvTable;
+
+    @FXML
+    private TableColumn<ReferenceModel, Calendar> tbcDate;
+
+    @FXML
+    private TableColumn<ReferenceModel, String> tbcTag;
+
+    @FXML
+    private TableColumn<ReferenceModel, String> tbcOriginal;
+
+    @FXML
+    private TableColumn<ReferenceModel, String> tbcZip;
+
+    @FXML
+    private Button btnDelete;
+
+    /**
+     * Flag to tell if reference tab is active
+     */
+    private boolean isActive;
+
+    private boolean isEditing = false;
+
+    /**
+     * Flag to check if the update is manual
+     */
+    private boolean isManualUpdate;
+
+    private void showError(Exception e, String message, boolean exit) {
+        Utility.showError(getClass(), e, message, exit);
+    }
+
+    private void writeInfoLog(String log) {
+        Utility.writeInfoLog(getClass(), log);
+    }
+
+    @Subscribe
+    public void onChangeTabEvent(ChangeTabEvent event) {
+        try {
+            isActive = event.getNewTab().getId().equalsIgnoreCase("tabReference");
+        } catch (Exception e) {
+            showError(e, "Could not update isActive flag of reference tab", false);
+        }
+    }
+
+    @FXML
+    private void initialize() {
+        try {
+            EventBus.getDefault().register(this);
+            addListenerToList();
+            initialiseComboBox(cboOriginal);
+            initialiseComboBox(cboZip);
+            initialiseComboBox(cboTag);
+            initialiseTable();
+        } catch (Exception e) {
+            showError(e, "Could not initialise reference tab", true);
+        }
+    }
+
+    private void addListenerToList() {
+        ApplicationModel.getInstance().getReferenceListPropery().addListener(propertyListener -> {
+            try {
+                ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
+                handleDataUpdate();
+                initialiseDateTimePickers();
+
+                if (referenceList != null) {
+                    referenceList.addListener((ListChangeListener<ReferenceModel>) l -> {
+                        try {
+                            // only show alert if the tab is active and the change was automatic
+                            if (!isManualUpdate && isActive) {
+                                Utility.showAlert("Update detected",
+                                        "Reference file was updated, the list will be automatically refreshed");
+                            }
+
+                            isManualUpdate = false;
+                            handleDataUpdate();
+                        } catch (Exception e) {
+                            showError(e, "Error when handling update to reference list", false);
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                showError(e, "Error when handling update to reference list", false);
+            }
+        });
+    }
+
+    private void handleDataUpdate() {
+        tbvTable.setItems(ApplicationModel.getInstance().getReferenceList());
+        tbvTable.refresh();
+        updateTagAutoComplete();
+    }
+
+    private void updateTagAutoComplete() {
+        Set<String> autocomplete = new HashSet<>();
+
+        for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
+            autocomplete.add(reference.getTag());
+        }
+
+        TextFields.bindAutoCompletion(txtTag, autocomplete);
+    }
+
+    private void initialiseDateTimePickers() {
+        Calendar cMin = Calendar.getInstance();
+        Calendar cMax = Calendar.getInstance();
+
+        for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
+            if (cMin == null || reference.getDate().compareTo(cMin) < 0) {
+                cMin = reference.getDate();
+            }
+
+            if (cMax == null || cMax.compareTo(reference.getDate()) < 0) {
+                cMax = reference.getDate();
+            }
+        }
+
+        dtpFrom.setDateTimeValue(convertCalendarToLocalDateTime(cMin));
+        dtpTo.setDateTimeValue(convertCalendarToLocalDateTime(cMax));
+    }
+
+    /**
+     * Wrapper to initialise comobo boxes
+     *
+     * @param cbb the combo box
+     */
+    private void initialiseComboBox(ComboBox<String> cbb) {
+        cbb.getItems().addAll(Configurations.CONTAINS, Configurations.MATCHES);
+        cbb.getSelectionModel().select(Configurations.CONTAINS);
+    }
+
+    private void initialiseTable() {
+        tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        tbvTable.itemsProperty().addListener(l -> {
+            tbvTable.refresh();
+            lblReferenceCount.setText(tbvTable.getItems().size() + " references");
+        });
+
+        tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ReferenceModel>) l -> {
+            // disable delete button if there is no selection
+            btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
+        });
+
+        initialiseDateColumn();
+        initialiseStringColumn(tbcTag, "tag");
+        initialiseStringColumn(tbcOriginal, "original");
+        initialiseStringColumn(tbcZip, "zip");
+    }
+
+    private void initialiseDateColumn() {
+        tbcDate.setCellFactory((TableColumn<ReferenceModel, Calendar> param) -> new TableCell<>() {
+            @Override
+            protected void updateItem(Calendar item, boolean empty) {
+                try {
+                    super.updateItem(item, empty);
+
+                    if (empty || item == null) {
+                        setGraphic(null);
+                    } else {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm");
+                        setText(dateFormat.format(item.getTime()));
+                    }
+                } catch (Exception e) {
+                    showError(e, "Error when displaying date column", false);
+                }
+            }
+        });
+
+        tbcDate.setCellValueFactory(new PropertyValueFactory<>("date"));
+    }
+
+    /**
+     * Wrapper to reduce copy paste
+     *
+     * @param column       TableColumn object
+     * @param propertyName name of the property to bind to column
+     */
+    private void initialiseStringColumn(TableColumn<ReferenceModel, String> column, String propertyName) {
+        column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+        column.setCellFactory(TextFieldTableCell.forTableColumn());
+    }
+
+    @FXML
+    private void filtersKeyPressed(KeyEvent event) {
+        try {
+            // if user presses enter
+            if (event.getCode() == KeyCode.ENTER) {
+                filter(null);
+            }
+        } catch (Exception e) {
+            showError(e, "Could not handle key event for filters", false);
+        }
+    }
+
+    @FXML
+    private void filter(ActionEvent event) {
+        try {
+            List<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
+            writeInfoLog("Filtering references");
+            Calendar cFrom = convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
+            Calendar cTo = convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
+            ObservableList<ReferenceModel> filteredList = FXCollections.observableArrayList();
+
+            for (ReferenceModel reference : referenceList) {
+                Calendar date = reference.getDate();
+                boolean checkDate = cFrom.compareTo(date) <= 0 && date.compareTo(cTo) <= 1;
+
+                // filter by time
+                if (checkDate && checkField(cboOriginal, txtOriginal, reference.getOriginal())
+                        && checkField(cboZip, txtZip, reference.getZip())
+                        && checkField(cboTag, txtTag, reference.getTag())) {
+                    filteredList.add(reference);
+                }
+            }
+
+            tbvTable.setItems(filteredList);
+        } catch (Exception e) {
+            showError(e, "Could not filter", false);
+        }
+    }
+
+    /**
+     * Wrapper to check if an attribute is valid for a filter criteria
+     *
+     * @param cbb   the combo box (matches or contains)
+     * @param value the value of the attribute
+     * @return result of the check
+     */
+    private boolean checkField(ComboBox<String> cbb, TextField txt, String value) {
+        String text = txt.getText();
+
+        if (text == null || text.isEmpty()) {
+            return true;
+        } else {
+            String containsOrMatches = cbb.getSelectionModel().getSelectedItem();
+            boolean checkContains = containsOrMatches.equalsIgnoreCase(Configurations.CONTAINS)
+                    && value.toUpperCase().contains(text.toUpperCase());
+            boolean checkMatches = containsOrMatches.equalsIgnoreCase(Configurations.MATCHES)
+                    && value.equalsIgnoreCase(text);
+            return checkContains || checkMatches;
+        }
+    }
+
+    @FXML
+    private void scrollToTop(ActionEvent event) {
+        try {
+            writeInfoLog("Scrolling to top");
+            ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
+            verticalBar.setValue(verticalBar.getMin());
+        } catch (Exception e) {
+            showError(e, "Could not scroll to top", false);
+        }
+    }
+
+    @FXML
+    private void scrollToBottom(ActionEvent event) {
+        try {
+            writeInfoLog("Scrolling to bottom");
+            ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
+            verticalBar.setValue(verticalBar.getMax());
+        } catch (Exception e) {
+            showError(e, "Could not scroll to bottom", false);
+        }
+    }
+
+    @FXML
+    private void sortTable(SortEvent<TableView<ReferenceModel>> event) {
+        try {
+            writeInfoLog("Sorting table");
+            isManualUpdate = true;
+        } catch (Exception e) {
+            showError(e, "Could not handle sorting table", false);
+        }
+    }
+
+    @FXML
+    private void startEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
+        try {
+            writeInfoLog("Beginning edit on column " + ((TableColumn<ReferenceModel, String>) event.getSource()).getId());
+            isEditing = true;
+        } catch (Exception e) {
+            showError(e, "Error when starting edit", false);
+        }
+    }
+
+    @FXML
+    private void commitEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
+        try {
+            TableColumn<ReferenceModel, String> source = (TableColumn<ReferenceModel, String>) event.getSource();
+            writeInfoLog("Commiting edit on column " + source.getId());
+            ReferenceModel reference = ApplicationModel.getInstance().getReferenceList()
+                    .get(event.getTablePosition().getRow());
+            String value = event.getNewValue();
+
+            if (source == tbcTag) {
+                reference.setTag(value);
+            } else if (source == tbcOriginal) {
+                reference.setOriginal(value);
+            } else {
+                reference.setZip(value);
+            }
+
+            saveReferences();
+        } catch (Exception e) {
+            showError(e, "Error when committing edit", false);
+        }
+    }
+
+    private void saveReferences() {
+        EventBus.getDefault().post(new SaveReferenceEvent());
+    }
+
+    @FXML
+    private void cancelEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
+        try {
+            writeInfoLog("Canceling edit on column " + ((TableColumn<ReferenceModel, String>) event.getSource()).getId());
+            isEditing = false;
+        } catch (Exception e) {
+            showError(e, "Error when cenceling edit", false);
+        }
+    }
+
+    @FXML
+    private void add(ActionEvent event) {
+        try {
+            isManualUpdate = true;
+            ApplicationModel.getInstance().getReferenceList().add(0, new ReferenceModel(null, null, null));
+
+            // scroll to top
+            scrollToTop(null);
+
+            // focus on the new row
+            tbvTable.requestFocus();
+            tbvTable.getSelectionModel().clearAndSelect(0);
+            tbvTable.getFocusModel().focus(0);
+            writeInfoLog("Added new reference");
+        } catch (Exception e) {
+            showError(e, "Could not add reference", false);
+        }
+    }
+
+    @FXML
+    private void delete(ActionEvent event) {
+        try {
+            if (showConfirmation("Are you sure you want to delete selected reference(s)?")) {
+                isManualUpdate = true;
+                ApplicationModel.getInstance().getReferenceList()
+                        .removeAll(tbvTable.getSelectionModel().getSelectedItems());
+                writeInfoLog("Deleted reference(s)");
+            }
+        } catch (Exception e) {
+            showError(e, "Could not delete reference", false);
+        }
+    }
+
+    @FXML
+    private void save(ActionEvent event) {
+        try {
+            saveReferences();
+        } catch (Exception e) {
+            showError(e, "Could not save references", false);
+        }
+    }
+
+    @FXML
+    private void tableKeyReleased(KeyEvent event) {
+        try {
+            // if user presses delete while not editing a cell
+            if (event.getCode() == KeyCode.DELETE && !isEditing) {
+                delete(null);
+            }
+        } catch (Exception e) {
+            showError(e, "Could not handle key event for table", false);
+        }
+    }
 }

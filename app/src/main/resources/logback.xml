@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration scan="true" debug="true">
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>WARNING</level>
-		</filter>
-		<file>piz.log</file>
-		<append>true</append>
-		<prudent>true</prudent>
-		<encoder>
-			<pattern>%d{dd-MMM-yyyy HH:mm:ss} | %p | [%t] %logger:%L -
-				%m%n
-			</pattern>
-		</encoder>
-	</appender>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARNING</level>
+        </filter>
+        <file>piz.log</file>
+        <append>true</append>
+        <prudent>true</prudent>
+        <encoder>
+            <pattern>%d{dd-MMM-yyyy HH:mm:ss} | %p | [%t] %logger:%L -
+                %m%n
+            </pattern>
+        </encoder>
+    </appender>
 
-	<appender name="CONSOLE"
-		class="ch.qos.logback.core.ConsoleAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>TRACE</level>
-		</filter>
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>TRACE</level>
+        </filter>
 
-		<encoder>
-			<pattern>%d{dd-MMM-yyyy HH:mm:ss} | %p | [%t] %logger:%L -
-				%m%n
-			</pattern>
-		</encoder>
-	</appender>
+        <encoder>
+            <pattern>%d{dd-MMM-yyyy HH:mm:ss} | %p | [%t] %logger:%L -
+                %m%n
+            </pattern>
+        </encoder>
+    </appender>
 
-	<root level="DEBUG">
-		<appender-ref ref="FILE" />
-		<appender-ref ref="CONSOLE" />
-	</root>
+    <root level="DEBUG">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
 </configuration>

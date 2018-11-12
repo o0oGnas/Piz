@@ -13,7 +13,15 @@ public class ApplicationModel {
 	/**
 	 * List of references, shared between tabs
 	 */
-	private ObjectProperty<ObservableList<ReferenceModel>> referenceList = new SimpleObjectProperty<ObservableList<ReferenceModel>>();
+    private ObjectProperty<ObservableList<ReferenceModel>> referenceList = new SimpleObjectProperty<>();
+
+    public static ApplicationModel getInstance() {
+        if (instance == null) {
+            instance = new ApplicationModel();
+        }
+
+        return instance;
+    }
 
 	public UserSettingModel getSetting() {
 		return setting;
@@ -27,19 +35,11 @@ public class ApplicationModel {
 		return referenceList.get();
 	}
 
-	public ObjectProperty<ObservableList<ReferenceModel>> getReferenceListPropery() {
-		return referenceList;
-	}
-
 	public void setReferenceList(ObservableList<ReferenceModel> referenceList) {
 		this.referenceList.set(referenceList);
 	}
 
-	public static ApplicationModel getInstance() {
-		if (instance == null) {
-			instance = new ApplicationModel();
-		}
-
-		return instance;
+    public ObjectProperty<ObservableList<ReferenceModel>> getReferenceListPropery() {
+        return referenceList;
 	}
 }

@@ -1,16 +1,6 @@
 package xyz.gnas.piz.app.zip.tests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.Arrays;
-import java.util.LinkedList;
-
+import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -19,12 +9,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-
-import javafx.stage.Stage;
 import xyz.gnas.piz.app.TestUtility;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.models.UserSettingModel;
-import xyz.gnas.piz.app.zip.ZipTestUtility;;
+import xyz.gnas.piz.app.zip.ZipTestUtility;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(ApplicationExtension.class)
@@ -44,7 +42,7 @@ public class ZipWithUserSettingTest {
 	}
 
 	@BeforeAll
-	public void createUserSettingFile() throws FileNotFoundException, IOException {
+    public void createUserSettingFile() throws IOException {
 		// create input and output folders
 		File inputFolder = new File(INPUT_FOLDER);
 		inputFolder.mkdir();
@@ -53,7 +51,7 @@ public class ZipWithUserSettingTest {
 
 		// create user setting
 		setting = new UserSettingModel(inputFolder.getAbsolutePath(), PASSWORD, TAG,
-				new String[] { Configurations.FILES_TEXT }, false, false, false, PROCESS_COUNT);
+                new String[]{Configurations.FILES_TEXT}, false, false, false, PROCESS_COUNT);
 		setting.setOutputFolder(outputFolder.getAbsolutePath());
 
 		// save to file
@@ -66,7 +64,7 @@ public class ZipWithUserSettingTest {
 	@Test
 	public void file_folder_check_combobox(FxRobot robot) {
 		assertTrue(ZipTestUtility.getFileFolderCheckComboBox(robot).getCheckModel().getCheckedItems()
-				.containsAll(new LinkedList<String>(Arrays.asList(setting.getFileFolder()))));
+                .containsAll(new LinkedList<>(Arrays.asList(setting.getFileFolder()))));
 	}
 
 	@Test

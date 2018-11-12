@@ -8,102 +8,102 @@ import java.io.Serializable;
  * @Date Oct 9, 2018
  */
 public class UserSettingModel implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private String inputFolder;
-	private String outputFolder;
+    private static final long serialVersionUID = 1L;
+    private String inputFolder;
+    private String outputFolder;
 
-	private String password;
-	private String tag;
+    private String password;
+    private String tag;
 
-	private String[] fileFolder;
+    private String[] fileFolder;
 
-	private boolean encrypt;
-	private boolean obfuscate;
-	private boolean addReference;
+    private boolean encrypt;
+    private boolean obfuscate;
+    private boolean addReference;
 
-	private int processCount;
+    private int processCount;
 
-	public String getInputFolder() {
-		return inputFolder;
-	}
+    public UserSettingModel(String inputFolder, String password, String tag, String[] fileFolder, boolean encrypt,
+                            boolean obfuscate, boolean addReference, int processCount) {
+        this.inputFolder = inputFolder;
+        this.password = password;
+        this.tag = tag;
+        this.fileFolder = fileFolder;
+        this.encrypt = encrypt;
+        this.obfuscate = obfuscate;
+        this.addReference = addReference;
+        this.processCount = processCount;
+    }
 
-	public void setInputFolder(String folderPath) {
-		this.inputFolder = folderPath;
-	}
+    public String getInputFolder() {
+        return inputFolder;
+    }
 
-	public String getOutputFolder() {
-		return outputFolder;
-	}
+    public void setInputFolder(String folderPath) {
+        this.inputFolder = folderPath;
+    }
 
-	public void setOutputFolder(String outputFolder) {
-		this.outputFolder = outputFolder;
-	}
+    public String getOutputFolder() {
+        return outputFolder;
+    }
 
-	public String[] getFileFolder() {
-		return fileFolder;
-	}
+    public void setOutputFolder(String outputFolder) {
+        this.outputFolder = outputFolder;
+    }
 
-	public void setFileFolder(String[] fileFolder) {
-		this.fileFolder = fileFolder;
-	}
+    public String[] getFileFolder() {
+        return fileFolder;
+    }
 
-	public String getTag() {
-		return tag;
-	}
+    public void setFileFolder(String[] fileFolder) {
+        this.fileFolder = fileFolder;
+    }
 
-	public void setTag(String tag) {
-		this.tag = tag;
-	}
+    public String getTag() {
+        return tag;
+    }
 
-	public boolean isEncrypt() {
-		return encrypt;
-	}
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
 
-	public void setEncrypt(boolean encrypt) {
-		this.encrypt = encrypt;
-	}
+    public boolean isEncrypt() {
+        return encrypt;
+    }
 
-	public boolean isObfuscate() {
-		return obfuscate;
-	}
+    public void setEncrypt(boolean encrypt) {
+        this.encrypt = encrypt;
+    }
 
-	public void setObfuscate(boolean obfuscate) {
-		this.obfuscate = obfuscate;
-	}
+    public boolean isObfuscate() {
+        return obfuscate;
+    }
 
-	public boolean isAddReference() {
-		return addReference;
-	}
+    public void setObfuscate(boolean obfuscate) {
+        this.obfuscate = obfuscate;
+    }
 
-	public void setAddReference(boolean addReference) {
-		this.addReference = addReference;
-	}
+    public boolean isAddReference() {
+        return addReference;
+    }
 
-	public int getProcessCount() {
-		return processCount;
-	}
+    public void setAddReference(boolean addReference) {
+        this.addReference = addReference;
+    }
 
-	public void setProcessCount(int processCount) {
-		this.processCount = processCount;
-	}
+    public int getProcessCount() {
+        return processCount;
+    }
 
-	public UserSettingModel(String inputFolder, String password, String tag, String[] fileFolder, boolean encrypt,
-			boolean obfuscate, boolean addReference, int processCount) {
-		this.inputFolder = inputFolder;
-		this.password = password;
-		this.tag = tag;
-		this.fileFolder = fileFolder;
-		this.encrypt = encrypt;
-		this.obfuscate = obfuscate;
-		this.addReference = addReference;
-		this.processCount = processCount;
-	}
+    public void setProcessCount(int processCount) {
+        this.processCount = processCount;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

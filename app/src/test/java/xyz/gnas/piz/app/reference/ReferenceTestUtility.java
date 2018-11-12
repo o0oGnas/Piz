@@ -1,19 +1,9 @@
 package xyz.gnas.piz.app.reference;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.testfx.api.FxRobot;
-
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -21,10 +11,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.testfx.api.FxRobot;
+import tornadofx.control.DateTimePicker;
+import xyz.gnas.piz.app.TestUtility;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.core.models.ReferenceModel;
-import xyz.gnas.piz.app.TestUtility;
-import tornadofx.control.DateTimePicker;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ReferenceTestUtility {
 	private static final int REFERENCE_COUNT = 100;
@@ -159,14 +156,14 @@ public class ReferenceTestUtility {
 		return lastDate;
 	}
 
-	public static void initialise(Stage stage) throws FileNotFoundException, IOException {
+    public static void initialise(Stage stage) throws IOException {
 		createReferenceFile();
 		TestUtility.initialiseStage(stage);
 	}
 
-	private static void createReferenceFile() throws FileNotFoundException, IOException {
+    private static void createReferenceFile() throws IOException {
 		initialiseDates();
-		List<ReferenceModel> referenceList = new LinkedList<ReferenceModel>();
+        List<ReferenceModel> referenceList = new LinkedList<>();
 
 		// populate the list
 		for (int i = 1; i <= REFERENCE_COUNT; ++i) {
@@ -215,7 +212,7 @@ public class ReferenceTestUtility {
 	}
 
 	public static void filterByComboBoxAndTextField(FxRobot robot, ComboBox<String> cbb, String option, TextField tf,
-			String text) {
+                                                    String text) {
 		robot.clickOn(cbb).clickOn(option);
 		robot.clickOn(tf).write(text);
 		robot.clickOn(ReferenceTestUtility.getFilterButton(robot));

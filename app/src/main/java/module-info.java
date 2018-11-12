@@ -12,10 +12,5 @@ module xyz.gnas.piz.app {
 
 	requires java.desktop;
 	requires org.slf4j;
-	requires ch.qos.logback.core;
 	requires eventbus;
-
-	requires com.fasterxml.jackson.core;
-	requires com.fasterxml.jackson.databind;
-	requires zip4j;
 }

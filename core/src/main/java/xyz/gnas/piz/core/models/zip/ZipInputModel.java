@@ -7,13 +7,25 @@ public class ZipInputModel {
 	private File fileToZip;
 	private File outputFolder;
 
-	AbbreviationModel abbreviation;
+    private AbbreviationModel abbreviation;
 
 	private String password;
 	private String tag;
 
 	private boolean encrypt;
 	private boolean obfuscate;
+
+    public ZipInputModel(File originalFile, File fileToZip, File outputFolder, AbbreviationModel abbreviation, String password,
+                         String tag, boolean encrypt, boolean obfuscate) {
+        this.originalFile = originalFile;
+        this.fileToZip = fileToZip;
+        this.outputFolder = outputFolder;
+        this.abbreviation = abbreviation;
+        this.password = password;
+        this.tag = tag;
+        this.encrypt = encrypt;
+        this.obfuscate = obfuscate;
+    }
 
 	public File getOriginalFile() {
 		return originalFile;
@@ -49,17 +61,5 @@ public class ZipInputModel {
 
 	public boolean isObfuscate() {
 		return obfuscate;
-	}
-
-	public ZipInputModel(File originalFile, File fileToZip, File outputFolder, AbbreviationModel abbreviation, String password,
-			String tag, boolean encrypt, boolean obfuscate) {
-		this.originalFile = originalFile;
-		this.fileToZip = fileToZip;
-		this.outputFolder = outputFolder;
-		this.abbreviation = abbreviation;
-		this.password = password;
-		this.tag = tag;
-		this.encrypt = encrypt;
-		this.obfuscate = obfuscate;
 	}
 }
