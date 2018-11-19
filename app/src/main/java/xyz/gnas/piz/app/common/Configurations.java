@@ -1,9 +1,7 @@
 package xyz.gnas.piz.app.common;
 
 /**
- * @author Gnas
- * @Description Contains configurations values
- * @Date Oct 9, 2018
+ * Contains configurations values
  */
 public class Configurations {
 	public static final String FILES_TEXT = "Files";

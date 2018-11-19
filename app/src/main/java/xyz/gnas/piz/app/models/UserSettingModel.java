@@ -3,9 +3,7 @@ package xyz.gnas.piz.app.models;
 import java.io.Serializable;
 
 /**
- * @author Gnas
- * @Description Model of the settings, serializable to save in binary file
- * @Date Oct 9, 2018
+ * Model of the settings, serializable to save in binary file
  */
 public class UserSettingModel implements Serializable {
     private static final long serialVersionUID = 1L;

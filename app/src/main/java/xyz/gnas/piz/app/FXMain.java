@@ -10,6 +10,8 @@ import xyz.gnas.piz.app.common.ResourceManager;
 import xyz.gnas.piz.app.common.Utility;
 import xyz.gnas.piz.app.events.ExitEvent;
 
+import static xyz.gnas.piz.app.common.Utility.writeErrorLog;
+
 public class FXMain extends Application {
     public static void main(String[] args) {
         launch(args);
@@ -18,7 +20,8 @@ public class FXMain extends Application {
     @Override
     public void start(Stage stage) {
         try {
-            Thread.setDefaultUncaughtExceptionHandler((Thread t, Throwable e) -> Utility.writeErrorLog(getClass(), "Uncaught exception", e));
+            Thread.setDefaultUncaughtExceptionHandler((Thread t, Throwable e) -> writeErrorLog(getClass(), "Uncaught " +
+                    "exception", e));
 
             stage.setOnCloseRequest((WindowEvent arg0) -> {
                 // raise exit event

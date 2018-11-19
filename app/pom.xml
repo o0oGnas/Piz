@@ -100,7 +100,7 @@
                             <!-- list of packages to include and exclude -->
                             <filters>
                                 <filter>
-                                    <artifact>org.openjfx</artifact>
+                                    <artifact>org.openjfx:javafx-graphics</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>
@@ -108,13 +108,6 @@
 
                                 <filter>
                                     <artifact>ch.qos.logback</artifact>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </filter>
-
-                                <filter>
-                                    <artifact>org.slf4j</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>

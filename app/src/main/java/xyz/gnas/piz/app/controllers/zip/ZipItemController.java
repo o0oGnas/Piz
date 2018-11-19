@@ -36,33 +36,47 @@ import java.util.List;
 import static xyz.gnas.piz.app.common.Utility.showConfirmation;
 
 public class ZipItemController {
-    private final String PROCESSING = "[Processing]";
     @FXML
     private AnchorPane acpRoot;
+
     @FXML
     private MaterialIconView mivIcon;
-    @FXML
-    private ImageView imvIcon;
-    @FXML
-    private Label lblStatus;
-    @FXML
-    private Label lblOriginal;
-    @FXML
-    private Label lblZip;
-    @FXML
-    private HBox hboResult;
-    @FXML
-    private HBox hboProcess;
-    @FXML
-    private HBox hboActions;
-    @FXML
-    private ProgressIndicator pgiProgress;
-    @FXML
-    private Button btnStop;
-    @FXML
-    private Button btnPauseResume;
+
     @FXML
     private MaterialIconView mivPauseResume;
+
+    @FXML
+    private ImageView imvIcon;
+
+    @FXML
+    private Label lblOriginal;
+
+    @FXML
+    private Label lblZip;
+
+    @FXML
+    private Label lblStatus;
+
+    @FXML
+    private HBox hboResult;
+
+    @FXML
+    private HBox hboProcess;
+
+    @FXML
+    private HBox hboActions;
+
+    @FXML
+    private ProgressIndicator pgiProgress;
+
+    @FXML
+    private Button btnStop;
+
+    @FXML
+    private Button btnPauseResume;
+
+    private final String PROCESSING = "[Processing]";
+
     private File file;
 
     private ObjectProperty<ProgressMonitor> progressMonitor = new SimpleObjectProperty<>();
@@ -227,7 +241,7 @@ public class ZipItemController {
             writeInfoLog(pauseResume + " process of file/folder [" + file.getName() + "]");
             progressMonitor.get().setPause(pause);
         } catch (Exception e) {
-            showError(e, "Could not pause the process [" + lblOriginal.getText() + "]", false);
+            showError(e, "Could not pause/resume the process [" + lblOriginal.getText() + "]", false);
         }
     }
 

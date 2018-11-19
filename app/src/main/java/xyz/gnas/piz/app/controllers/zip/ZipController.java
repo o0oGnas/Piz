@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 
+import static java.lang.Thread.sleep;
 import static javafx.application.Platform.runLater;
 import static xyz.gnas.piz.app.common.Utility.showAlert;
 import static xyz.gnas.piz.app.common.Utility.showConfirmation;
@@ -793,7 +794,7 @@ public class ZipController {
             // wait until the number of concurrent processes are below the limit or user is
             // pausing all processes
             while (runningCount == ApplicationModel.getInstance().getSetting().getProcessCount() || isPaused.get()) {
-                Thread.sleep(500);
+                sleep(500);
             }
 
             if (isStopped) {
@@ -869,14 +870,14 @@ public class ZipController {
 
     private void monitorZipProcess(File file, ZipProcessModel process) throws InterruptedException {
         while (process.getProgressMonitor() == null) {
-            Thread.sleep(100);
+            sleep(100);
         }
 
         ProgressMonitor pm = process.getProgressMonitor();
 
         while (!process.isComplete()) {
             showProgress(file, process);
-            Thread.sleep(500);
+            sleep(500);
         }
 
         if (!pm.isCancelAllTasks()) {
@@ -927,7 +928,7 @@ public class ZipController {
                     txtPassword.requestFocus();
                     // wait until all processes are done
                     while (finishCount < fileList.size()) {
-                        Thread.sleep(500);
+                        sleep(500);
                     }
                 } catch (Exception e) {
                     showError(e, "Error when monitoring progress", false);

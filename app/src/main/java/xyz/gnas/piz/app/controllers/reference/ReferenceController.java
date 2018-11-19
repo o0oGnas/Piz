@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SortEvent;
 import javafx.scene.control.TableCell;
@@ -33,7 +32,6 @@ import xyz.gnas.piz.core.models.ReferenceModel;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static xyz.gnas.piz.app.common.Utility.convertCalendarToLocalDateTime;
@@ -269,13 +267,12 @@ public class ReferenceController {
     @FXML
     private void filter(ActionEvent event) {
         try {
-            List<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
             writeInfoLog("Filtering references");
             Calendar cFrom = convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
             Calendar cTo = convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
             ObservableList<ReferenceModel> filteredList = FXCollections.observableArrayList();
 
-            for (ReferenceModel reference : referenceList) {
+            for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
                 Calendar date = reference.getDate();
                 boolean checkDate = cFrom.compareTo(date) <= 0 && date.compareTo(cTo) <= 1;
 
@@ -319,8 +316,7 @@ public class ReferenceController {
     private void scrollToTop(ActionEvent event) {
         try {
             writeInfoLog("Scrolling to top");
-            ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
-            verticalBar.setValue(verticalBar.getMin());
+            tbvTable.scrollTo(0);
         } catch (Exception e) {
             showError(e, "Could not scroll to top", false);
         }
@@ -330,8 +326,7 @@ public class ReferenceController {
     private void scrollToBottom(ActionEvent event) {
         try {
             writeInfoLog("Scrolling to bottom");
-            ScrollBar verticalBar = (ScrollBar) tbvTable.lookup(".scroll-bar:vertical");
-            verticalBar.setValue(verticalBar.getMax());
+            tbvTable.scrollTo(tbvTable.getItems().size() - 1);
         } catch (Exception e) {
             showError(e, "Could not scroll to bottom", false);
         }
@@ -362,8 +357,7 @@ public class ReferenceController {
         try {
             TableColumn<ReferenceModel, String> source = (TableColumn<ReferenceModel, String>) event.getSource();
             writeInfoLog("Commiting edit on column " + source.getId());
-            ReferenceModel reference = ApplicationModel.getInstance().getReferenceList()
-                    .get(event.getTablePosition().getRow());
+            ReferenceModel reference = tbvTable.getItems().get(event.getTablePosition().getRow());
             String value = event.getNewValue();
 
             if (source == tbcTag) {

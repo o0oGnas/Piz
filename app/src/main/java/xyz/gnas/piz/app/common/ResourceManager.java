@@ -9,9 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author Gnas
- * @Description Manage resources, including lazy initialisation
- * @Date Oct 10, 2018
+ * Manage resources, including lazy initialisation
  */
 public class ResourceManager {
     private static Image appIcon;

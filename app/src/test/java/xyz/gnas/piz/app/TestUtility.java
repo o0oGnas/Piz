@@ -21,9 +21,7 @@ import xyz.gnas.piz.app.common.ResourceManager;
 import java.io.IOException;
 
 /**
- * @author ADMIN
- * @date Oct 16, 2018
- * @description handles all UI control searching
+ * handles all UI control searching
  */
 public class TestUtility {
     public static void initialiseStage(Stage stage) throws IOException {

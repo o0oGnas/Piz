@@ -20,19 +20,9 @@ import java.util.Optional;
 import static javafx.application.Platform.runLater;
 
 /**
- * @author Gnas
- * @Description Contains common methods used in the application
- * @Date Oct 9, 2018
+ * Contains common methods used in the application
  */
 public final class Utility {
-    /**
-     * @param e       The exception object
-     * @param message A useful message for the user
-     * @param exit    Flag to whether exit the application after showing the error
-     * @Description Show error dialog with exception stack trace in expandable
-     * dialog
-     * @Date Oct 9, 2018
-     */
     public static void showError(Class callingClass, Throwable e, String message, boolean exit) {
         runLater(() -> {
             try {
@@ -96,12 +86,6 @@ public final class Utility {
         }
     }
 
-    /**
-     * @param headerText Short sentence describe the type of message
-     * @param message    Detailed message
-     * @Description Show a message dialog
-     * @Date Oct 9, 2018
-     */
     public static void showAlert(String headerText, String message) {
         runLater(() -> {
             try {
@@ -117,13 +101,6 @@ public final class Utility {
         });
     }
 
-    /**
-     * @param message the displayed message
-     * @return confirmation result
-     * @Description show confirmation dialog, cannot be wrapped in runlater because
-     * it needs to return the result of the dialog
-     * @Date Oct 9, 2018
-     */
     public static boolean showConfirmation(String message) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
