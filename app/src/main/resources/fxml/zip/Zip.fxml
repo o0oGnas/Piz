@@ -23,7 +23,8 @@
             <VBox fx:id="vboInputFields">
                 <HBox VBox.vgrow="NEVER">
                     <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
-                        <Button onAction="#selectInputFolder" prefHeight="25.0" prefWidth="130.0" text="Input folder"
+                        <Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0"
+                                prefWidth="130.0" text="Input folder"
                                 HBox.hgrow="NEVER">
                             <graphic>
                                 <MaterialIconView glyphName="FOLDER_OPEN" size="16"/>
@@ -46,7 +47,8 @@
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <Button onAction="#selectOutputFolder" prefWidth="130.0" text="Output folder">
+                        <Button mnemonicParsing="false" onAction="#selectOutputFolder" prefWidth="130.0"
+                                text="Output folder">
                             <HBox.margin>
                                 <Insets/>
                             </HBox.margin>
@@ -173,12 +175,13 @@
                 <VBox.margin>
                     <Insets top="10.0"/>
                 </VBox.margin>
-                <Button fx:id="btnStart" onAction="#start" prefWidth="100.0" text="Start">
+                <Button mnemonicParsing="false" fx:id="btnStart" onAction="#start" prefWidth="100.0" text="Start">
                     <graphic>
                         <MaterialIconView glyphName="PLAY_CIRCLE_FILLED" size="16"/>
                     </graphic>
                 </Button>
-                <Button fx:id="btnPauseResume" disable="true" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
+                <Button mnemonicParsing="false" fx:id="btnPauseResume" disable="true" onAction="#pauseOrResume"
+                        prefWidth="100.0" text="Pause">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
@@ -186,7 +189,8 @@
                         <MaterialIconView fx:id="mivPauseResume" glyphName="PAUSE" size="16"/>
                     </graphic>
                 </Button>
-                <Button fx:id="btnStop" disable="true" onAction="#stop" prefWidth="100.0" text="Stop">
+                <Button mnemonicParsing="false" fx:id="btnStop" disable="true" onAction="#stop" prefWidth="100.0"
+                        text="Stop">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>

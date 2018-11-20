@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import tornadofx.control.DateTimePicker?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.1"
+<AnchorPane prefWidth="920.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="xyz.gnas.piz.app.controllers.reference.ReferenceController">
     <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
           AnchorPane.topAnchor="0.0">
@@ -77,8 +77,8 @@
                                 <Insets left="10.0"/>
                             </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="txtZip" maxWidth="1.7976931348623157E308"
-                                   promptText="Zip file" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="txtZip" maxWidth="1.7976931348623157E308" promptText="Zip file"
+                                   HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets left="10.0"/>
                             </HBox.margin>
@@ -106,7 +106,7 @@
                         </HBox.margin>
                     </TextField>
                 </HBox>
-                <Button onAction="#filter" prefWidth="80.0" text="Filter">
+                <Button mnemonicParsing="false" onAction="#filter" prefWidth="80.0" text="Filter">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
@@ -124,7 +124,7 @@
                         <Insets left="5.0"/>
                     </HBox.margin>
                 </Label>
-                <Button onAction="#scrollToTop" prefWidth="150.0" text="Scroll to top">
+                <Button mnemonicParsing="false" onAction="#scrollToTop" prefWidth="150.0" text="Scroll to top">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
@@ -168,12 +168,13 @@
             <VBox.margin>
                 <Insets top="10.0"/>
             </VBox.margin>
-            <Button onAction="#add" prefWidth="150.0" text="Add reference">
+            <Button mnemonicParsing="false" onAction="#add" prefWidth="150.0" text="Add reference">
                 <graphic>
                     <MaterialIconView glyphName="ADD" size="16"/>
                 </graphic>
             </Button>
-            <Button fx:id="btnDelete" onAction="#delete" prefWidth="150.0" text="Delete reference">
+            <Button mnemonicParsing="false" fx:id="btnDelete" onAction="#delete" prefWidth="150.0"
+                    text="Delete reference">
                 <HBox.margin>
                     <Insets left="10.0"/>
                 </HBox.margin>
@@ -181,7 +182,7 @@
                     <MaterialIconView glyphName="DELETE" size="16"/>
                 </graphic>
             </Button>
-            <Button onAction="#save" prefWidth="150.0" text="Save references">
+            <Button mnemonicParsing="false" onAction="#save" prefWidth="150.0" text="Save references">
                 <HBox.margin>
                     <Insets left="10.0"/>
                 </HBox.margin>

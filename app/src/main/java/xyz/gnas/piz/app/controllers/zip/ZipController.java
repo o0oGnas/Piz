@@ -164,6 +164,11 @@ public class ZipController {
     private Set<ZipProcessModel> processList = new HashSet<>();
 
     /**
+     * Master thread that loops through list of files and create processing threads
+     */
+    private Thread masterThread;
+
+    /**
      * Keep track of how many processes are running
      */
     private int runningCount;
@@ -543,8 +548,10 @@ public class ZipController {
         });
     }
 
-    private void runNewThread(Task<Integer> task) {
-        new Thread(task).start();
+    private Thread runNewThread(Task<Integer> task) {
+        Thread t = new Thread(task);
+        t.start();
+        return t;
     }
 
     private void runFileAndFolderGenerationThread(Label label) throws IOException {
@@ -775,7 +782,7 @@ public class ZipController {
     private void startProcesses() {
         writeInfoLog("Running process master thread");
 
-        runNewThread(new Task<>() {
+        masterThread = runNewThread(new Task<>() {
             @Override
             protected Integer call() {
                 try {
@@ -925,7 +932,6 @@ public class ZipController {
             @Override
             protected Integer call() {
                 try {
-                    txtPassword.requestFocus();
                     // wait until all processes are done
                     while (finishCount < fileList.size()) {
                         sleep(500);
@@ -945,6 +951,11 @@ public class ZipController {
 
         runLater(() -> {
             try {
+                // wait until master thread finishes
+                while (masterThread.isAlive()) {
+                    sleep(500);
+                }
+
                 isRunning.set(false);
                 processList.clear();
                 hboActions.setDisable(false);
