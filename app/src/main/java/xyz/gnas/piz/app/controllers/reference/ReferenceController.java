@@ -285,6 +285,7 @@ public class ReferenceController {
             }
 
             tbvTable.setItems(filteredList);
+            scrollToTop(null);
         } catch (Exception e) {
             showError(e, "Could not filter", false);
         }

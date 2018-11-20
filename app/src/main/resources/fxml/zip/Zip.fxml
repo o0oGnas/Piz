@@ -12,61 +12,49 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.CheckComboBox?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1"
-            xmlns="http://javafx.com/javafx/10.0.1"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
             fx:controller="xyz.gnas.piz.app.controllers.zip.ZipController">
-    <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-          AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
         <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
         </padding>
         <VBox fx:id="vboInputsAndActions">
             <VBox fx:id="vboInputFields">
                 <HBox VBox.vgrow="NEVER">
-                    <HBox alignment="CENTER_LEFT" styleClass="control-box"
-                          HBox.hgrow="ALWAYS">
-                        <Button alignment="TOP_LEFT" mnemonicParsing="false"
-                                onAction="#selectInputFolder" prefHeight="25.0"
-                                prefWidth="130.0" styleClass="sm" text="Input folder"
+                    <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+                        <Button onAction="#selectInputFolder" prefHeight="25.0" prefWidth="130.0" text="Input folder"
                                 HBox.hgrow="NEVER">
                             <graphic>
-                                <MaterialIconView glyphName="FOLDER_OPEN"
-                                                  size="16"/>
+                                <MaterialIconView glyphName="FOLDER_OPEN" size="16"/>
                             </graphic>
                         </Button>
-                        <Label fx:id="lblInputFolder"
-                               maxWidth="1.7976931348623157E308" prefHeight="25.0"
+                        <Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0"
                                HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets left="10.0"/>
                             </HBox.margin>
                         </Label>
-                        <MaterialIconView fx:id="mivRefresh"
-                                          glyphName="REFRESH" onMouseClicked="#refreshInputFolder"
+                        <MaterialIconView fx:id="mivRefresh" glyphName="REFRESH" onMouseClicked="#refreshInputFolder"
                                           size="16">
                             <HBox.margin>
                                 <Insets left="10.0"/>
                             </HBox.margin>
                         </MaterialIconView>
                     </HBox>
-                    <HBox alignment="CENTER_LEFT" styleClass="control-box"
-                          HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <Button alignment="TOP_LEFT" mnemonicParsing="false"
-                                onAction="#selectOutputFolder" prefWidth="130.0"
-                                styleClass="sm" text="Output folder">
+                        <Button onAction="#selectOutputFolder" prefWidth="130.0" text="Output folder">
                             <HBox.margin>
                                 <Insets/>
                             </HBox.margin>
                             <graphic>
-                                <MaterialIconView glyphName="FOLDER"
-                                                  size="16"/>
+                                <MaterialIconView glyphName="FOLDER" size="16"/>
                             </graphic>
                         </Button>
-                        <Label fx:id="lblOutputFolder"
-                               maxWidth="1.7976931348623157E308" prefHeight="25.0"
+                        <Label fx:id="lblOutputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0"
                                HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets left="10.0"/>
@@ -80,8 +68,7 @@
                     </VBox.margin>
                     <HBox alignment="CENTER_LEFT" styleClass="control-box">
                         <Label text="Perform zip on"/>
-                        <CheckComboBox fx:id="ccbFileFolder"
-                                       prefWidth="110.0">
+                        <CheckComboBox fx:id="ccbFileFolder" prefWidth="110.0">
                             <HBox.margin>
                                 <Insets left="10.0"/>
                             </HBox.margin>
@@ -91,8 +78,7 @@
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <TextField fx:id="txtProcessCount"
-                                   alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0"
+                        <TextField fx:id="txtProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0"
                                    text="5">
                             <HBox.margin>
                                 <Insets/>
@@ -108,14 +94,12 @@
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <CheckBox fx:id="chkEncrypt"
-                                  mnemonicParsing="false" selected="true" text="Encrypt">
+                        <CheckBox fx:id="chkEncrypt" selected="true" text="Encrypt">
                             <HBox.margin>
                                 <Insets/>
                             </HBox.margin>
                         </CheckBox>
-                        <HBox fx:id="hboPassword" alignment="CENTER_LEFT"
-                              styleClass="control-box">
+                        <HBox fx:id="hboPassword" alignment="CENTER_LEFT" styleClass="control-box">
                             <padding>
                                 <Insets bottom="5.0" left="5.0" right="5.0"
                                         top="5.0"/>
@@ -128,22 +112,18 @@
                                     <Insets right="10.0"/>
                                 </HBox.margin>
                             </Label>
-                            <TextField fx:id="txtPassword"
-                                       promptText="Password" visible="false">
+                            <TextField fx:id="txtPassword" promptText="Password" visible="false">
                                 <HBox.margin>
                                     <Insets/>
                                 </HBox.margin>
                             </TextField>
-                            <PasswordField fx:id="pwfPassword"
-                                           promptText="Password">
+                            <PasswordField fx:id="pwfPassword" promptText="Password">
                                 <HBox.margin>
                                     <Insets/>
                                 </HBox.margin>
                             </PasswordField>
-                            <MaterialIconView fx:id="mivMaskUnmask"
-                                              glyphName="VISIBILITY_OFF"
-                                              onMouseClicked="#maskUnmask"
-                                              size="16">
+                            <MaterialIconView fx:id="mivMaskUnmask" glyphName="VISIBILITY_OFF"
+                                              onMouseClicked="#maskUnmask" size="16">
                                 <HBox.margin>
                                     <Insets left="10.0"/>
                                 </HBox.margin>
@@ -155,32 +135,26 @@
                     <VBox.margin>
                         <Insets top="10.0"/>
                     </VBox.margin>
-                    <CheckBox fx:id="chkObfuscate"
-                              mnemonicParsing="false" selected="true"
-                              text="Obfuscate file name">
+                    <CheckBox fx:id="chkObfuscate" selected="true" text="Obfuscate file name">
                         <HBox.margin>
                             <Insets/>
                         </HBox.margin>
                     </CheckBox>
-                    <HBox fx:id="hboReference" alignment="CENTER_LEFT"
-                          styleClass="control-box">
+                    <HBox fx:id="hboReference" alignment="CENTER_LEFT" styleClass="control-box">
                         <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </padding>
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <CheckBox fx:id="chkAddReferences"
-                                  mnemonicParsing="false" text="Add references">
+                        <CheckBox fx:id="chkAddReferences" text="Add references">
                             <HBox.margin>
                                 <Insets/>
                             </HBox.margin>
                         </CheckBox>
-                        <HBox fx:id="hboTag" alignment="CENTER_LEFT"
-                              styleClass="control-box">
+                        <HBox fx:id="hboTag" alignment="CENTER_LEFT" styleClass="control-box">
                             <padding>
-                                <Insets bottom="5.0" left="5.0" right="5.0"
-                                        top="5.0"/>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </padding>
                             <HBox.margin>
                                 <Insets left="10.0"/>
@@ -199,29 +173,20 @@
                 <VBox.margin>
                     <Insets top="10.0"/>
                 </VBox.margin>
-                <Button fx:id="btnStart" alignment="TOP_LEFT"
-                        mnemonicParsing="false" onAction="#start" prefWidth="100.0"
-                        styleClass="sm" text="Start">
+                <Button fx:id="btnStart" onAction="#start" prefWidth="100.0" text="Start">
                     <graphic>
-                        <MaterialIconView
-                                glyphName="PLAY_CIRCLE_FILLED" size="16"/>
+                        <MaterialIconView glyphName="PLAY_CIRCLE_FILLED" size="16"/>
                     </graphic>
                 </Button>
-                <Button fx:id="btnPauseResume" alignment="TOP_LEFT"
-                        disable="true" mnemonicParsing="false"
-                        onAction="#pauseOrResume" prefWidth="100.0" styleClass="sm"
-                        text="Pause">
+                <Button fx:id="btnPauseResume" disable="true" onAction="#pauseOrResume" prefWidth="100.0" text="Pause">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
                     <graphic>
-                        <MaterialIconView fx:id="mivPauseResume"
-                                          glyphName="PAUSE" size="16"/>
+                        <MaterialIconView fx:id="mivPauseResume" glyphName="PAUSE" size="16"/>
                     </graphic>
                 </Button>
-                <Button fx:id="btnStop" alignment="TOP_LEFT"
-                        disable="true" mnemonicParsing="false" onAction="#stop"
-                        prefWidth="100.0" styleClass="sm" text="Stop">
+                <Button fx:id="btnStop" disable="true" onAction="#stop" prefWidth="100.0" text="Stop">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
@@ -231,8 +196,7 @@
                 </Button>
             </HBox>
         </VBox>
-        <ScrollPane fitToWidth="true"
-                    style="-fx-background: white;" VBox.vgrow="ALWAYS">
+        <ScrollPane fitToWidth="true" style="-fx-background: white;" VBox.vgrow="ALWAYS">
             <VBox.margin>
                 <Insets top="10.0"/>
             </VBox.margin>

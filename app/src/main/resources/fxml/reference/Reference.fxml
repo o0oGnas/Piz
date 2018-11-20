@@ -106,8 +106,7 @@
                         </HBox.margin>
                     </TextField>
                 </HBox>
-                <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#filter" prefWidth="80.0"
-                        styleClass="sm" text="Filter">
+                <Button onAction="#filter" prefWidth="80.0" text="Filter">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
@@ -125,8 +124,7 @@
                         <Insets left="5.0"/>
                     </HBox.margin>
                 </Label>
-                <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToTop"
-                        prefWidth="150.0" styleClass="sm" text="Scroll to top">
+                <Button onAction="#scrollToTop" prefWidth="150.0" text="Scroll to top">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
@@ -134,8 +132,7 @@
                         <MaterialIconView glyphName="KEYBOARD_ARROW_UP" size="16"/>
                     </graphic>
                 </Button>
-                <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#scrollToBottom"
-                        prefWidth="150.0" styleClass="sm" text="Scroll to bottom">
+                <Button onAction="#scrollToBottom" prefWidth="150.0" text="Scroll to bottom">
                     <HBox.margin>
                         <Insets left="10.0"/>
                     </HBox.margin>
@@ -171,14 +168,12 @@
             <VBox.margin>
                 <Insets top="10.0"/>
             </VBox.margin>
-            <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#add" prefWidth="150.0"
-                    styleClass="sm" text="Add reference">
+            <Button onAction="#add" prefWidth="150.0" text="Add reference">
                 <graphic>
                     <MaterialIconView glyphName="ADD" size="16"/>
                 </graphic>
             </Button>
-            <Button fx:id="btnDelete" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#delete"
-                    prefWidth="150.0" styleClass="sm" text="Delete reference">
+            <Button fx:id="btnDelete" onAction="#delete" prefWidth="150.0" text="Delete reference">
                 <HBox.margin>
                     <Insets left="10.0"/>
                 </HBox.margin>
@@ -186,8 +181,7 @@
                     <MaterialIconView glyphName="DELETE" size="16"/>
                 </graphic>
             </Button>
-            <Button alignment="TOP_LEFT" mnemonicParsing="false" onAction="#save" prefWidth="150.0"
-                    styleClass="sm" text="Save references">
+            <Button onAction="#save" prefWidth="150.0" text="Save references">
                 <HBox.margin>
                     <Insets left="10.0"/>
                 </HBox.margin>
