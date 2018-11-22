@@ -59,6 +59,10 @@ public class ZipInputModel {
 		return encrypt;
 	}
 
+	public void setEncrypt(boolean encrypt) {
+		this.encrypt = encrypt;
+	}
+
 	public boolean isObfuscate() {
 		return obfuscate;
 	}

@@ -12,30 +12,8 @@
 
     <artifactId>app</artifactId>
 
-    <!-- generate html test report -->
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.22.1</version>
-            </plugin>
-        </plugins>
-    </reporting>
-
     <build>
         <plugins>
-            <!-- default Maven compiler plugin -->
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                    <release>11</release>
-                </configuration>
-            </plugin>
-
             <!-- run Java FX app -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -51,22 +29,6 @@
                 <configuration>
                     <mainClass>xyz.gnas.piz.app.Main</mainClass>
                 </configuration>
-            </plugin>
-
-            <!-- copy dependencies to target folder -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- generate a jar file with Main manifest -->
@@ -87,7 +49,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -122,20 +84,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
+                <version>3.0.0-M1</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
                     <printSummary>true</printSummary>
                     <skipTests>false</skipTests>
-
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>src\main\</additionalClasspathElement>
-                    </additionalClasspathElements>
-
-                    <!-- run test in a designated folder -->
-                    <workingDirectory>${project.build.directory}/test-environment</workingDirectory>
 
                     <!-- run test in headless mode -->
                     <systemPropertyVariables>
@@ -165,13 +120,13 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>11</version>
+            <version>12-ea+2</version>
         </dependency>
 
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>11</version>
+            <version>12-ea+2</version>
         </dependency>
 
         <!-- UI -->

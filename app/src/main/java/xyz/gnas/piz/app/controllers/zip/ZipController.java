@@ -963,16 +963,20 @@ public class ZipController {
                 enableDisablePauseStop(true);
                 loadFolderAndFileLists();
 
-                // play notification sound if process is not canceled prematurely
+                // play notification sound if process is not cancelled
                 if (!isStopped) {
-                    Media media = ResourceManager.getNotificationSound();
-                    MediaPlayer mediaPlayer = new MediaPlayer(media);
-                    mediaPlayer.play();
+                    playNotificationSound();
                 }
             } catch (Exception e) {
                 showError(e, "Error when finishing process", false);
             }
         });
+    }
+
+    private void playNotificationSound() {
+        Media media = ResourceManager.getNotificationSound();
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.play();
     }
 
     @FXML

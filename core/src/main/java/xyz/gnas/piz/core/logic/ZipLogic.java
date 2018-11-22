@@ -287,10 +287,13 @@ public class ZipLogic {
         }
 
         // create inner zip without encryption
+        boolean encrypt = input.isEncrypt();
+        input.setEncrypt(false);
         File innerZipFile = prepareToZip(input, process, zipName + "_inner");
 
         // only create outer zip if it's not cancelled
         if (innerZipFile != null) {
+            input.setEncrypt(encrypt);
             processOuterZip(input, process, innerZipFile, zipName);
         }
     }
