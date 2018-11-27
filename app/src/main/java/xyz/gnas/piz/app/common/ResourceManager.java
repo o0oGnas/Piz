@@ -2,7 +2,7 @@ package xyz.gnas.piz.app.common;
 
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
-import xyz.gnas.piz.app.FXMain;
+import xyz.gnas.piz.app.main.FXMain;
 
 import java.net.URL;
 import java.util.LinkedList;

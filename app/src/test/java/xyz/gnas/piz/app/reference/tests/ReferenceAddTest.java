@@ -27,7 +27,8 @@ public class ReferenceAddTest {
 
 	@BeforeEach
 	public void selectTab(FxRobot robot) {
-		hasSelectedTab = ReferenceTestUtility.selectTab(robot, hasSelectedTab);
+        ReferenceTestUtility.selectTab(robot, hasSelectedTab);
+        hasSelectedTab = true;
 	}
 
 	@Test

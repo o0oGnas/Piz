@@ -29,9 +29,7 @@
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>true</reuseForks>
-					<threadCount>1</threadCount>
 					<printSummary>true</printSummary>
-					<skipTests>false</skipTests>
 
 					<!-- run test in a designated folder -->
 					<workingDirectory>${project.build.directory}/test-environment</workingDirectory>
@@ -64,13 +62,6 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.3.1</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
 			<version>5.3.1</version>
 			<scope>test</scope>
 		</dependency>

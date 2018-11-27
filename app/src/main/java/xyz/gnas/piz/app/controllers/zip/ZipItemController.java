@@ -19,7 +19,9 @@ import net.lingala.zip4j.progress.ProgressMonitor;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import xyz.gnas.piz.app.common.Configurations;
-import xyz.gnas.piz.app.common.Utility;
+import xyz.gnas.piz.app.common.utility.CodeRunnerUtility;
+import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.Runner;
+import xyz.gnas.piz.app.common.utility.DialogUtility;
 import xyz.gnas.piz.app.events.zip.BeginProcessEvent;
 import xyz.gnas.piz.app.events.zip.FinishProcessEvent;
 import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
@@ -33,7 +35,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
-import static xyz.gnas.piz.app.common.Utility.showConfirmation;
+import static xyz.gnas.piz.app.common.utility.DialogUtility.showConfirmation;
 
 public class ZipItemController {
     @FXML
@@ -85,18 +87,21 @@ public class ZipItemController {
 
     private boolean isObfuscated;
 
-    private void showError(Exception e, String message, boolean exit) {
-        Utility.showError(getClass(), e, message, exit);
+    private void executeRunner(String errorMessage, Runner runner) {
+        CodeRunnerUtility.executeRunner(getClass(), errorMessage, runner);
+    }
+
+    private void executeRunnerOrExit(String errorMessage, Runner runner) {
+        CodeRunnerUtility.executeRunnerOrExit(getClass(), errorMessage, runner);
     }
 
     private void writeInfoLog(String log) {
-        Utility.writeInfoLog(getClass(), log);
+        DialogUtility.writeInfoLog(getClass(), log);
     }
 
     @Subscribe
     public void onInitialiseZipItemEvent(InitialiseItemEvent event) {
-        try {
-            // prevent reassigning because the event is never unregistered
+        executeRunner("Error when handling initialise item event", () -> {
             if (file == null) {
                 file = event.getFile();
                 isObfuscated = event.isObfuscated();
@@ -112,9 +117,7 @@ public class ZipItemController {
 
                 lblOriginal.setText(file.getName());
             }
-        } catch (Exception e) {
-            showError(e, "Error when initialising zip item", true);
-        }
+        });
     }
 
     private void setFileIcon() {
@@ -136,16 +139,14 @@ public class ZipItemController {
 
     @Subscribe
     public void onBeginProcessEvent(BeginProcessEvent event) {
-        try {
+        executeRunner("Error when handling begin process event", () -> {
             if (event.getFile() == file) {
                 lblStatus.setText(PROCESSING);
                 hboResult.setVisible(true);
                 btnPauseResume.disableProperty().bind(event.getIsMasterPaused());
                 setRootPanelClass("processing-item");
             }
-        } catch (Exception e) {
-            showError(e, "Error when starting zip process", false);
-        }
+        });
     }
 
     private void setRootPanelClass(String className) {
@@ -156,7 +157,7 @@ public class ZipItemController {
 
     @Subscribe
     public void onUpdateProgressEvent(UpdateProgressEvent event) {
-        try {
+        executeRunner("Error when handling update progress event", () -> {
             if (event.getFile() == file) {
                 ZipProcessModel process = event.getProcess();
                 progressMonitor.set(process.getProgressMonitor());
@@ -168,9 +169,7 @@ public class ZipItemController {
 
                 updatePercent(process);
             }
-        } catch (Exception e) {
-            showError(e, "Error when updating zip progress", false);
-        }
+        });
     }
 
     private void updatePercent(ZipProcessModel process) {
@@ -193,61 +192,61 @@ public class ZipItemController {
 
     @Subscribe
     public void onFinishProcessEvent(FinishProcessEvent event) {
-        try {
+        executeRunner("Error when handling finish process event", () -> {
             if (event.getFile() == file) {
                 pgiProgress.setProgress(1);
                 lblStatus.setVisible(false);
                 hboActions.setVisible(false);
                 setRootPanelClass("finished-item");
             }
-        } catch (Exception e) {
-            showError(e, "Error when finishing zip process", false);
-        }
+        });
     }
 
     @FXML
     private void initialize() {
-        try {
+        executeRunner("Could not initialise zip item", () -> {
             imvIcon.setManaged(false);
             EventBus.getDefault().register(this);
+            addPausedListener();
+            addProgressListener();
+        });
+    }
 
-            isPaused.addListener(l -> {
-                try {
-                    boolean pause = isPaused.get();
-                    mivPauseResume.setGlyphName(pause ? Configurations.RESUME_GLYPH : Configurations.PAUSE_GLYPH);
-                    btnPauseResume.setText(pause ? Configurations.RESUME_TEXT : Configurations.PAUSE_TEXT);
-                    lblStatus.setText(pause ? "[Paused]" : PROCESSING);
-                } catch (Exception e) {
-                    showError(e, "Error handling pause", false);
-                }
-            });
+    private void addPausedListener() {
+        isPaused.addListener(l -> executeRunner("Error when handling change to pause status", () -> {
+            boolean pause = isPaused.get();
+            mivPauseResume.setGlyphName(pause ? Configurations.RESUME_GLYPH : Configurations.PAUSE_GLYPH);
+            btnPauseResume.setText(pause ? Configurations.RESUME_TEXT : Configurations.PAUSE_TEXT);
+            lblStatus.setText(pause ? "[Paused]" : PROCESSING);
+        }));
+    }
 
-            progressMonitor.addListener(l -> {
-                ProgressMonitor pm = progressMonitor.get();
-                hboProcess.setVisible(pm != null);
-                btnStop.setDisable(pm == null);
-            });
-        } catch (Exception e) {
-            showError(e, "Could not initialise zip item", true);
-        }
+    private void addProgressListener() {
+        progressMonitor.addListener(l -> executeRunner("Error when handling change to progress", () -> {
+            ProgressMonitor pm = progressMonitor.get();
+            hboProcess.setVisible(pm != null);
+            btnStop.setDisable(pm == null);
+        }));
     }
 
     @FXML
     private void pauseOrResume(ActionEvent event) {
-        try {
+        executeRunner("\"Could not pause/resume the process \" + getProcessNameForError()", () -> {
             isPaused.set(!isPaused.get());
             boolean pause = isPaused.get();
             String pauseResume = pause ? "Pausing" : "Resuming";
             writeInfoLog(pauseResume + " process of file/folder [" + file.getName() + "]");
             progressMonitor.get().setPause(pause);
-        } catch (Exception e) {
-            showError(e, "Could not pause/resume the process [" + lblOriginal.getText() + "]", false);
-        }
+        });
+    }
+
+    private String getProcessNameForError() {
+        return "[" + lblOriginal.getText() + "]";
     }
 
     @FXML
     private void stop(ActionEvent event) {
-        try {
+        executeRunner("Could not stop the process " + getProcessNameForError(), () -> {
             if (showConfirmation("Are you sure you want to stop this process?")) {
                 writeInfoLog(" Stopping process of file/folder [" + file.getName() + "]");
                 ProgressMonitor pm = progressMonitor.get();
@@ -257,8 +256,6 @@ public class ZipItemController {
                 lblStatus.setText("[Stopped]");
                 hboActions.setVisible(false);
             }
-        } catch (Exception e) {
-            showError(e, "Could not stop the process [" + lblOriginal.getText() + "]", false);
-        }
+        });
     }
 }

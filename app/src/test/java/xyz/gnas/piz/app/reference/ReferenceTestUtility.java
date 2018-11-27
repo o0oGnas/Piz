@@ -200,15 +200,13 @@ public class ReferenceTestUtility {
 		lastDate.add(Calendar.DATE, REFERENCE_COUNT);
 	}
 
-	public static boolean selectTab(FxRobot robot, boolean hasSelectedTab) {
+    public static void selectTab(FxRobot robot, boolean hasSelectedTab) {
 		// no need to select tab again at every test
 		if (!hasSelectedTab) {
 			// hack solution https://github.com/TestFX/TestFX/issues/634
 			Node n = robot.lookup(".tab-pane > .tab-header-area > .headers-region > .tab").nth(1).query();
 			robot.clickOn(n);
 		}
-
-		return true;
 	}
 
 	public static void filterByComboBoxAndTextField(FxRobot robot, ComboBox<String> cbb, String option, TextField tf,

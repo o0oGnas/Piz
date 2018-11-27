@@ -11,7 +11,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import xyz.gnas.piz.app.TestUtility;
 import xyz.gnas.piz.app.common.Configurations;
-import xyz.gnas.piz.app.models.UserSettingModel;
+import xyz.gnas.piz.app.models.SettingModel;
 import xyz.gnas.piz.app.zip.ZipTestUtility;
 
 import java.io.File;
@@ -34,7 +34,7 @@ public class ZipWithUserSettingTest {
 
 	private final int PROCESS_COUNT = 2;
 
-	private UserSettingModel setting;
+    private SettingModel setting;
 
 	@Start
 	public void onStart(Stage stage) throws IOException {
@@ -50,7 +50,7 @@ public class ZipWithUserSettingTest {
 		outputFolder.mkdir();
 
 		// create user setting
-		setting = new UserSettingModel(inputFolder.getAbsolutePath(), PASSWORD, TAG,
+        setting = new SettingModel(inputFolder.getAbsolutePath(), PASSWORD, TAG,
                 new String[]{Configurations.FILES_TEXT}, false, false, false, PROCESS_COUNT);
 		setting.setOutputFolder(outputFolder.getAbsolutePath());
 

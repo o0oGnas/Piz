@@ -13,4 +13,6 @@ module xyz.gnas.piz.app {
 	requires java.desktop;
 	requires org.slf4j;
 	requires eventbus;
+
+    requires zip4j;
 }

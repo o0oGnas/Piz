@@ -12,8 +12,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ReferenceLogic {
-	public static List<ReferenceModel> loadReferences(String filePath)
-			throws IOException {
+	/**
+	 * Load references.
+	 *
+	 * @param filePath path to the JSON file containing the references
+	 * @return the list of references
+	 * @throws IOException the io exception
+	 */
+	public static List<ReferenceModel> loadReferences(String filePath) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		File file = new File(filePath);
 
@@ -25,8 +31,14 @@ public class ReferenceLogic {
 		}
 	}
 
-	public static void saveReferences(List<ReferenceModel> referencesList, String filePath)
-			throws IOException {
+	/**
+	 * Save references to file
+	 *
+	 * @param referencesList the references list
+	 * @param filePath       the file path
+	 * @throws IOException the io exception
+	 */
+	public static void saveReferences(List<ReferenceModel> referencesList, String filePath) throws IOException {
 		File file = new File(filePath);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);

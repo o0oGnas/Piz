@@ -1,4 +1,4 @@
-package xyz.gnas.piz.app.common;
+package xyz.gnas.piz.app.common.utility;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -9,12 +9,9 @@ import javafx.scene.layout.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
 
 import static javafx.application.Platform.runLater;
@@ -22,34 +19,49 @@ import static javafx.application.Platform.runLater;
 /**
  * Contains common methods used in the application
  */
-public final class Utility {
-    public static void showError(Class callingClass, Throwable e, String message, boolean exit) {
+public final class DialogUtility {
+    /**
+     * Show error message with the exception stack trace and write a log, additionally exit the application if exit
+     * flag is true
+     *
+     * @param callingClass the calling class
+     * @param message      the message to display to user
+     * @param e            the exception
+     * @param exit         flag to exit the application
+     */
+    public static void showError(Class callingClass, String message, Throwable e, boolean exit) {
         runLater(() -> {
             try {
-                // Get stack trace as string
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                e.printStackTrace(pw);
-                String stackTrace = sw.toString();
-
+                String stackTrace = getStrackTrace(e);
                 GridPane expContent = getExpandableContent(stackTrace);
-
                 Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText("An error has occurred!");
-                alert.setContentText(message + ". See details below");
+                initialiseAlert(alert, "Error", "An error has occurred!", message + ". See details below");
                 alert.getDialogPane().setExpandableContent(expContent);
                 alert.showAndWait();
-
                 writeErrorLog(callingClass, message, e);
             } catch (Exception ex) {
-                writeErrorLog(Utility.class, "Could not display error", ex);
+                writeErrorLog(DialogUtility.class, "Could not display error", ex);
             }
 
             if (exit) {
                 System.exit(1);
             }
         });
+    }
+
+    private static String getStrackTrace(Throwable e) throws IOException {
+        try (StringWriter sw = new StringWriter()) {
+            try (PrintWriter pw = new PrintWriter(sw)) {
+                e.printStackTrace(pw);
+                return sw.toString();
+            }
+        }
+    }
+
+    private static void initialiseAlert(Alert alert, String title, String headerText, String contentText) {
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
     }
 
     private static GridPane getExpandableContent(String sStackTrace) {
@@ -68,6 +80,13 @@ public final class Utility {
         return expContent;
     }
 
+    /**
+     * Write error log.
+     *
+     * @param callingClass the calling class
+     * @param message      the message
+     * @param e            the exception
+     */
     public static void writeErrorLog(Class callingClass, String message, Throwable e) {
         try {
             Logger logger = LoggerFactory.getLogger(callingClass);
@@ -77,6 +96,12 @@ public final class Utility {
         }
     }
 
+    /**
+     * Write info log.
+     *
+     * @param callingClass the calling class
+     * @param log          the log
+     */
     public static void writeInfoLog(Class callingClass, String log) {
         try {
             Logger logger = LoggerFactory.getLogger(callingClass);
@@ -86,38 +111,35 @@ public final class Utility {
         }
     }
 
+    /**
+     * Show alert dialog
+     *
+     * @param headerText the header text
+     * @param message    the message
+     */
     public static void showAlert(String headerText, String message) {
         runLater(() -> {
             try {
                 Alert alert = new Alert(AlertType.NONE);
-                alert.setTitle("Message");
-                alert.setHeaderText(headerText);
-                alert.setContentText(message);
+                initialiseAlert(alert, "Message", headerText, message);
                 alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
                 alert.showAndWait();
             } catch (Exception ex) {
-                writeErrorLog(Utility.class, "Could not display alert", ex);
+                writeErrorLog(DialogUtility.class, "Could not display alert", ex);
             }
         });
     }
 
+    /**
+     * Show confirmation dialog, must be called in main thread
+     *
+     * @param message the message
+     * @return the boolean result - true is OK, false is cancel
+     */
     public static boolean showConfirmation(String message) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation");
-        alert.setHeaderText("Please confirm this action");
-        alert.setContentText(message);
+        initialiseAlert(alert, "Confirmation", "Please confirm this action", message);
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
-    }
-
-    public static Calendar convertLocalDateTimeToCalendar(LocalDateTime ldt) {
-        Calendar c = Calendar.getInstance();
-        Date dt = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-        c.setTime(dt);
-        return c;
-    }
-
-    public static LocalDateTime convertCalendarToLocalDateTime(Calendar c) {
-        return LocalDateTime.ofInstant(c.getTime().toInstant(), ZoneId.systemDefault());
     }
 }

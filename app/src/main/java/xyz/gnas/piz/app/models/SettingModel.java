@@ -1,11 +1,16 @@
 package xyz.gnas.piz.app.models;
 
+import xyz.gnas.piz.app.common.Configurations;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
  * Model of the settings, serializable to save in binary file
  */
-public class UserSettingModel implements Serializable {
+public class SettingModel implements Serializable {
     private static final long serialVersionUID = 1L;
     private String inputFolder;
     private String outputFolder;
@@ -21,8 +26,8 @@ public class UserSettingModel implements Serializable {
 
     private int processCount;
 
-    public UserSettingModel(String inputFolder, String password, String tag, String[] fileFolder, boolean encrypt,
-                            boolean obfuscate, boolean addReference, int processCount) {
+    public SettingModel(String inputFolder, String password, String tag, String[] fileFolder, boolean encrypt,
+                        boolean obfuscate, boolean addReference, int processCount) {
         this.inputFolder = inputFolder;
         this.password = password;
         this.tag = tag;
@@ -103,5 +108,12 @@ public class UserSettingModel implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void saveToFile() throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(Configurations.SETTING_FILE)) {
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(ApplicationModel.getInstance().getSetting());
+        }
     }
 }

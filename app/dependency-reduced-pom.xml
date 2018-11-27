@@ -21,7 +21,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>xyz.gnas.piz.app.Main</mainClass>
+            <mainClass>xyz.gnas.piz.app.main.Main</mainClass>
         </configuration>
       </plugin>
       <plugin>
@@ -30,7 +30,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>xyz.gnas.piz.app.Main</mainClass>
+                <mainClass>xyz.gnas.piz.app.main.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -70,9 +70,7 @@
         <configuration>
           <forkCount>1</forkCount>
           <reuseForks>true</reuseForks>
-          <threadCount>1</threadCount>
           <printSummary>true</printSummary>
-          <skipTests>false</skipTests>
           <systemPropertyVariables>
             <glass.platform>Monocle</glass.platform>
             <monocle.platform>Headless</monocle.platform>

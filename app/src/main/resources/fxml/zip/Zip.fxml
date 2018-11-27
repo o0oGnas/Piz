@@ -19,8 +19,8 @@
         <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
         </padding>
-        <VBox fx:id="vboInputsAndActions">
-            <VBox fx:id="vboInputFields">
+        <VBox fx:id="vbxInputsAndActions">
+            <VBox fx:id="vbxInputFields">
                 <HBox VBox.vgrow="NEVER">
                     <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
                         <Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0"
@@ -80,7 +80,7 @@
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <TextField fx:id="txtProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0"
+                        <TextField fx:id="ttfProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0"
                                    text="5">
                             <HBox.margin>
                                 <Insets/>
@@ -96,12 +96,12 @@
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <CheckBox fx:id="chkEncrypt" selected="true" text="Encrypt">
+                        <CheckBox fx:id="ckbEncrypt" selected="true" text="Encrypt">
                             <HBox.margin>
                                 <Insets/>
                             </HBox.margin>
                         </CheckBox>
-                        <HBox fx:id="hboPassword" alignment="CENTER_LEFT" styleClass="control-box">
+                        <HBox fx:id="hbxPassword" alignment="CENTER_LEFT" styleClass="control-box">
                             <padding>
                                 <Insets bottom="5.0" left="5.0" right="5.0"
                                         top="5.0"/>
@@ -114,7 +114,7 @@
                                     <Insets right="10.0"/>
                                 </HBox.margin>
                             </Label>
-                            <TextField fx:id="txtPassword" promptText="Password" visible="false">
+                            <TextField fx:id="ttfPassword" promptText="Password" visible="false">
                                 <HBox.margin>
                                     <Insets/>
                                 </HBox.margin>
@@ -133,28 +133,28 @@
                         </HBox>
                     </HBox>
                 </HBox>
-                <HBox fx:id="hboObfuscate" alignment="CENTER_LEFT">
+                <HBox fx:id="hbxObfuscate" alignment="CENTER_LEFT">
                     <VBox.margin>
                         <Insets top="10.0"/>
                     </VBox.margin>
-                    <CheckBox fx:id="chkObfuscate" selected="true" text="Obfuscate file name">
+                    <CheckBox fx:id="ckbObfuscate" selected="true" text="Obfuscate file name">
                         <HBox.margin>
                             <Insets/>
                         </HBox.margin>
                     </CheckBox>
-                    <HBox fx:id="hboReference" alignment="CENTER_LEFT" styleClass="control-box">
+                    <HBox fx:id="hbxReference" alignment="CENTER_LEFT" styleClass="control-box">
                         <padding>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </padding>
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
-                        <CheckBox fx:id="chkAddReferences" text="Add references">
+                        <CheckBox fx:id="ckbAddReferences" text="Add references">
                             <HBox.margin>
                                 <Insets/>
                             </HBox.margin>
                         </CheckBox>
-                        <HBox fx:id="hboTag" alignment="CENTER_LEFT" styleClass="control-box">
+                        <HBox fx:id="hbxTag" alignment="CENTER_LEFT" styleClass="control-box">
                             <padding>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </padding>
@@ -162,7 +162,7 @@
                                 <Insets left="10.0"/>
                             </HBox.margin>
                             <Label text="Tag"/>
-                            <TextField fx:id="txtTag" promptText="Tag">
+                            <TextField fx:id="ttfTag" promptText="Tag">
                                 <HBox.margin>
                                     <Insets left="10.0"/>
                                 </HBox.margin>
@@ -171,7 +171,7 @@
                     </HBox>
                 </HBox>
             </VBox>
-            <HBox fx:id="hboActions" alignment="CENTER_LEFT">
+            <HBox fx:id="hbxActions" alignment="CENTER_LEFT">
                 <VBox.margin>
                     <Insets top="10.0"/>
                 </VBox.margin>
@@ -204,7 +204,7 @@
             <VBox.margin>
                 <Insets top="10.0"/>
             </VBox.margin>
-            <VBox fx:id="vboList"/>
+            <VBox fx:id="vbxList"/>
         </ScrollPane>
     </VBox>
 </AnchorPane>

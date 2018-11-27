@@ -51,12 +51,12 @@
                             <Insets/>
                         </HBox.margin>
                         <Label text="Original file/folder"/>
-                        <ComboBox fx:id="cboOriginal" prefWidth="100.0">
+                        <ComboBox fx:id="cbbOriginal" prefWidth="100.0">
                             <HBox.margin>
                                 <Insets left="10.0"/>
                             </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="txtOriginal" maxWidth="1.7976931348623157E308"
+                        <TextField fx:id="ttfOriginal" maxWidth="1.7976931348623157E308"
                                    promptText="Original file/folder" HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets left="10.0"/>
@@ -72,12 +72,12 @@
                                 <Insets/>
                             </HBox.margin>
                         </Label>
-                        <ComboBox fx:id="cboZip" prefWidth="100.0">
+                        <ComboBox fx:id="cbbZip" prefWidth="100.0">
                             <HBox.margin>
                                 <Insets left="10.0"/>
                             </HBox.margin>
                         </ComboBox>
-                        <TextField fx:id="txtZip" maxWidth="1.7976931348623157E308" promptText="Zip file"
+                        <TextField fx:id="ttfZip" maxWidth="1.7976931348623157E308" promptText="Zip file"
                                    HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets left="10.0"/>
@@ -95,12 +95,12 @@
                         <Insets/>
                     </HBox.margin>
                     <Label text="Tag"/>
-                    <ComboBox fx:id="cboTag" prefWidth="100.0">
+                    <ComboBox fx:id="cbbTag" prefWidth="100.0">
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>
                     </ComboBox>
-                    <TextField fx:id="txtTag" prefWidth="100.0" promptText="Tag">
+                    <TextField fx:id="ttfTag" prefWidth="100.0" promptText="Tag">
                         <HBox.margin>
                             <Insets left="10.0"/>
                         </HBox.margin>

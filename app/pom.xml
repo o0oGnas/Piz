@@ -27,7 +27,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>xyz.gnas.piz.app.Main</mainClass>
+                    <mainClass>xyz.gnas.piz.app.main.Main</mainClass>
                 </configuration>
             </plugin>
 
@@ -39,7 +39,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>xyz.gnas.piz.app.Main</mainClass>
+                            <mainClass>xyz.gnas.piz.app.main.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -88,9 +88,7 @@
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
-                    <threadCount>1</threadCount>
                     <printSummary>true</printSummary>
-                    <skipTests>false</skipTests>
 
                     <!-- run test in headless mode -->
                     <systemPropertyVariables>
@@ -180,13 +178,6 @@
             <groupId>org.testfx</groupId>
             <artifactId>openjfx-monocle</artifactId>
             <version>jdk-11+26</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.3.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
