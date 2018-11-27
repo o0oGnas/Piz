@@ -31,11 +31,11 @@ import org.controlsfx.control.textfield.TextFields;
 import org.greenrobot.eventbus.EventBus;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.ResourceManager;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.MainThreadTaskRunner;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.Runner;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.SideThreadTaskRunner;
-import xyz.gnas.piz.app.common.utility.DialogUtility;
+import xyz.gnas.piz.app.common.utility.LogUtility;
+import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
+import xyz.gnas.piz.app.common.utility.code.MainThreadTaskRunner;
+import xyz.gnas.piz.app.common.utility.code.Runner;
+import xyz.gnas.piz.app.common.utility.code.SideThreadTaskRunner;
 import xyz.gnas.piz.app.events.zip.BeginProcessEvent;
 import xyz.gnas.piz.app.events.zip.FinishProcessEvent;
 import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
@@ -61,7 +61,7 @@ import static java.lang.Thread.sleep;
 import static javafx.application.Platform.runLater;
 import static xyz.gnas.piz.app.common.utility.DialogUtility.showAlert;
 import static xyz.gnas.piz.app.common.utility.DialogUtility.showConfirmation;
-import static xyz.gnas.piz.app.common.utility.WindowEventUtility.bindWindowEventHandler;
+import static xyz.gnas.piz.app.common.utility.window.WindowEventUtility.bindWindowEventHandler;
 
 public class ZipController {
     @FXML
@@ -138,6 +138,8 @@ public class ZipController {
 
     private final int THREAD_SLEEP_TIME = 500;
 
+    private ApplicationModel model = ApplicationModel.getInstance();
+
     /**
      * source folder containing original files and folders
      */
@@ -207,8 +209,18 @@ public class ZipController {
         CodeRunnerUtility.executeRunnerOrExit(getClass(), errorMessage, runner);
     }
 
+    private void runInMainThread(String errorMessage, Runner runner) {
+        runLater(new MainThreadTaskRunner(getClass(), errorMessage, runner));
+    }
+
+    private Thread runInSideThread(String errorMessage, Runner runner) {
+        Thread t = new Thread(new SideThreadTaskRunner(getClass(), errorMessage, runner));
+        t.start();
+        return t;
+    }
+
     private void writeInfoLog(String log) {
-        DialogUtility.writeInfoLog(getClass(), log);
+        LogUtility.writeInfoLog(getClass(), log);
     }
 
     @FXML
@@ -221,13 +233,13 @@ public class ZipController {
     }
 
     private void handleExitEvent() {
-        bindWindowEventHandler(getClass(), lblInputFolder, (WindowEvent windowEvent) -> {
+        bindWindowEventHandler(getClass(), lblInputFolder, (WindowEvent event) -> {
             // show confirmation is there are running processes
             if (isRunning.get()) {
                 if (showConfirmation("There are running processes, are you sure you want to exit?")) {
                     stopAllProcesses();
                 } else {
-                    windowEvent.consume();
+                    event.consume();
                 }
             }
         });
@@ -273,7 +285,7 @@ public class ZipController {
         itemList.add(Configurations.FILES_TEXT);
         itemList.add(Configurations.FOLDERS_TEXT);
         IndexedCheckModel<String> checkedModel = ccbFileFolder.getCheckModel();
-        SettingModel setting = ApplicationModel.getInstance().getSetting();
+        SettingModel setting = model.getSetting();
 
         // check all by default
         if (setting.getFileFolder() == null || setting.getFileFolder().length == 0) {
@@ -369,10 +381,10 @@ public class ZipController {
     }
 
     private void initialiseTagTextField() {
-        ApplicationModel.getInstance().getReferenceListProperty().addListener(propertyListener ->
+        model.getReferenceListProperty().addListener(propertyListener ->
                 executeRunner("Error when handling change to reference list property", () -> {
                     updateTagAutocomplete();
-                    ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
+                    ObservableList<ReferenceModel> referenceList = model.getReferenceList();
 
                     if (referenceList != null) {
                         referenceList.addListener((ListChangeListener<ReferenceModel>) l ->
@@ -385,7 +397,7 @@ public class ZipController {
     private void updateTagAutocomplete() {
         Set<String> autocomplete = new HashSet<>();
 
-        for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
+        for (ReferenceModel reference : model.getReferenceList()) {
             autocomplete.add(reference.getTag());
         }
 
@@ -393,7 +405,7 @@ public class ZipController {
     }
 
     private void initialiseInputFields() {
-        SettingModel setting = ApplicationModel.getInstance().getSetting();
+        SettingModel setting = model.getSetting();
         ttfPassword.setText(setting.getPassword());
         ttfTag.setText(setting.getTag());
         ttfProcessCount.setText(setting.getProcessCount() + "");
@@ -404,11 +416,11 @@ public class ZipController {
 
     private void initialiseInputOutputFolders() {
         initialiseInputFolder();
-        outputFolder = initialiseFolder(ApplicationModel.getInstance().getSetting().getOutputFolder(), lblOutputFolder);
+        outputFolder = initialiseFolder(model.getSetting().getOutputFolder(), lblOutputFolder);
     }
 
     private void initialiseInputFolder() {
-        inputFolder.set(initialiseFolder(ApplicationModel.getInstance().getSetting().getInputFolder(), lblInputFolder));
+        inputFolder.set(initialiseFolder(model.getSetting().getInputFolder(), lblInputFolder));
         loadFolderAndFileLists();
     }
 
@@ -472,12 +484,6 @@ public class ZipController {
         vbxList.autosize();
     }
 
-    private Thread runInSideThread(String errorMessage, Runner runner) {
-        Thread t = new Thread(new SideThreadTaskRunner(getClass(), errorMessage, runner));
-        t.start();
-        return t;
-    }
-
     private void handleEmptyList(Label label) {
         label.setText(Configurations.EMPTY_LIST_MESSAGE);
 
@@ -501,10 +507,6 @@ public class ZipController {
 
             vbxInputsAndActions.setDisable(false);
         });
-    }
-
-    private void runInMainThread(String errorMessage, Runner runner) {
-        runLater(new MainThreadTaskRunner(getClass(), errorMessage, runner));
     }
 
     private List<Node> getItemList() throws IOException {
@@ -547,7 +549,7 @@ public class ZipController {
     @FXML
     private void selectInputFolder(ActionEvent event) {
         executeRunner("Could not select input folder", () -> {
-            File folder = showFolderChooser(ApplicationModel.getInstance().getSetting().getInputFolder());
+            File folder = showFolderChooser(model.getSetting().getInputFolder());
 
             // keep old folder if user cancels folder selection
             if (folder != null) {
@@ -587,7 +589,7 @@ public class ZipController {
 
     private void saveUserSetting() throws IOException {
         File input = inputFolder.get();
-        SettingModel setting = ApplicationModel.getInstance().getSetting();
+        SettingModel setting = model.getSetting();
 
         if (input != null) {
             setting.setInputFolder(input.getAbsolutePath());
@@ -610,7 +612,7 @@ public class ZipController {
     @FXML
     private void selectOutputFolder(ActionEvent event) {
         executeRunner("Could not select output folder", () -> {
-            SettingModel setting = ApplicationModel.getInstance().getSetting();
+            SettingModel setting = model.getSetting();
             File folder = showFolderChooser(setting.getOutputFolder());
 
             if (folder != null) {
@@ -694,7 +696,7 @@ public class ZipController {
             for (File file : fileList) {
                 // wait until the number of concurrent processes are below the limit or user is
                 // pausing all processes
-                while (runningCount == ApplicationModel.getInstance().getSetting().getProcessCount() || isPaused.get()) {
+                while (runningCount == model.getSetting().getProcessCount() || isPaused.get()) {
                     sleep(THREAD_SLEEP_TIME);
                 }
 
@@ -764,7 +766,7 @@ public class ZipController {
             postEvent(new FinishProcessEvent(file));
 
             if (ckbEncrypt.isSelected() && ckbObfuscate.isSelected() && ckbAddReferences.isSelected()) {
-                ApplicationModel.getInstance().getReferenceList().add(0, process.getReference());
+                model.getReferenceList().add(0, process.getReference());
             }
         });
     }

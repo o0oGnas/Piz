@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>xyz.gnas.piz</groupId>
 		<artifactId>piz</artifactId>
-		<version>1.4.5</version>
+        <version>1.4.6</version>
 	</parent>
 
 	<artifactId>core</artifactId>

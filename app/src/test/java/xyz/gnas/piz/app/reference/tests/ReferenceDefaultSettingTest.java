@@ -12,7 +12,6 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.app.common.Configurations;
-import xyz.gnas.piz.app.common.utility.DialogUtility;
 import xyz.gnas.piz.app.reference.ReferenceTestUtility;
 
 import java.io.IOException;
@@ -34,8 +33,8 @@ public class ReferenceDefaultSettingTest {
 
 	@BeforeEach
 	public void selectTab(FxRobot robot) {
-		ReferenceTestUtility.selectTab(robot, hasSelectedTab);
-		hasSelectedTab = true;
+        ReferenceTestUtility.selectTab(robot, hasSelectedTab);
+        hasSelectedTab = true;
 	}
 
 	@Test
@@ -47,7 +46,7 @@ public class ReferenceDefaultSettingTest {
 	}
 
 	private void checkDate(DateTimePicker dtp, Calendar date, String assertion) {
-		assertThat(dtp).matches(p -> DialogUtility.convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(date) == 0,
+        assertThat(dtp).matches(p -> DialogUtility.convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(date) == 0,
 				assertion);
 	}
 

@@ -6,8 +6,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import xyz.gnas.piz.app.common.utility.code.ExceptionHandler;
+import xyz.gnas.piz.app.common.utility.code.MainThreadTaskRunner;
+import xyz.gnas.piz.app.common.utility.code.Runner;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,10 +17,15 @@ import java.util.Optional;
 
 import static javafx.application.Platform.runLater;
 
-/**
- * Contains common methods used in the application
- */
 public final class DialogUtility {
+    private static void runInMainThread(Runner runner, ExceptionHandler handler) {
+        runLater(new MainThreadTaskRunner(runner, handler));
+    }
+
+    private static void writeErrorLog(String message, Throwable e) {
+        LogUtility.writeErrorLog(DialogUtility.class, message, e);
+    }
+
     /**
      * Show error message with the exception stack trace and write a log, additionally exit the application if exit
      * flag is true
@@ -30,26 +36,18 @@ public final class DialogUtility {
      * @param exit         flag to exit the application
      */
     public static void showError(Class callingClass, String message, Throwable e, boolean exit) {
-        runLater(() -> {
-            try {
-                String stackTrace = getStrackTrace(e);
-                GridPane expContent = getExpandableContent(stackTrace);
-                Alert alert = new Alert(AlertType.ERROR);
-                initialiseAlert(alert, "Error", "An error has occurred!", message + ". See details below");
-                alert.getDialogPane().setExpandableContent(expContent);
-                alert.showAndWait();
-                writeErrorLog(callingClass, message, e);
-            } catch (Exception ex) {
-                writeErrorLog(DialogUtility.class, "Could not display error", ex);
-            }
-
-            if (exit) {
-                System.exit(1);
-            }
-        });
+        runInMainThread(() -> {
+            String stackTrace = getStackTrace(e);
+            GridPane expContent = getExpandableContent(stackTrace);
+            Alert alert = new Alert(AlertType.ERROR);
+            initialiseAlert(alert, "Error", "An error has occurred!", message + ". See details below");
+            alert.getDialogPane().setExpandableContent(expContent);
+            alert.showAndWait();
+            LogUtility.writeErrorLog(callingClass, message, e);
+        }, (Exception ex) -> writeErrorLog("Could not display error", ex));
     }
 
-    private static String getStrackTrace(Throwable e) throws IOException {
+    private static String getStackTrace(Throwable e) throws IOException {
         try (StringWriter sw = new StringWriter()) {
             try (PrintWriter pw = new PrintWriter(sw)) {
                 e.printStackTrace(pw);
@@ -58,57 +56,24 @@ public final class DialogUtility {
         }
     }
 
-    private static void initialiseAlert(Alert alert, String title, String headerText, String contentText) {
-        alert.setTitle(title);
-        alert.setHeaderText(headerText);
-        alert.setContentText(contentText);
-    }
-
     private static GridPane getExpandableContent(String sStackTrace) {
         TextArea textArea = new TextArea(sStackTrace);
         textArea.setEditable(false);
         textArea.setWrapText(true);
         textArea.setMaxWidth(Double.MAX_VALUE);
         textArea.setMaxHeight(Double.MAX_VALUE);
-
         GridPane.setVgrow(textArea, Priority.ALWAYS);
         GridPane.setHgrow(textArea, Priority.ALWAYS);
         GridPane expContent = new GridPane();
-
         expContent.setMaxWidth(Double.MAX_VALUE);
         expContent.add(textArea, 0, 0);
         return expContent;
     }
 
-    /**
-     * Write error log.
-     *
-     * @param callingClass the calling class
-     * @param message      the message
-     * @param e            the exception
-     */
-    public static void writeErrorLog(Class callingClass, String message, Throwable e) {
-        try {
-            Logger logger = LoggerFactory.getLogger(callingClass);
-            logger.error(message, e);
-        } catch (Exception ex) {
-            System.out.println("Error writing error log");
-        }
-    }
-
-    /**
-     * Write info log.
-     *
-     * @param callingClass the calling class
-     * @param log          the log
-     */
-    public static void writeInfoLog(Class callingClass, String log) {
-        try {
-            Logger logger = LoggerFactory.getLogger(callingClass);
-            logger.info(log);
-        } catch (Exception ex) {
-            System.out.println("Error writing info log");
-        }
+    private static void initialiseAlert(Alert alert, String title, String headerText, String contentText) {
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
     }
 
     /**
@@ -118,16 +83,12 @@ public final class DialogUtility {
      * @param message    the message
      */
     public static void showAlert(String headerText, String message) {
-        runLater(() -> {
-            try {
-                Alert alert = new Alert(AlertType.NONE);
-                initialiseAlert(alert, "Message", headerText, message);
-                alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
-                alert.showAndWait();
-            } catch (Exception ex) {
-                writeErrorLog(DialogUtility.class, "Could not display alert", ex);
-            }
-        });
+        runInMainThread(() -> {
+            Alert alert = new Alert(AlertType.NONE);
+            initialiseAlert(alert, "Message", headerText, message);
+            alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
+            alert.showAndWait();
+        }, (Exception e) -> writeErrorLog("Could not display alert", e));
     }
 
     /**

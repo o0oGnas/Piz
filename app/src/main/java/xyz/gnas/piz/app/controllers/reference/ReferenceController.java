@@ -23,9 +23,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.app.common.Configurations;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.Runner;
-import xyz.gnas.piz.app.common.utility.DialogUtility;
+import xyz.gnas.piz.app.common.utility.LogUtility;
+import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
+import xyz.gnas.piz.app.common.utility.code.Runner;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
 import xyz.gnas.piz.app.events.SaveReferenceEvent;
 import xyz.gnas.piz.app.models.ApplicationModel;
@@ -89,6 +89,8 @@ public class ReferenceController {
 
     private final String TAB_NAME = "tabReference";
 
+    private ApplicationModel model = ApplicationModel.getInstance();
+
     /**
      * Flag to tell if reference tab is active
      */
@@ -110,7 +112,7 @@ public class ReferenceController {
     }
 
     private void writeInfoLog(String log) {
-        DialogUtility.writeInfoLog(getClass(), log);
+        LogUtility.writeInfoLog(getClass(), log);
     }
 
     @Subscribe
@@ -143,7 +145,8 @@ public class ReferenceController {
     }
 
     private void initialiseTable() {
-        tbvTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        TableView.TableViewSelectionModel<ReferenceModel> selectionModel = tbvTable.getSelectionModel();
+        selectionModel.setSelectionMode(SelectionMode.MULTIPLE);
         bindTableViewItemListener();
 
         tbvTable.itemsProperty().addListener(propertyListener -> {
@@ -151,9 +154,11 @@ public class ReferenceController {
             bindTableViewItemListener();
         });
 
-        tbvTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<ReferenceModel>) l -> {
+        ObservableList<ReferenceModel> selectedList = selectionModel.getSelectedItems();
+
+        selectedList.addListener((ListChangeListener<ReferenceModel>) l -> {
             // disable delete button if there is no selection
-            btnDelete.setDisable(tbvTable.getSelectionModel().getSelectedItems().size() == 0);
+            btnDelete.setDisable(selectedList.size() == 0);
         });
 
         initialiseDateColumn();
@@ -205,12 +210,12 @@ public class ReferenceController {
     private void addListenerToReferenceList() {
         bindReferenceListListener();
 
-        ApplicationModel.getInstance().getReferenceListProperty().addListener(propertyListener ->
+        model.getReferenceListProperty().addListener(propertyListener ->
                 executeRunner("Error when handling reference list property change", this::bindReferenceListListener));
     }
 
     private void bindReferenceListListener() {
-        ObservableList<ReferenceModel> referenceList = ApplicationModel.getInstance().getReferenceList();
+        ObservableList<ReferenceModel> referenceList = model.getReferenceList();
 
         if (referenceList != null) {
             initialiseData();
@@ -230,7 +235,7 @@ public class ReferenceController {
     }
 
     private void initialiseData() {
-        tbvTable.setItems(ApplicationModel.getInstance().getReferenceList());
+        tbvTable.setItems(model.getReferenceList());
         initialiseDateTimePickers();
         updateTagAutoComplete();
     }
@@ -238,7 +243,7 @@ public class ReferenceController {
     private void updateTagAutoComplete() {
         Set<String> autocomplete = new HashSet<>();
 
-        for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
+        for (ReferenceModel reference : model.getReferenceList()) {
             autocomplete.add(reference.getTag());
         }
 
@@ -249,7 +254,7 @@ public class ReferenceController {
         Calendar cMin = Calendar.getInstance();
         Calendar cMax = Calendar.getInstance();
 
-        for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
+        for (ReferenceModel reference : model.getReferenceList()) {
             if (cMin == null || reference.getDate().compareTo(cMin) < 0) {
                 cMin = reference.getDate();
             }
@@ -287,7 +292,7 @@ public class ReferenceController {
         Calendar cFrom = convertLocalDateTimeToCalendar(dtpFrom.getDateTimeValue());
         Calendar cTo = convertLocalDateTimeToCalendar(dtpTo.getDateTimeValue());
 
-        for (ReferenceModel reference : ApplicationModel.getInstance().getReferenceList()) {
+        for (ReferenceModel reference : model.getReferenceList()) {
             Calendar date = reference.getDate();
             boolean checkDate = cFrom.compareTo(date) <= 0 && date.compareTo(cTo) <= 0;
 
@@ -378,7 +383,7 @@ public class ReferenceController {
         executeRunner("Could not add reference", () -> {
             writeInfoLog("Adding new reference");
             isManualUpdate = true;
-            ApplicationModel.getInstance().getReferenceList().add(0, new ReferenceModel(null, null, null));
+            model.getReferenceList().add(0, new ReferenceModel(null, null, null));
             scrollToTop(null);
 
             // focus on the new row
@@ -393,7 +398,7 @@ public class ReferenceController {
         executeRunner("Could not delete reference", () -> {
             if (showConfirmation("Are you sure you want to delete selected reference(s)?")) {
                 isManualUpdate = true;
-                ApplicationModel.getInstance().getReferenceList()
+                model.getReferenceList()
                         .removeAll(tbvTable.getSelectionModel().getSelectedItems());
                 writeInfoLog("Deleted reference(s)");
             }

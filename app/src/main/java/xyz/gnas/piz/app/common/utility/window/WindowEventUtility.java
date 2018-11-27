@@ -1,16 +1,13 @@
-package xyz.gnas.piz.app.common.utility;
+package xyz.gnas.piz.app.common.utility.window;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.Runner;
+import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
+import xyz.gnas.piz.app.common.utility.code.Runner;
 
 public class WindowEventUtility {
-    public interface WindowEventHandler {
-        void handleCloseEvent(WindowEvent windowEvent);
-    }
-
     private static void executeRunner(Class callerClass, String errorMessage, Runner runner) {
         CodeRunnerUtility.executeRunner(callerClass, errorMessage, runner);
     }
@@ -25,7 +22,7 @@ public class WindowEventUtility {
     public static void bindWindowEventHandler(Class callerClass, Node node, WindowEventHandler handler) {
         bindSceneListener(callerClass, node, handler);
 
-        node.sceneProperty().addListener(s -> executeRunner(callerClass, "Error when handling scene change event",
+        node.sceneProperty().addListener(l -> executeRunner(callerClass, "Error when handling scene change event",
                 () -> bindSceneListener(callerClass, node, handler)));
     }
 
@@ -35,9 +32,9 @@ public class WindowEventUtility {
         if (scene != null) {
             bindWindowListener(callerClass, scene, handler);
 
-            scene.windowProperty().addListener(w -> executeRunner(callerClass, "Error when handling window change " +
-                            "event",
-                    () -> bindWindowListener(callerClass, scene, handler)));
+            scene.windowProperty().addListener(
+                    l -> executeRunner(callerClass, "Error when handling window change event",
+                            () -> bindWindowListener(callerClass, scene, handler)));
         }
     }
 

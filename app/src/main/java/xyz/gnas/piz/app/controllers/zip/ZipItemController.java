@@ -19,9 +19,9 @@ import net.lingala.zip4j.progress.ProgressMonitor;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import xyz.gnas.piz.app.common.Configurations;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.Runner;
-import xyz.gnas.piz.app.common.utility.DialogUtility;
+import xyz.gnas.piz.app.common.utility.LogUtility;
+import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
+import xyz.gnas.piz.app.common.utility.code.Runner;
 import xyz.gnas.piz.app.events.zip.BeginProcessEvent;
 import xyz.gnas.piz.app.events.zip.FinishProcessEvent;
 import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
@@ -91,12 +91,8 @@ public class ZipItemController {
         CodeRunnerUtility.executeRunner(getClass(), errorMessage, runner);
     }
 
-    private void executeRunnerOrExit(String errorMessage, Runner runner) {
-        CodeRunnerUtility.executeRunnerOrExit(getClass(), errorMessage, runner);
-    }
-
     private void writeInfoLog(String log) {
-        DialogUtility.writeInfoLog(getClass(), log);
+        LogUtility.writeInfoLog(getClass(), log);
     }
 
     @Subscribe

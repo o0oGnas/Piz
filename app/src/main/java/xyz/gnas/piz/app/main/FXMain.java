@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import xyz.gnas.piz.app.common.ResourceManager;
-import xyz.gnas.piz.app.common.utility.DialogUtility;
+import xyz.gnas.piz.app.common.utility.LogUtility;
 
 public class FXMain extends Application {
     public static void main(String[] args) {
@@ -13,7 +13,7 @@ public class FXMain extends Application {
     }
 
     private void writeErrorLog(String errorMessage, Throwable e) {
-        DialogUtility.writeErrorLog(getClass(), errorMessage, e);
+        LogUtility.writeErrorLog(getClass(), errorMessage, e);
     }
 
     @Override

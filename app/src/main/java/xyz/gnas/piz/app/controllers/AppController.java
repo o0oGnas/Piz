@@ -6,9 +6,9 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.greenrobot.eventbus.EventBus;
 import xyz.gnas.piz.app.common.ResourceManager;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility;
-import xyz.gnas.piz.app.common.utility.CodeRunnerUtility.Runner;
-import xyz.gnas.piz.app.common.utility.DialogUtility;
+import xyz.gnas.piz.app.common.utility.LogUtility;
+import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
+import xyz.gnas.piz.app.common.utility.code.Runner;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class AppController {
     }
 
     private void writeInfoLog(String log) {
-        DialogUtility.writeInfoLog(getClass(), log);
+        LogUtility.writeInfoLog(getClass(), log);
     }
 
     @FXML
