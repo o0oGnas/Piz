@@ -3,7 +3,7 @@
 <configuration scan="true" debug="true">
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>WARNING</level>
+            <level>WARN</level>
         </filter>
         <file>piz.log</file>
         <append>true</append>

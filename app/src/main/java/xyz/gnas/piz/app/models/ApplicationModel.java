@@ -29,7 +29,6 @@ public class ApplicationModel {
             instance = new ApplicationModel();
             EventBus.getDefault().register(instance);
             addListenerToReferenceList();
-
             executeRunnerOrExit("Error when loading references",
                     () -> instance.referenceList.set(observableArrayList(ReferenceLogic.loadReferences(Configurations.REFERENCE_FILE))));
         }

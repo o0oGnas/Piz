@@ -13,11 +13,8 @@ public class Configurations {
 	public static final String CONTAINS = "contains";
 	public static final String MATCHES = "matches";
 	public static final String SETTING_FILE = "setting.bin";
-	public static final String MASK_GLYPH = "VISIBILITY";
-	public static final String UNMASK_GLYPH = "VISIBILITY_OFF";
-	public static final String PAUSE_GLYPH = "PAUSE";
-	public static final String RESUME_GLYPH = "PLAY_ARROW";
 
 	public static final int MIN_PROCESSES = 1;
 	public static final int MAX_PROCESSES = 10;
+	public static final int SUGGESTION_COUNT = 10;
 }

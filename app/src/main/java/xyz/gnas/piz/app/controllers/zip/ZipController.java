@@ -1,5 +1,6 @@
 package xyz.gnas.piz.app.controllers.zip;
 
+import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -27,15 +28,13 @@ import javafx.stage.WindowEvent;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.IndexedCheckModel;
-import org.controlsfx.control.textfield.TextFields;
 import org.greenrobot.eventbus.EventBus;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.ResourceManager;
 import xyz.gnas.piz.app.common.utility.LogUtility;
+import xyz.gnas.piz.app.common.utility.autocomplete.AutocompleteUtility;
 import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
-import xyz.gnas.piz.app.common.utility.code.MainThreadTaskRunner;
 import xyz.gnas.piz.app.common.utility.code.Runner;
-import xyz.gnas.piz.app.common.utility.code.SideThreadTaskRunner;
 import xyz.gnas.piz.app.events.zip.BeginProcessEvent;
 import xyz.gnas.piz.app.events.zip.FinishProcessEvent;
 import xyz.gnas.piz.app.events.zip.InitialiseItemEvent;
@@ -58,9 +57,8 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import static java.lang.Thread.sleep;
-import static javafx.application.Platform.runLater;
-import static xyz.gnas.piz.app.common.utility.DialogUtility.showAlert;
 import static xyz.gnas.piz.app.common.utility.DialogUtility.showConfirmation;
+import static xyz.gnas.piz.app.common.utility.DialogUtility.showInformation;
 import static xyz.gnas.piz.app.common.utility.window.WindowEventUtility.bindWindowEventHandler;
 
 public class ZipController {
@@ -209,14 +207,12 @@ public class ZipController {
         CodeRunnerUtility.executeRunnerOrExit(getClass(), errorMessage, runner);
     }
 
-    private void runInMainThread(String errorMessage, Runner runner) {
-        runLater(new MainThreadTaskRunner(getClass(), errorMessage, runner));
+    private Thread runInSideThread(String errorMessage, Runner runner) {
+        return CodeRunnerUtility.runInSideThread(getClass(), errorMessage, runner);
     }
 
-    private Thread runInSideThread(String errorMessage, Runner runner) {
-        Thread t = new Thread(new SideThreadTaskRunner(getClass(), errorMessage, runner));
-        t.start();
-        return t;
+    private void runInMainThread(String errorMessage, Runner runner) {
+        CodeRunnerUtility.runInMainThread(getClass(), errorMessage, runner);
     }
 
     private void writeInfoLog(String log) {
@@ -263,10 +259,10 @@ public class ZipController {
     }
 
     private void initialisePausedListener() {
-        isPaused.addListener(l -> executeRunner("Erro handling change to pause status", () -> {
+        isPaused.addListener(l -> executeRunner("Error handling change to pause status", () -> {
             boolean pause = isPaused.get();
             btnPauseResume.setText(pause ? Configurations.RESUME_TEXT : Configurations.PAUSE_TEXT);
-            mivPauseResume.setGlyphName(pause ? Configurations.RESUME_GLYPH : Configurations.PAUSE_GLYPH);
+            mivPauseResume.setIcon(pause ? MaterialIcon.PLAY_ARROW : MaterialIcon.PAUSE);
         }));
     }
 
@@ -336,9 +332,10 @@ public class ZipController {
         // bind value of text field and password field
         pwfPassword.textProperty().bindBidirectional(ttfPassword.textProperty());
 
+        // change mask icon
         isMasked.addListener(l -> executeRunner("Error when handling change to mask password property",
-                () -> mivMaskUnmask.setGlyphName(isMasked.get() ? Configurations.UNMASK_GLYPH :
-                        Configurations.MASK_GLYPH)));
+                () -> mivMaskUnmask.setIcon(isMasked.get() ? MaterialIcon.VISIBILITY_OFF :
+                        MaterialIcon.VISIBILITY)));
     }
 
     private void initialiseProcessCountTextField() {
@@ -381,27 +378,18 @@ public class ZipController {
     }
 
     private void initialiseTagTextField() {
-        model.getReferenceListProperty().addListener(propertyListener ->
-                executeRunner("Error when handling change to reference list property", () -> {
-                    updateTagAutocomplete();
-                    ObservableList<ReferenceModel> referenceList = model.getReferenceList();
+        bindAutoComplete();
 
-                    if (referenceList != null) {
-                        referenceList.addListener((ListChangeListener<ReferenceModel>) l ->
-                                executeRunner("Error when handling changes to reference list",
-                                        this::updateTagAutocomplete));
-                    }
-                }));
+        model.getReferenceListProperty().addListener(propertyListener ->
+                executeRunner("Error when handling change to reference list property", () -> bindAutoComplete()));
     }
 
-    private void updateTagAutocomplete() {
-        Set<String> autocomplete = new HashSet<>();
+    private void bindAutoComplete() {
+        ObservableList<ReferenceModel> referenceList = model.getReferenceList();
 
-        for (ReferenceModel reference : model.getReferenceList()) {
-            autocomplete.add(reference.getTag());
+        if (referenceList != null) {
+            AutocompleteUtility.bindAutoComplete(getClass(), ttfTag, (ReferenceModel reference) -> reference.getTag());
         }
-
-        TextFields.bindAutoCompletion(ttfTag, autocomplete);
     }
 
     private void initialiseInputFields() {
@@ -647,25 +635,27 @@ public class ZipController {
 
     private boolean checkInput() {
         if (inputFolder.get() == null) {
-            showAlert("Invalid input", "Please choose a folder!");
+            showInformation("Invalid input", "Please choose a folder!");
             return false;
         }
 
         if (ccbFileFolder.getCheckModel().getCheckedItems().isEmpty()) {
-            showAlert("Invalid input", "Please choose to perform zipping on files or folders or both!");
+            showInformation("Invalid input", "Please choose to perform zipping on files or folders or both!");
             return false;
         }
 
-        if (ckbEncrypt.isSelected() && (ttfPassword.getText() == null || ttfPassword.getText().isEmpty())) {
-            showAlert("Invalid input", "Please enter a password!");
+        String password = pwfPassword.getText();
+
+        if (ckbEncrypt.isSelected() && (password == null || password.isEmpty())) {
+            showInformation("Invalid input", "Please enter a password!");
             return false;
         }
 
-        // check that reference tag is entered if user chooses to obfuscate name and add
-        // reference
-        if (ckbObfuscate.isSelected() && ckbAddReferences.isSelected()
-                && (ttfTag.getText() == null || ttfTag.getText().isEmpty())) {
-            showAlert("Invalid input", "Please enter a reference tag!");
+        String tag = ttfTag.getText();
+
+        // check that reference tag is entered if user chooses to obfuscate name and add reference
+        if (ckbObfuscate.isSelected() && ckbAddReferences.isSelected() && (tag == null || tag.isEmpty())) {
+            showInformation("Invalid input", "Please enter a reference tag!");
             return false;
         }
 
@@ -715,7 +705,6 @@ public class ZipController {
         runInSideThread("Error when running a process thread", () -> {
             runInMainThread("Error when creating begin process event",
                     () -> EventBus.getDefault().post(new BeginProcessEvent(file, isPaused)));
-
             ZipProcessModel process = new ZipProcessModel();
             processList.add(process);
             processFile(file, process);
@@ -750,7 +739,6 @@ public class ZipController {
         while (!process.isComplete()) {
             runInMainThread("Error when creating update progress event",
                     () -> postEvent(new UpdateProgressEvent(file, process)));
-
             sleep(THREAD_SLEEP_TIME);
         }
 
@@ -802,9 +790,7 @@ public class ZipController {
 
             isRunning.set(false);
             processList.clear();
-            hbxActions.setDisable(false);
-            btnStart.setDisable(false);
-            enableDisablePauseStop(true);
+            resetControls();
             loadFolderAndFileLists();
 
             // play notification sound if process is not cancelled
@@ -812,6 +798,12 @@ public class ZipController {
                 playNotificationSound();
             }
         });
+    }
+
+    private void resetControls() {
+        hbxActions.setDisable(false);
+        btnStart.setDisable(false);
+        enableDisablePauseStop(true);
     }
 
     private void playNotificationSound() {
@@ -826,7 +818,7 @@ public class ZipController {
             isPaused.set(!isPaused.get());
             boolean pause = isPaused.get();
             String pauseResume = pause ? "Pausing" : "Resuming";
-            writeInfoLog(pauseResume + " all proceses");
+            writeInfoLog(pauseResume + " all processes");
 
             for (ZipProcessModel process : processList) {
                 process.getProgressMonitor().setPause(pause);

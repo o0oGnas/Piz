@@ -1,5 +1,6 @@
 package xyz.gnas.piz.app.controllers.zip;
 
+import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -211,7 +212,7 @@ public class ZipItemController {
     private void addPausedListener() {
         isPaused.addListener(l -> executeRunner("Error when handling change to pause status", () -> {
             boolean pause = isPaused.get();
-            mivPauseResume.setGlyphName(pause ? Configurations.RESUME_GLYPH : Configurations.PAUSE_GLYPH);
+            mivPauseResume.setIcon(pause ? MaterialIcon.PLAY_ARROW : MaterialIcon.PAUSE);
             btnPauseResume.setText(pause ? Configurations.RESUME_TEXT : Configurations.PAUSE_TEXT);
             lblStatus.setText(pause ? "[Paused]" : PROCESSING);
         }));

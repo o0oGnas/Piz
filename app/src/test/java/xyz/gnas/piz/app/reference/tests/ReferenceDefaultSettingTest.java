@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static xyz.gnas.piz.app.common.utility.DateTimeUtility.convertLocalDateTimeToCalendar;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(ApplicationExtension.class)
@@ -46,7 +47,7 @@ public class ReferenceDefaultSettingTest {
 	}
 
 	private void checkDate(DateTimePicker dtp, Calendar date, String assertion) {
-        assertThat(dtp).matches(p -> DialogUtility.convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(date) == 0,
+        assertThat(dtp).matches(p -> convertLocalDateTimeToCalendar(p.getDateTimeValue()).compareTo(date) == 0,
 				assertion);
 	}
 

@@ -21,7 +21,6 @@ public class WindowEventUtility {
      */
     public static void bindWindowEventHandler(Class callerClass, Node node, WindowEventHandler handler) {
         bindSceneListener(callerClass, node, handler);
-
         node.sceneProperty().addListener(l -> executeRunner(callerClass, "Error when handling scene change event",
                 () -> bindSceneListener(callerClass, node, handler)));
     }
@@ -31,7 +30,6 @@ public class WindowEventUtility {
 
         if (scene != null) {
             bindWindowListener(callerClass, scene, handler);
-
             scene.windowProperty().addListener(
                     l -> executeRunner(callerClass, "Error when handling window change event",
                             () -> bindWindowListener(callerClass, scene, handler)));

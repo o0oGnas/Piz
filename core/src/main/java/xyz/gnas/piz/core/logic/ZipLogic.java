@@ -56,7 +56,7 @@ public class ZipLogic {
     /**
      * Most simple case of abbreviation
      *
-     * @param fileName name of the orinal file
+     * @param fileName name of the original file
      * @return the abbreviated name
      */
     private static String getAbbreviatedFileName(String fileName, boolean isFolder) {
@@ -95,7 +95,7 @@ public class ZipLogic {
     }
 
     /**
-     * reate unique abbreviations when there are multiple
+     * create unique abbreviations when there are multiple
      * files/folders with the same abbreviation under the most simple
      * case
      */
@@ -238,7 +238,7 @@ public class ZipLogic {
 
     private static SortedMap<AbbreviationModel, AbbreviationModel> mergeDuplicateAbbreviations(
             SortedMap<AbbreviationModel, AbbreviationModel> abbreviationList) {
-        SortedMap<AbbreviationModel, AbbreviationModel> newAbreviationList = new TreeMap<>();
+        SortedMap<AbbreviationModel, AbbreviationModel> newAbbreviationList = new TreeMap<>();
 
         for (AbbreviationModel abbreviation : abbreviationList.keySet()) {
             Map<File, String> map = abbreviation.getFileAbbreviationMap();
@@ -247,22 +247,22 @@ public class ZipLogic {
                 // create a new Abbreviation object for each newly generated abbreviation
                 AbbreviationModel newAbbreviation = new AbbreviationModel(map.get(file));
 
-                if (newAbreviationList.containsKey(newAbbreviation)) {
-                    newAbbreviation = newAbreviationList.get(newAbbreviation);
+                if (newAbbreviationList.containsKey(newAbbreviation)) {
+                    newAbbreviation = newAbbreviationList.get(newAbbreviation);
                 }
 
                 newAbbreviation.getFileAbbreviationMap().put(file, newAbbreviation.getAbbreviation());
-                newAbreviationList.put(newAbbreviation, newAbbreviation);
+                newAbbreviationList.put(newAbbreviation, newAbbreviation);
             }
         }
 
-        return newAbreviationList;
+        return newAbbreviationList;
     }
 
     /**
      * perform zipping on a file
      *
-     * @param input   wrapper around necesscary inputs
+     * @param input   wrapper around necessary inputs
      * @param process object to contain updates to the process
      * @throws Exception the exception
      */

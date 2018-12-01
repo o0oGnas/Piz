@@ -1,5 +1,6 @@
 package xyz.gnas.piz.app.common.utility;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -7,7 +8,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import xyz.gnas.piz.app.common.utility.code.ExceptionHandler;
-import xyz.gnas.piz.app.common.utility.code.MainThreadTaskRunner;
 import xyz.gnas.piz.app.common.utility.code.Runner;
 
 import java.io.IOException;
@@ -15,11 +15,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Optional;
 
-import static javafx.application.Platform.runLater;
+import static xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility.runInMainThreadAndHandleException;
 
 public final class DialogUtility {
     private static void runInMainThread(Runner runner, ExceptionHandler handler) {
-        runLater(new MainThreadTaskRunner(runner, handler));
+        runInMainThreadAndHandleException(runner, handler);
     }
 
     private static void writeErrorLog(String message, Throwable e) {
@@ -44,7 +44,17 @@ public final class DialogUtility {
             alert.getDialogPane().setExpandableContent(expContent);
             alert.showAndWait();
             LogUtility.writeErrorLog(callingClass, message, e);
-        }, (Exception ex) -> writeErrorLog("Could not display error", ex));
+            checkExitFlagAndExit(exit);
+        }, (Exception ex) -> {
+            writeErrorLog("Could not display error", ex);
+            checkExitFlagAndExit(exit);
+        });
+    }
+
+    private static void checkExitFlagAndExit(boolean exit) {
+        if (exit) {
+            Platform.exit();
+        }
     }
 
     private static String getStackTrace(Throwable e) throws IOException {
@@ -82,11 +92,10 @@ public final class DialogUtility {
      * @param headerText the header text
      * @param message    the message
      */
-    public static void showAlert(String headerText, String message) {
+    public static void showInformation(String headerText, String message) {
         runInMainThread(() -> {
-            Alert alert = new Alert(AlertType.NONE);
+            Alert alert = new Alert(AlertType.INFORMATION);
             initialiseAlert(alert, "Message", headerText, message);
-            alert.getDialogPane().getButtonTypes().add(ButtonType.OK);
             alert.showAndWait();
         }, (Exception e) -> writeErrorLog("Could not display alert", e));
     }

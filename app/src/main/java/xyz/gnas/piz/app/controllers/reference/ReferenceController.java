@@ -18,12 +18,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import org.controlsfx.control.textfield.TextFields;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import tornadofx.control.DateTimePicker;
 import xyz.gnas.piz.app.common.Configurations;
 import xyz.gnas.piz.app.common.utility.LogUtility;
+import xyz.gnas.piz.app.common.utility.autocomplete.AutocompleteCallback;
+import xyz.gnas.piz.app.common.utility.autocomplete.AutocompleteUtility;
 import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
 import xyz.gnas.piz.app.common.utility.code.Runner;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
@@ -33,13 +34,11 @@ import xyz.gnas.piz.core.models.ReferenceModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
 
 import static xyz.gnas.piz.app.common.utility.DateTimeUtility.convertCalendarToLocalDateTime;
 import static xyz.gnas.piz.app.common.utility.DateTimeUtility.convertLocalDateTimeToCalendar;
-import static xyz.gnas.piz.app.common.utility.DialogUtility.showAlert;
 import static xyz.gnas.piz.app.common.utility.DialogUtility.showConfirmation;
+import static xyz.gnas.piz.app.common.utility.DialogUtility.showInformation;
 
 public class ReferenceController {
     @FXML
@@ -135,7 +134,7 @@ public class ReferenceController {
     }
 
     /**
-     * Wrapper to initialise comobo boxes
+     * Wrapper to initialise combo boxes
      *
      * @param cbb the combo box
      */
@@ -149,17 +148,19 @@ public class ReferenceController {
         selectionModel.setSelectionMode(SelectionMode.MULTIPLE);
         bindTableViewItemListener();
 
-        tbvTable.itemsProperty().addListener(propertyListener -> {
-            handleTableViewItemChange();
-            bindTableViewItemListener();
-        });
+        tbvTable.itemsProperty().addListener(
+                l -> executeRunner("Error when handling change to item list property", () -> {
+                    handleTableViewItemChange();
+                    bindTableViewItemListener();
+                }));
 
         ObservableList<ReferenceModel> selectedList = selectionModel.getSelectedItems();
 
-        selectedList.addListener((ListChangeListener<ReferenceModel>) l -> {
+        selectedList.addListener((ListChangeListener<ReferenceModel>) l ->
+                executeRunner("Error when handling changes to selected list", () -> {
             // disable delete button if there is no selection
             btnDelete.setDisable(selectedList.size() == 0);
-        });
+                }));
 
         initialiseDateColumn();
         initialiseStringColumn(tbcTag, "tag");
@@ -168,7 +169,12 @@ public class ReferenceController {
     }
 
     private void bindTableViewItemListener() {
-        tbvTable.getItems().addListener((ListChangeListener<ReferenceModel>) listListener -> handleTableViewItemChange());
+        ObservableList<ReferenceModel> itemList = tbvTable.getItems();
+
+        if (itemList != null) {
+            itemList.addListener((ListChangeListener<ReferenceModel>) l ->
+                    executeRunner("Error when handling changes to item list", () -> handleTableViewItemChange()));
+        }
     }
 
     private void handleTableViewItemChange() {
@@ -219,12 +225,15 @@ public class ReferenceController {
 
         if (referenceList != null) {
             initialiseData();
+            bindAutoComplete(ttfOriginal, (ReferenceModel reference) -> reference.getOriginal());
+            bindAutoComplete(ttfZip, (ReferenceModel reference) -> reference.getZip());
+            bindAutoComplete(ttfTag, (ReferenceModel reference) -> reference.getTag());
 
             referenceList.addListener((ListChangeListener<ReferenceModel>) l ->
                     executeRunner("Error when handling changes to reference list", () -> {
                         // only show alert if the tab is active and the change was automatic
                         if (!isManualUpdate && isActive) {
-                            showAlert("Update detected",
+                            showInformation("Update detected",
                                     "Reference file was updated, the list will be automatically refreshed");
                         }
 
@@ -237,17 +246,10 @@ public class ReferenceController {
     private void initialiseData() {
         tbvTable.setItems(model.getReferenceList());
         initialiseDateTimePickers();
-        updateTagAutoComplete();
     }
 
-    private void updateTagAutoComplete() {
-        Set<String> autocomplete = new HashSet<>();
-
-        for (ReferenceModel reference : model.getReferenceList()) {
-            autocomplete.add(reference.getTag());
-        }
-
-        TextFields.bindAutoCompletion(ttfTag, autocomplete);
+    private void bindAutoComplete(TextField ttf, AutocompleteCallback callback) {
+        AutocompleteUtility.bindAutoComplete(getClass(), ttf, callback);
     }
 
     private void initialiseDateTimePickers() {
@@ -353,7 +355,7 @@ public class ReferenceController {
     private void commitEdit(TableColumn.CellEditEvent<ReferenceModel, String> event) {
         executeRunner("Error when handling commit event", () -> {
             TableColumn<ReferenceModel, String> source = (TableColumn<ReferenceModel, String>) event.getSource();
-            writeInfoLog("Commiting edit on column " + source.getId());
+            writeInfoLog("Committing edit on column " + source.getId());
             ReferenceModel reference = tbvTable.getItems().get(event.getTablePosition().getRow());
             String value = event.getNewValue();
 

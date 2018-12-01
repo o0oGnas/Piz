@@ -6,7 +6,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import org.greenrobot.eventbus.EventBus;
 import xyz.gnas.piz.app.common.ResourceManager;
-import xyz.gnas.piz.app.common.utility.LogUtility;
 import xyz.gnas.piz.app.common.utility.code.CodeRunnerUtility;
 import xyz.gnas.piz.app.common.utility.code.Runner;
 import xyz.gnas.piz.app.events.ChangeTabEvent;
@@ -26,10 +25,6 @@ public class AppController {
 
     private void executeRunnerOrExit(String errorMessage, Runner runner) {
         CodeRunnerUtility.executeRunnerOrExit(getClass(), errorMessage, runner);
-    }
-
-    private void writeInfoLog(String log) {
-        LogUtility.writeInfoLog(getClass(), log);
     }
 
     @FXML
