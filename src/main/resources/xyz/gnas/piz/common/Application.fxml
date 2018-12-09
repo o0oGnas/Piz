@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="500.0" prefWidth="900.0"
+            fx:controller="xyz.gnas.piz.common.ApplicationController">
+    <TabPane fx:id="tpTabs" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+             AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <Tab fx:id="tabZip" text="Zip files/folders">
+        </Tab>
+        <Tab fx:id="tabReference" text="Manage references">
+        </Tab>
+    </TabPane>
+</AnchorPane>

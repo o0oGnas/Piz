@@ -11,18 +11,18 @@ To see the full terms and conditions of these licenses as well as their notices,
 		+ Source: https://wiki.openjdk.java.net/display/OpenJFX/Main
 		+ License: GNU General Public License (GPL) Version 2, June 1991
 	- ControlsFX:
-		+ Source: https://bitbucket.org/controlsfx/controlsfx/
+		+ Source: http://fxexperience.com/controlsfx/
 		+ License: BSD 3-Clause
 	- Tornado FXControls:
 		+ Source: https://github.com/edvin/tornadofx-controls
 		+ License: Apache License Version 2.0, January 2004
 	- FontAwesomeFX:
-		Source: https://bitbucket.org/Jerady/fontawesomefx
+		+ Source: https://bitbucket.org/Jerady/fontawesomefx
 		+ License: Apache License Version 2.0, January 2004
 	- jbootx:
 		+ Source: https://github.com/dicolar/jbootx
 	- Logback :
-		+ Source: https://github.com/qos-ch/logback
+		+ Source: https://logback.qos.ch/
 		+ License: Eclipse Public License v1.0
 	- EventBus:
 		+ Source: https://github.com/greenrobot/EventBus
@@ -30,8 +30,14 @@ To see the full terms and conditions of these licenses as well as their notices,
 	- jackson-databind:
 		+ Source: https://github.com/FasterXML/jackson-databind
 		+ License: Apache License Version 2.0, January 2004
+	- Apache Commons Lang:
+		+ Source: http://commons.apache.org/proper/commons-lang/
+		+ License: Apache License Version 2.0, January 2004
+	- Apache Commons Collections:
+		+ Source: http://commons.apache.org/proper/commons-collections/
+		+ License: Apache License Version 2.0, January 2004
 	- Apache Commons IO:
-		+ Source: https://github.com/apache/commons-io
+		+ Source: http://commons.apache.org/proper/commons-io/
 		+ License: Apache License Version 2.0, January 2004
 	- Zip4j:
 		+ Source: http://www.lingala.net/zip4j/
@@ -40,7 +46,7 @@ To see the full terms and conditions of these licenses as well as their notices,
 		+ Source: https://github.com/TestFX/TestFX
 		+ License: The European Union Public Licence (EUPL) v1.1
 	- JUnit 5:
-		+ Source: https://github.com/junit-team/junit5/
+		+ Source: https://junit.org/junit5/
 		+ License: Eclipse Public License - v2.0		
 
 * Creative works
