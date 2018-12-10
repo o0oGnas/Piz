@@ -337,7 +337,7 @@ public class ZipLogic {
             fullZipName += ".zip";
             result = new File(input.getOutputFolder().getAbsolutePath() + File.separator + fullZipName);
             ++count;
-        } while (result == null || result.exists());
+        } while (result.exists());
 
         return result;
     }
