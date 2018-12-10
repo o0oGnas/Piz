@@ -22,12 +22,13 @@ import org.greenrobot.eventbus.Subscribe;
 import xyz.gnas.piz.common.Constants;
 import xyz.gnas.piz.common.utility.DialogUtility;
 import xyz.gnas.piz.common.utility.LogUtility;
+import xyz.gnas.piz.common.utility.StringUtility;
 import xyz.gnas.piz.common.utility.runner.RunnerUtility;
 import xyz.gnas.piz.common.utility.runner.VoidRunner;
 import xyz.gnas.piz.zip.event.BeginProcessEvent;
-import xyz.gnas.piz.zip.event.FinishProcessEvent;
 import xyz.gnas.piz.zip.event.InitialiseItemEvent;
 import xyz.gnas.piz.zip.event.UpdateProgressEvent;
+import xyz.gnas.piz.zip.event.ZipEvent;
 import xyz.gnas.piz.zip.model.ZipProcessModel;
 
 import javax.swing.Icon;
@@ -39,32 +40,46 @@ import java.util.List;
 
 public class ZipItemController {
     private final String PROCESSING = "[Processing]";
+
     @FXML
     private AnchorPane acpRoot;
+
     @FXML
     private MaterialIconView mivIcon;
+
     @FXML
     private MaterialIconView mivPauseResume;
+
     @FXML
     private ImageView imvIcon;
+
     @FXML
     private Label lblOriginal;
+
     @FXML
     private Label lblZip;
+
     @FXML
     private Label lblStatus;
+
     @FXML
     private HBox hboResult;
+
     @FXML
     private HBox hboProcess;
+
     @FXML
     private HBox hboActions;
+
     @FXML
     private ProgressIndicator pgiProgress;
+
     @FXML
     private Button btnStop;
+
     @FXML
     private Button btnPauseResume;
+
     private File file;
 
     private ObjectProperty<ProgressMonitor> progressMonitor = new SimpleObjectProperty<>();
@@ -155,8 +170,10 @@ public class ZipItemController {
     }
 
     private void updatePercent(ZipProcessModel process) {
-        if (progressMonitor.get().getState() == ProgressMonitor.STATE_BUSY) {
-            double percent = progressMonitor.get().getPercentDone() / 100.0;
+        ProgressMonitor progress = progressMonitor.get();
+
+        if (progress.getState() == ProgressMonitor.STATE_BUSY) {
+            double percent = progress.getPercentDone() / 100.0;
 
             // each layer of zip takes roughly 50% of the overall process
             if (isObfuscated) {
@@ -173,9 +190,9 @@ public class ZipItemController {
     }
 
     @Subscribe
-    public void onFinishProcessEvent(FinishProcessEvent event) {
+    public void onFinishProcessEvent(ZipEvent event) {
         executeRunner("Error when handling finish process event", () -> {
-            if (event.getFile() == file) {
+            if (event.getFile() == file && event.getType() == ZipEvent.ZipEventType.Finish) {
                 pgiProgress.setProgress(1);
                 lblStatus.setVisible(false);
                 hboActions.setVisible(false);
@@ -187,8 +204,8 @@ public class ZipItemController {
     @FXML
     private void initialize() {
         executeRunner("Could not initialise zip item", () -> {
-            imvIcon.setManaged(false);
             EventBus.getDefault().register(this);
+            imvIcon.setManaged(false);
             addPausedListener();
             addProgressListener();
         });
@@ -213,7 +230,7 @@ public class ZipItemController {
 
     @FXML
     private void pauseOrResume(ActionEvent event) {
-        executeRunner("\"Could not pause/resume the process \" + getProcessNameForError()", () -> {
+        executeRunner("Could not pause/resume the process " + getQuotedFileName(), () -> {
             isPaused.set(!isPaused.get());
             boolean pause = isPaused.get();
             String pauseResume = pause ? "Pausing" : "Resuming";
@@ -222,15 +239,15 @@ public class ZipItemController {
         });
     }
 
-    private String getProcessNameForError() {
-        return "[" + lblOriginal.getText() + "]";
+    private String getQuotedFileName() {
+        return StringUtility.getQuotedString(lblOriginal.getText());
     }
 
     @FXML
     private void stop(ActionEvent event) {
-        executeRunner("Could not stop the process " + getProcessNameForError(), () -> {
+        executeRunner("Could not stop the process " + getQuotedFileName(), () -> {
             if (DialogUtility.showConfirmation("Are you sure you want to stop this process?")) {
-                writeInfoLog(" Stopping process of file/folder [" + file.getName() + "]");
+                writeInfoLog(" Stopping process of file/folder " + getQuotedFileName());
                 ProgressMonitor pm = progressMonitor.get();
                 pm.setPause(false);
                 pm.cancelAllTasks();

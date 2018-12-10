@@ -34,6 +34,7 @@ import xyz.gnas.piz.common.ApplicationModel;
 import xyz.gnas.piz.common.Constants;
 import xyz.gnas.piz.common.ResourceManager;
 import xyz.gnas.piz.common.utility.LogUtility;
+import xyz.gnas.piz.common.utility.StringUtility;
 import xyz.gnas.piz.common.utility.auto_completion.AutoCompletionUtility;
 import xyz.gnas.piz.common.utility.runner.RunnerUtility;
 import xyz.gnas.piz.common.utility.runner.VoidRunner;
@@ -41,9 +42,10 @@ import xyz.gnas.piz.common.utility.window_event.WindowEventUtility;
 import xyz.gnas.piz.reference.ReferenceModel;
 import xyz.gnas.piz.zip.ZipLogic;
 import xyz.gnas.piz.zip.event.BeginProcessEvent;
-import xyz.gnas.piz.zip.event.FinishProcessEvent;
 import xyz.gnas.piz.zip.event.InitialiseItemEvent;
 import xyz.gnas.piz.zip.event.UpdateProgressEvent;
+import xyz.gnas.piz.zip.event.ZipEvent;
+import xyz.gnas.piz.zip.event.ZipEvent.ZipEventType;
 import xyz.gnas.piz.zip.model.AbbreviationModel;
 import xyz.gnas.piz.zip.model.SettingModel;
 import xyz.gnas.piz.zip.model.ZipInputModel;
@@ -215,6 +217,10 @@ public class ZipController {
 
     private void writeInfoLog(String log) {
         LogUtility.writeInfoLog(getClass(), log);
+    }
+
+    private void postEvent(Object event) {
+        EventBus.getDefault().post(event);
     }
 
     @FXML
@@ -393,13 +399,6 @@ public class ZipController {
         loadFolderAndFileLists();
     }
 
-    /**
-     * Wrapper around initialing input and output folder
-     *
-     * @param path  path to the folder
-     * @param label label to display the path
-     * @return the File object that represents the folder
-     */
     private File initialiseFolder(String path, Label label) {
         if (!StringUtils.isEmpty(path)) {
             File folder = new File(path);
@@ -436,8 +435,9 @@ public class ZipController {
         fileList.clear();
         Label label = new Label();
         label.setPadding(new Insets(5, 5, 5, 5));
+        File file = inputFolder.get();
 
-        if (inputFolder.get() != null && inputFolder.get().listFiles().length > 0) {
+        if (file != null && file.listFiles().length > 0) {
             label.setText("Generating file and folder list ...");
             vbxInputsAndActions.setDisable(true);
             runInSideThread("Error when generating file and folder list",
@@ -463,12 +463,12 @@ public class ZipController {
         runInMainThread("Error when showing file and folder list", () -> {
             ObservableList<Node> childrenList = vbxList.getChildren();
 
-            if (!itemList.isEmpty()) {
+            if (itemList.isEmpty()) {
+                handleEmptyList(label);
+            } else {
                 childrenList.remove(label);
                 childrenList.addAll(itemList);
                 hbxActions.setDisable(false);
-            } else {
-                handleEmptyList(label);
             }
 
             vbxInputsAndActions.setDisable(false);
@@ -476,7 +476,7 @@ public class ZipController {
     }
 
     private List<Node> getItemList() throws IOException {
-        List<Node> itemList = new LinkedList<>();
+        List<Node> result = new LinkedList<>();
         List<File> inputFileList = Arrays.asList(inputFolder.get().listFiles());
 
         inputFileList.sort((File o1, File o2) -> {
@@ -487,16 +487,19 @@ public class ZipController {
             }
         });
 
-        addAndCreateItemList(itemList, inputFileList);
-        return itemList;
+        addAndCreateItemList(result, inputFileList);
+        return result;
     }
 
     private void addAndCreateItemList(List<Node> itemList, List<File> inputFileList) throws IOException {
+        List<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
+        boolean selectedFolder = fileFolderSelection.contains(Constants.FOLDERS);
+        boolean selectedFile = fileFolderSelection.contains(Constants.FILES);
+
         for (File file : inputFileList) {
             boolean isDirectory = file.isDirectory();
-            List<String> fileFolderSelection = ccbFileFolder.getCheckModel().getCheckedItems();
-            boolean checkFolder = isDirectory && fileFolderSelection.contains(Constants.FOLDERS);
-            boolean checkFile = !isDirectory && fileFolderSelection.contains(Constants.FILES);
+            boolean checkFolder = isDirectory && selectedFolder;
+            boolean checkFile = !isDirectory && selectedFile;
 
             if (checkFolder || checkFile) {
                 fileList.add(file);
@@ -506,11 +509,6 @@ public class ZipController {
             }
         }
     }
-
-    private void postEvent(Object event) {
-        EventBus.getDefault().post(event);
-    }
-
 
     @FXML
     private void selectInputFolder(ActionEvent event) {
@@ -555,37 +553,36 @@ public class ZipController {
 
     private void saveUserSetting() throws IOException {
         File input = inputFolder.get();
-        SettingModel setting = settingModel;
 
         if (input != null) {
-            setting.setInputFolder(input.getAbsolutePath());
+            settingModel.setInputFolder(input.getAbsolutePath());
         }
 
         if (outputFolder != null) {
-            setting.setOutputFolder(outputFolder.getAbsolutePath());
+            settingModel.setOutputFolder(outputFolder.getAbsolutePath());
         }
 
-        setting.setPassword(ttfPassword.getText());
-        setting.setTag(ttfTag.getText());
-        setting.setFileFolder(new LinkedList<>(ccbFileFolder.getCheckModel().getCheckedItems()));
-        setting.setEncrypt(ckbEncrypt.isSelected());
-        setting.setObfuscate(ckbObfuscate.isSelected());
-        setting.setAddReference(ckbAddReferences.isSelected());
-        setting.setProcessCount(Integer.parseInt(ttfProcessCount.getText()));
-        setting.saveToFile();
+        settingModel.setPassword(ttfPassword.getText());
+        settingModel.setTag(ttfTag.getText());
+        settingModel.setFileFolder(new LinkedList<>(ccbFileFolder.getCheckModel().getCheckedItems()));
+        settingModel.setEncrypt(ckbEncrypt.isSelected());
+        settingModel.setObfuscate(ckbObfuscate.isSelected());
+        settingModel.setAddReference(ckbAddReferences.isSelected());
+        settingModel.setProcessCount(Integer.parseInt(ttfProcessCount.getText()));
+        settingModel.saveToFile();
     }
 
     @FXML
     private void selectOutputFolder(ActionEvent event) {
         executeVoidRunner("Could not select output folder", () -> {
-            SettingModel setting = settingModel;
-            File folder = showFolderChooser(setting.getOutputFolder());
+
+            File folder = showFolderChooser(settingModel.getOutputFolder());
 
             if (folder != null) {
                 writeInfoLog("Selected output folder " + folder.getAbsolutePath());
                 outputFolder = folder;
                 saveUserSetting();
-                lblOutputFolder.setText(setting.getOutputFolder());
+                lblOutputFolder.setText(settingModel.getOutputFolder());
             }
         });
     }
@@ -622,17 +619,13 @@ public class ZipController {
             return false;
         }
 
-        String password = pwfPassword.getText();
-
-        if (ckbEncrypt.isSelected() && StringUtils.isEmpty(password)) {
+        if (ckbEncrypt.isSelected() && StringUtils.isEmpty(pwfPassword.getText())) {
             showInformation("Invalid input", "Please enter a password!");
             return false;
         }
 
-        String tag = ttfTag.getText();
-
         // check that reference tag is entered if user chooses to obfuscate name and add reference
-        if (ckbObfuscate.isSelected() && ckbAddReferences.isSelected() && StringUtils.isEmpty(tag)) {
+        if (ckbObfuscate.isSelected() && ckbAddReferences.isSelected() && StringUtils.isEmpty(ttfTag.getText())) {
             showInformation("Invalid input", "Please enter a reference tag!");
             return false;
         }
@@ -641,7 +634,6 @@ public class ZipController {
     }
 
     private void prepareToStart() throws IOException {
-        writeInfoLog("Preparing");
         saveUserSetting();
         isStopped = false;
         btnStart.setDisable(true);
@@ -678,7 +670,7 @@ public class ZipController {
     }
 
     private void startSubProcesses(File file) {
-        writeInfoLog("Starting process for file/folder [" + file.getName() + "]");
+        writeInfoLog("Starting process for file/folder " + StringUtility.getQuotedString(file.getName()));
 
         runInSideThread("Error when running a process thread", () -> {
             runInMainThread("Error when creating begin process event",
@@ -702,21 +694,25 @@ public class ZipController {
             }
         }
 
-        ZipInputModel input = new ZipInputModel(file, file, outputFolder, abbreviation, pwfPassword.getText(),
-                ttfTag.getText(), ckbEncrypt.isSelected(), ckbObfuscate.isSelected());
-        runInSideThread("Error when processing file", () -> ZipLogic.processFile(input, process));
+        if (abbreviation == null) {
+            throw new IllegalStateException("Could not find abbreviation for file/folder " + StringUtility.getQuotedString(file.getAbsolutePath()));
+        } else {
+            ZipInputModel input = new ZipInputModel(file, file, outputFolder, abbreviation, pwfPassword.getText(),
+                    ttfTag.getText(), ckbEncrypt.isSelected(), ckbObfuscate.isSelected());
+            runInSideThread("Error when processing file", () -> ZipLogic.processFile(input, process));
+        }
     }
 
     private void monitorProcess(File file, ZipProcessModel process) throws InterruptedException {
         while (process.getProgressMonitor() == null) {
-            sleep(100);
+            sleep(THREAD_SLEEP_TIME);
         }
 
         ProgressMonitor pm = process.getProgressMonitor();
 
         while (!process.isComplete()) {
-            runInMainThread("Error when creating update progress event",
-                    () -> postEvent(new UpdateProgressEvent(file, process)));
+            runInMainThread("Error when creating update progress event", () -> postEvent(new UpdateProgressEvent(file
+                    , process)));
             sleep(THREAD_SLEEP_TIME);
         }
 
@@ -729,7 +725,7 @@ public class ZipController {
 
     private void handleCompleteProcess(File file, ZipProcessModel process) {
         runInMainThread("Error when handling complete process", () -> {
-            postEvent(new FinishProcessEvent(file));
+            postEvent(new ZipEvent(file, ZipEventType.Finish));
 
             if (ckbEncrypt.isSelected() && ckbObfuscate.isSelected() && ckbAddReferences.isSelected()) {
                 applicationModel.getReferenceList().add(0, process.getReference());

@@ -5,6 +5,9 @@ import xyz.gnas.piz.reference.ReferenceModel;
 
 import java.io.File;
 
+/**
+ * Contains relevant progress info of a zip process
+ */
 public class ZipProcessModel {
     private ProgressMonitor progressMonitor;
 

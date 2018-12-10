@@ -6,25 +6,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Gnas
- * @date Oct 9, 2018
- * @description Class to make handling abbreviation easier, especially when
- * multiple files/folder have the same abbreviation in the most
- * simple case
+ * Class to make handling abbreviation easier, especially when multiple files/folder have the same abbreviation in
+ * the most simple case
  */
 public class AbbreviationModel implements Comparable<AbbreviationModel>, Comparator<AbbreviationModel> {
     /**
-     * This is the original result of the most simple case of abbreviation
+     * Original result of the most simple case of abbreviation
      */
     private String abbreviation;
 
     /**
-     * Length of the longest word, used for uniquifying algorithm
+     * Length of the longest word, used by uniquifying algorithm
      */
     private int longestWordLength = 0;
 
     /**
-     * Map the original file and its abbreviation
+     * Map a file and its abbreviation
      */
     private Map<File, String> fileAbbreviationMap = new HashMap<>();
 

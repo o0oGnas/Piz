@@ -2,6 +2,9 @@ package xyz.gnas.piz.zip.model;
 
 import java.io.File;
 
+/**
+ * Convenient class to pass input from ZipController to ZipLogic
+ */
 public class ZipInputModel {
     private File originalFile;
     private File fileToZip;
@@ -16,8 +19,7 @@ public class ZipInputModel {
     private boolean obfuscate;
 
     public ZipInputModel(File originalFile, File fileToZip, File outputFolder, AbbreviationModel abbreviation,
-                         String password,
-                         String tag, boolean encrypt, boolean obfuscate) {
+                         String password, String tag, boolean encrypt, boolean obfuscate) {
         this.originalFile = originalFile;
         this.fileToZip = fileToZip;
         this.outputFolder = outputFolder;
