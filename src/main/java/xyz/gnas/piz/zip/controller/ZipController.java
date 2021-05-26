@@ -783,6 +783,9 @@ public class ZipController {
     private void playNotificationSound() {
         Media media = ResourceManager.getNotificationSound();
         MediaPlayer mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setOnEndOfMedia(() -> {
+
+        });
         mediaPlayer.play();
     }
 

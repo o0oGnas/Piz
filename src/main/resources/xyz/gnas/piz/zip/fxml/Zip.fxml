@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.CheckComboBox?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1"
+            fx:controller="xyz.gnas.piz.zip.controller.ZipController">
+    <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+        <VBox fx:id="vbxInputsAndActions">
+            <VBox fx:id="vbxInputFields">
+                <HBox VBox.vgrow="NEVER">
+                    <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+                        <Button mnemonicParsing="false" onAction="#selectInputFolder" prefHeight="25.0"
+                                prefWidth="130.0" text="Input folder"
+                                HBox.hgrow="NEVER">
+                            <graphic>
+                                <MaterialIconView glyphName="FOLDER_OPEN" size="16"/>
+                            </graphic>
+                        </Button>
+                        <Label fx:id="lblInputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0"
+                               HBox.hgrow="ALWAYS">
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </Label>
+                        <MaterialIconView fx:id="mivRefresh" glyphName="REFRESH" onMouseClicked="#refreshInputFolder"
+                                          size="16">
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </MaterialIconView>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" styleClass="control-box" HBox.hgrow="ALWAYS">
+                        <HBox.margin>
+                            <Insets left="10.0"/>
+                        </HBox.margin>
+                        <Button mnemonicParsing="false" onAction="#selectOutputFolder" prefWidth="130.0"
+                                text="Output folder">
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
+                            <graphic>
+                                <MaterialIconView glyphName="FOLDER" size="16"/>
+                            </graphic>
+                        </Button>
+                        <Label fx:id="lblOutputFolder" maxWidth="1.7976931348623157E308" prefHeight="25.0"
+                               HBox.hgrow="ALWAYS">
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </Label>
+                    </HBox>
+                </HBox>
+                <HBox alignment="CENTER_LEFT">
+                    <VBox.margin>
+                        <Insets top="10.0"/>
+                    </VBox.margin>
+                    <HBox alignment="CENTER_LEFT" styleClass="control-box">
+                        <Label text="Perform zip on"/>
+                        <CheckComboBox fx:id="ccbFileFolder" prefWidth="110.0">
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </CheckComboBox>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" styleClass="control-box">
+                        <HBox.margin>
+                            <Insets left="10.0"/>
+                        </HBox.margin>
+                        <TextField fx:id="ttfProcessCount" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="30.0"
+                                   text="5">
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
+                        </TextField>
+                        <Label text="simultaneous processes">
+                            <HBox.margin>
+                                <Insets left="5.0"/>
+                            </HBox.margin>
+                        </Label>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" styleClass="control-box">
+                        <HBox.margin>
+                            <Insets left="10.0"/>
+                        </HBox.margin>
+                        <CheckBox fx:id="ckbEncrypt" selected="true" text="Encrypt">
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
+                        </CheckBox>
+                        <HBox fx:id="hbxPassword" alignment="CENTER_LEFT" styleClass="control-box">
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0"
+                                        top="5.0"/>
+                            </padding>
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                            <Label text="Password">
+                                <HBox.margin>
+                                    <Insets right="10.0"/>
+                                </HBox.margin>
+                            </Label>
+                            <TextField fx:id="ttfPassword" promptText="Password" visible="false">
+                                <HBox.margin>
+                                    <Insets/>
+                                </HBox.margin>
+                            </TextField>
+                            <PasswordField fx:id="pwfPassword" promptText="Password">
+                                <HBox.margin>
+                                    <Insets/>
+                                </HBox.margin>
+                            </PasswordField>
+                            <MaterialIconView fx:id="mivMaskUnmask" glyphName="VISIBILITY_OFF"
+                                              onMouseClicked="#maskUnmask" size="16">
+                                <HBox.margin>
+                                    <Insets left="10.0"/>
+                                </HBox.margin>
+                            </MaterialIconView>
+                        </HBox>
+                    </HBox>
+                </HBox>
+                <HBox fx:id="hbxObfuscate" alignment="CENTER_LEFT">
+                    <VBox.margin>
+                        <Insets top="10.0"/>
+                    </VBox.margin>
+                    <CheckBox fx:id="ckbObfuscate" selected="true" text="Obfuscate file name">
+                        <HBox.margin>
+                            <Insets/>
+                        </HBox.margin>
+                    </CheckBox>
+                    <HBox fx:id="hbxReference" alignment="CENTER_LEFT" styleClass="control-box">
+                        <padding>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </padding>
+                        <HBox.margin>
+                            <Insets left="10.0"/>
+                        </HBox.margin>
+                        <CheckBox fx:id="ckbAddReferences" text="Add references">
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
+                        </CheckBox>
+                        <HBox fx:id="hbxTag" alignment="CENTER_LEFT" styleClass="control-box">
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </padding>
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                            <Label text="Tag"/>
+                            <TextField fx:id="ttfTag" promptText="Tag">
+                                <HBox.margin>
+                                    <Insets left="10.0"/>
+                                </HBox.margin>
+                            </TextField>
+                        </HBox>
+                    </HBox>
+                </HBox>
+            </VBox>
+            <HBox fx:id="hbxActions" alignment="CENTER_LEFT">
+                <VBox.margin>
+                    <Insets top="10.0"/>
+                </VBox.margin>
+                <Button mnemonicParsing="false" fx:id="btnStart" onAction="#start" prefWidth="100.0" text="Start">
+                    <graphic>
+                        <MaterialIconView glyphName="PLAY_CIRCLE_FILLED" size="16"/>
+                    </graphic>
+                </Button>
+                <Button mnemonicParsing="false" fx:id="btnPauseResume" disable="true" onAction="#pauseOrResume"
+                        prefWidth="100.0" text="Pause">
+                    <HBox.margin>
+                        <Insets left="10.0"/>
+                    </HBox.margin>
+                    <graphic>
+                        <MaterialIconView fx:id="mivPauseResume" glyphName="PAUSE" size="16"/>
+                    </graphic>
+                </Button>
+                <Button mnemonicParsing="false" fx:id="btnStop" disable="true" onAction="#stop" prefWidth="100.0"
+                        text="Stop">
+                    <HBox.margin>
+                        <Insets left="10.0"/>
+                    </HBox.margin>
+                    <graphic>
+                        <MaterialIconView glyphName="STOP" size="16"/>
+                    </graphic>
+                </Button>
+            </HBox>
+        </VBox>
+        <ScrollPane fitToWidth="true" style="-fx-background: white;" VBox.vgrow="ALWAYS">
+            <VBox.margin>
+                <Insets top="10.0"/>
+            </VBox.margin>
+            <VBox fx:id="vbxList"/>
+        </ScrollPane>
+    </VBox>
+</AnchorPane>

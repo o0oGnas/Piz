@@ -1,0 +1,2 @@
+jdeps --module-path /lib --list-deps app.jar   
+jlink --no-header-files --no-man-pages --compress=2 --strip-debug --add-modules java.base,java.datatransfer,java.desktop,java.logging,java.management,java.naming,java.scripting,java.security.sasl,java.sql,java.xml,jdk.unsupported —-output runtime
